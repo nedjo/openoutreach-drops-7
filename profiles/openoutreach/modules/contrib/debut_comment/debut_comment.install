@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * Install file for debut_comment.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function debut_comment_install() {
+  // Set captcha to user forms.
+  module_load_include('inc', 'captcha');
+  $form_ids = array('user_login', 'user_login_block', 'user_register_form');
+  foreach ($form_ids as $form_id) {
+    captcha_set_form_id_setting($form_id, 'default');
+  }
+}
+

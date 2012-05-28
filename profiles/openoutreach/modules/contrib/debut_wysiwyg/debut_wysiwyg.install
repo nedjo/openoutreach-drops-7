@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Install file for debut_wysiwyg.
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * Create the 'contributor' and 'editor' roles if they don't already exist.
+ * We do so here to avoid creating a dependency on a feature providing these
+ * roles (debut).
+ */
+function debut_wysiwyg_install() {
+  foreach (array('contributor', 'editor') as $name) {
+    // If there isn't an existing role by this name, create one.
+    if (!$role = user_role_load_by_name($name)) {
+      $role = new stdClass();
+      $role->name = $name;
+      user_role_save($role);
+    }
+  }
+}
+

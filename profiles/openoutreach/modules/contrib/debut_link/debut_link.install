@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Install file for debut_link.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function debut_link_install() {
+  // Set captcha to link comment form.
+  module_load_include('inc', 'captcha');
+  captcha_set_form_id_setting('comment_node_link_form', 'default');
+}
