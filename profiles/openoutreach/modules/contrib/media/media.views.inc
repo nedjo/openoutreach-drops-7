@@ -94,7 +94,4 @@ function template_preprocess_media_views_view_media_browser(&$vars) {
   drupal_add_js(drupal_get_path('module', 'media') . '/js/plugins/media.views.js');
   // We need to see if we can depricate this
   drupal_add_js(drupal_get_path('module', 'media') . '/js/plugins/media.library.js');
-  // We should abstract this into a standard css file so all implementers have
-  // it by default
-  drupal_add_css(drupal_get_path('module', 'media') . '/js/plugins/media.library.css');
 }

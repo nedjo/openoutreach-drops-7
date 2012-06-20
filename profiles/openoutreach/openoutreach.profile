@@ -5,49 +5,10 @@
  * Installation profile for the Open Outreach distribution.
  */
 
-include_once('openoutreach.features.inc');
 // Include only when in install mode. MAINTENANCE_MODE is defined in
 // install.php and in drush_core_site_install().
 if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install') {
   include_once('openoutreach.install.inc');
-}
-
-/**
- * Implements hook_modules_installed().
- *
- * When a module is installed, enable the modules it recommends if they are
- * present. For Open Outreach, also install permissions.
- */
-function openoutreach_modules_installed($modules) {
-  module_load_include('inc', 'openoutreach', 'openoutreach.module_batch');
-  openoutreach_module_batch($modules);
-}
-
-/**
- * Check that other install profiles are not present to ensure we don't collide with a
- * similar form alter in their profile.
- *
- * Set Open Outreach as default install profile.
- */
-if (!function_exists('system_form_install_select_profile_form_alter')) {
-  function system_form_install_select_profile_form_alter(&$form, $form_state) {
-    // Only set the value if Open Outreach is the only profile.
-    if (count($form['profile']) == 1) {
-      foreach($form['profile'] as $key => $element) {
-        $form['profile'][$key]['#value'] = 'openoutreach';
-      }
-    }
-  }
-}
-
-/**
- * Implements hook_install_configure_form_alter().
- */
-function openoutreach_form_install_configure_form_alter(&$form, &$form_state) {
-  $form['site_information']['site_name']['#default_value'] = 'Open Outreach';
-  $form['site_information']['site_mail']['#default_value'] = 'admin@'. $_SERVER['HTTP_HOST'];
-  $form['admin_account']['account']['name']['#default_value'] = 'admin';
-  $form['admin_account']['account']['mail']['#default_value'] = 'admin@'. $_SERVER['HTTP_HOST'];
 }
 
 /**
@@ -59,6 +20,33 @@ function openoutreach_form_install_configure_form_alter(&$form, &$form_state) {
 function openoutreach_context_default_contexts_alter(&$contexts) {
   if (isset($contexts['shortcut']) && module_exists('debut_blog') && !openoutreach_is_recreating('openoutreach')) {
     $contexts['shortcut']->conditions['user']['values']['blogger'] = 'blogger';
+  }
+}
+
+/**
+ * Implements hook_block_info_alter().
+ *
+ * Assign regions for main content and menus for themes that support them.
+ */
+function openoutreach_block_info_alter(&$blocks, $theme, $code_blocks) {
+  $regions = system_region_list($theme);
+
+  $assignments = array(
+    'system' => array(
+      'main' => 'content',
+      'main-menu' => 'main_menu',
+      'help' => 'help',
+    ),
+  );
+
+  foreach ($assignments as $module => $module_blocks) {
+    if (isset($blocks[$module])) {
+      foreach ($module_blocks as $block => $region) {
+        if (isset($blocks[$module][$block]) && isset($regions[$region])) {
+          $blocks[$module][$block]['region'] = $region;
+        }
+      }
+    }
   }
 }
 
@@ -101,5 +89,25 @@ function openoutreach_is_recreating($feature = NULL) {
     return TRUE;
   }
   return FALSE;
+}
+
+
+/**
+ * Implements hook_apps_servers_info().
+ */
+function openoutreach_apps_servers_info() {
+  $profile = variable_get('install_profile', 'standard');
+  $info =  drupal_parse_info_file(drupal_get_path('profile', $profile) . '/' . $profile . '.info');
+  return array(
+    'debut' => array(
+      'title' => 'debut',
+      'description' => t('Debut apps'),
+      'manifest' => 'http://appserver.openoutreach.org/app/query',
+      'profile' => $profile,
+      'profile_version' => isset($info['version']) ? $info['version'] : '7.x-1.x',
+      'server_name' => $_SERVER['SERVER_NAME'],
+      'server_ip' => $_SERVER['SERVER_ADDR'],
+    ),
+  );
 }
 

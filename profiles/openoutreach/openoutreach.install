@@ -16,29 +16,8 @@
 function openoutreach_install() {
   $t = get_t();
   // Enable some standard blocks.
-  $default_theme = 'granada';
   $admin_theme = 'seven';
   $values = array(
-    array(
-      'module' => 'system',
-      'delta' => 'main',
-      'theme' => $default_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'content',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'system',
-      'delta' => 'main-menu',
-      'theme' => $default_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'main_menu',
-      'pages' => '',
-      'cache' => -1,
-    ),
     array(
       'module' => 'node',
       'delta' => 'recent',
@@ -137,13 +116,12 @@ function openoutreach_install() {
   menu_rebuild();
 
   // Enable the admin theme, fusion engine, and the default theme.
-  $themes = array($admin_theme, 'fusion_core', $default_theme);
+  $themes = array($admin_theme, 'fusion_core');
   db_update('system')
     ->fields(array('status' => 1))
     ->condition('type', 'theme')
     ->condition('name', $themes, 'IN')
     ->execute();
-  variable_set('theme_default', $default_theme);
   variable_set('admin_theme', $admin_theme);
   variable_set('node_admin_theme', '1');
 
@@ -163,3 +141,12 @@ function openoutreach_install() {
   shortcut_set_save($shortcut_set);
 }
 
+/**
+ * Enable openoutreach_core and apps modules.
+ */
+function openoutreach_update_7000() {
+  $module_list = array('openoutreach_core', 'apps');
+  module_enable($module_list);
+
+  return t('Open Outreach now uses the Apps module to install its features. Click the Apps link on your toolbar to see available and installed apps.');
+}
