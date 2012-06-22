@@ -12,42 +12,38 @@ if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install') {
 }
 
 /**
- * Implements hook_context_default_contexts_alter().
- *
- * If the debut_blogger module is enabled, display the shortcut block to users
- * with the blogger role.
+ * Implements hook_block_info().
  */
-function openoutreach_context_default_contexts_alter(&$contexts) {
-  if (isset($contexts['shortcut']) && module_exists('debut_blog') && !openoutreach_is_recreating('openoutreach')) {
-    $contexts['shortcut']->conditions['user']['values']['blogger'] = 'blogger';
-  }
+function openoutreach_block_info() {
+  $blocks = array();
+  $blocks['powered-by'] = array(
+    'info' => t('Powered by Open Outreach'),
+    'weight' => '10',
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
 }
 
 /**
- * Implements hook_block_info_alter().
+ * Implements hook_block_view().
  *
- * Assign regions for main content and menus for themes that support them.
+ * Display the powered by Open Outreach block.
  */
-function openoutreach_block_info_alter(&$blocks, $theme, $code_blocks) {
-  $regions = system_region_list($theme);
+function openoutreach_block_view() {
+  global $user;
+  $admin_rid = variable_get('user_admin_role');
 
-  $assignments = array(
-    'system' => array(
-      'main' => 'content',
-      'main-menu' => 'main_menu',
-      'help' => 'help',
-    ),
-  );
+  $block = array();
+  $block['subject'] = NULL;
+  $content = '<span class="powered-by">' . t('Powered by <a href="!poweredby">Open Outreach</a>.', array('!poweredby' => 'http://openoutreach.org'));
 
-  foreach ($assignments as $module => $module_blocks) {
-    if (isset($blocks[$module])) {
-      foreach ($module_blocks as $block => $region) {
-        if (isset($blocks[$module][$block]) && isset($regions[$region])) {
-          $blocks[$module][$block]['region'] = $region;
-        }
-      }
-    }
+  // If this is an admin role, show documentation links.
+  if (isset($user->roles[$admin_rid])) {
+    $content .= ' ' . t('Get started with <a href="!docs">user documentation</a> and <a href="!screencasts">screencasts</a>.', array('!docs' => 'http://openoutreach.org/section/using-open-outreach', '!screencasts' => 'http://openoutreach.org/screencasts'));
   }
+  $content .= '</span>';
+  $block['content'] = $content;
+  return $block;
 }
 
 /**
@@ -90,7 +86,6 @@ function openoutreach_is_recreating($feature = NULL) {
   }
   return FALSE;
 }
-
 
 /**
  * Implements hook_apps_servers_info().

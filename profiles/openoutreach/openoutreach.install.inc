@@ -63,13 +63,9 @@ function openoutreach_install_tasks($install_state) {
     'function' => 'openoutreach_enable_features',
   );
 
-  // Set up the theme selection and configuration tasks
+  // Set up the theme selection task.
   $tasks['openoutreach_theme_form'] = array(
     'display_name' => t('Choose a theme'),
-    'type' => 'form',
-  );
-  $tasks['openoutreach_theme_configure_form'] = array(
-    'display_name' => t('Configure theme settings'),
     'type' => 'form',
   );
 
@@ -312,10 +308,23 @@ function openoutreach_apps_verify($form, &$form_state) {
 
   if ($is_pantheon) {
     // Note Pantheon requirements.
+    // We can test writability as a proxy for the Pantheon on server
+    // development site setting.
+    $pantheon_local_enabled = is_writeable(drupal_realpath('sites/all/modules'));
     $form['pantheon'] = array(
       '#title' => t('Pantheon'),
       '#type' => 'fieldset',
-      '#description' => theme('image', array('path' => drupal_get_path('profile', 'openoutreach') . '/images/enable-apps-pantheon.png')) . t('If you are installing Open Outreach on Pantheon, you need to enable "On Server Development" to use apps.<br /><br />After you install your apps, you will need to use the "Commit" button to add them to the version control system.'),
+      '#description' => theme('image', array('path' => drupal_get_path('profile', 'openoutreach') . '/images/enable-apps-pantheon.png')),
+    );
+    if (!$pantheon_local_enabled) {
+      $form['pantheon']['#description'] .= t('Before installing Open Outreach on Pantheon, you need to enable "On Server Development" to use apps.') . '<br /><br />';
+    }
+    else {
+      $form['pantheon']['#description'] .= t('"On Server Development" is enabled, so you\'re good to go to install Open Outreach on Pantheon using apps.') . '<br /><br />';
+    }
+    $form['pantheon']['#description'] .= t('After you install your apps, you will need to use the "Commit" button to add them to the version control system.');
+    $form['#attached']['css'] = array(
+      drupal_get_path('profile', 'openoutreach') . '/openoutreach.install.css',
     );
   }
   else {
@@ -374,7 +383,7 @@ function openoutreach_apps_verify($form, &$form_state) {
     // TRUE if your option is enabled (available). 
     $form['app_enabled'] = array(
       '#type' => 'value',
-      '#value' => $is_pantheon || $ftp_installed || $ssh_installed || $install_permissions ? TRUE : FALSE,
+      '#value' => $pantheon_local_enabled || $ftp_installed || $ssh_installed || $install_permissions ? TRUE : FALSE,
     );
 
     $form['#process'] = array('openoutreach_install_verify_process');
@@ -435,7 +444,7 @@ function openoutreach_theme_form($form, &$form_state) {
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Choose theme',
+    '#value' => t('Choose theme'),
   );
 
   $form['#attached']['css'] = array(
@@ -507,16 +516,6 @@ function openoutreach_theme_form_submit($form, &$form_state) {
   // Flush theme caches so things are right.
   system_rebuild_theme_data();
   drupal_theme_rebuild();
-}
-
-/**
- * Form to choose the starting theme
- */
-function openoutreach_theme_configure_form($form, &$form_state) {
-  $theme = variable_get('theme_default');
-  ctools_include('system.admin', 'system', '');
-  $form = system_theme_settings($form, $form_state, $theme); 
-  return $form;
 }
 
 /**

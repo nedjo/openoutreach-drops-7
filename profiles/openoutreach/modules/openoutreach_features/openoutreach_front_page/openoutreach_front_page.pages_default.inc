@@ -8,7 +8,7 @@
  * Implements hook_default_page_manager_pages().
  */
 function openoutreach_front_page_default_page_manager_pages() {
-  $page = new stdClass;
+  $page = new stdClass();
   $page->disabled = FALSE; /* Edit this to true to make a default page disabled initially */
   $page->api_version = 1;
   $page->name = 'front_page';
@@ -23,7 +23,7 @@ function openoutreach_front_page_default_page_manager_pages() {
     'admin_paths' => FALSE,
   );
   $page->default_handlers = array();
-  $handler = new stdClass;
+  $handler = new stdClass();
   $handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
   $handler->api_version = 1;
   $handler->name = 'page_front_page_panel_context';
@@ -106,7 +106,7 @@ h2.pane-title {
     'contexts' => array(),
     'relationships' => array(),
   );
-  $display = new panels_display;
+  $display = new panels_display();
   $display->layout = 'twocol_bricks';
   $display->layout_settings = array();
   $display->panel_settings = array(
@@ -125,7 +125,7 @@ h2.pane-title {
   $display->title = '';
   $display->content = array();
   $display->panels = array();
-    $pane = new stdClass;
+    $pane = new stdClass();
     $pane->pid = 'new-1';
     $pane->panel = 'left_below';
     $pane->type = 'views';
@@ -156,9 +156,10 @@ h2.pane-title {
     $pane->css = array();
     $pane->extras = array();
     $pane->position = 0;
+    $pane->locks = '';
     $display->content['new-1'] = $pane;
     $display->panels['left_below'][0] = 'new-1';
-    $pane = new stdClass;
+    $pane = new stdClass();
     $pane->pid = 'new-2';
     $pane->panel = 'middle';
     $pane->type = 'views';
@@ -189,9 +190,10 @@ h2.pane-title {
     $pane->css = array();
     $pane->extras = array();
     $pane->position = 0;
+    $pane->locks = '';
     $display->content['new-2'] = $pane;
     $display->panels['middle'][0] = 'new-2';
-    $pane = new stdClass;
+    $pane = new stdClass();
     $pane->pid = 'new-3';
     $pane->panel = 'right_below';
     $pane->type = 'views';
@@ -222,9 +224,10 @@ h2.pane-title {
     $pane->css = array();
     $pane->extras = array();
     $pane->position = 0;
+    $pane->locks = '';
     $display->content['new-3'] = $pane;
     $display->panels['right_below'][0] = 'new-3';
-    $pane = new stdClass;
+    $pane = new stdClass();
     $pane->pid = 'new-4';
     $pane->panel = 'top';
     $pane->type = 'views';
@@ -254,9 +257,10 @@ h2.pane-title {
     $pane->css = array();
     $pane->extras = array();
     $pane->position = 0;
+    $pane->locks = '';
     $display->content['new-4'] = $pane;
     $display->panels['top'][0] = 'new-4';
-    $pane = new stdClass;
+    $pane = new stdClass();
     $pane->pid = 'new-5';
     $pane->panel = 'top';
     $pane->type = 'panels_mini';
@@ -274,6 +278,7 @@ h2.pane-title {
     $pane->css = array();
     $pane->extras = array();
     $pane->position = 1;
+    $pane->locks = '';
     $display->content['new-5'] = $pane;
     $display->panels['top'][1] = 'new-5';
   $display->hide_title = PANELS_TITLE_NONE;

@@ -5,12 +5,12 @@
  */
 
 /**
- * Implementation of hook_user_default_permissions().
+ * Implements hook_user_default_permissions().
  */
 function openoutreach_core_user_default_permissions() {
   $permissions = array();
 
-  // Exported permission: access administration pages
+  // Exported permission: access administration pages.
   $permissions['access administration pages'] = array(
     'name' => 'access administration pages',
     'roles' => array(
@@ -20,7 +20,7 @@ function openoutreach_core_user_default_permissions() {
     'module' => 'system',
   );
 
-  // Exported permission: access content
+  // Exported permission: access content.
   $permissions['access content'] = array(
     'name' => 'access content',
     'roles' => array(
@@ -31,7 +31,7 @@ function openoutreach_core_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: access content overview
+  // Exported permission: access content overview.
   $permissions['access content overview'] = array(
     'name' => 'access content overview',
     'roles' => array(
@@ -41,7 +41,7 @@ function openoutreach_core_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: administer nodes
+  // Exported permission: administer nodes.
   $permissions['administer nodes'] = array(
     'name' => 'administer nodes',
     'roles' => array(
@@ -51,7 +51,7 @@ function openoutreach_core_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: administer taxonomy
+  // Exported permission: administer taxonomy.
   $permissions['administer taxonomy'] = array(
     'name' => 'administer taxonomy',
     'roles' => array(
@@ -61,7 +61,7 @@ function openoutreach_core_user_default_permissions() {
     'module' => 'taxonomy',
   );
 
-  // Exported permission: cancel account
+  // Exported permission: cancel account.
   $permissions['cancel account'] = array(
     'name' => 'cancel account',
     'roles' => array(
@@ -72,7 +72,7 @@ function openoutreach_core_user_default_permissions() {
     'module' => 'user',
   );
 
-  // Exported permission: change own username
+  // Exported permission: change own username.
   $permissions['change own username'] = array(
     'name' => 'change own username',
     'roles' => array(
@@ -83,7 +83,7 @@ function openoutreach_core_user_default_permissions() {
     'module' => 'user',
   );
 
-  // Exported permission: delete revisions
+  // Exported permission: delete revisions.
   $permissions['delete revisions'] = array(
     'name' => 'delete revisions',
     'roles' => array(
@@ -93,7 +93,7 @@ function openoutreach_core_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: revert revisions
+  // Exported permission: revert revisions.
   $permissions['revert revisions'] = array(
     'name' => 'revert revisions',
     'roles' => array(
@@ -103,7 +103,7 @@ function openoutreach_core_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: view own unpublished content
+  // Exported permission: view own unpublished content.
   $permissions['view own unpublished content'] = array(
     'name' => 'view own unpublished content',
     'roles' => array(
@@ -114,7 +114,7 @@ function openoutreach_core_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: view revisions
+  // Exported permission: view revisions.
   $permissions['view revisions'] = array(
     'name' => 'view revisions',
     'roles' => array(
@@ -125,7 +125,7 @@ function openoutreach_core_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: view the administration theme
+  // Exported permission: view the administration theme.
   $permissions['view the administration theme'] = array(
     'name' => 'view the administration theme',
     'roles' => array(

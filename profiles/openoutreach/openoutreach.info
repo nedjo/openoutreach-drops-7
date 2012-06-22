@@ -1,3 +1,6 @@
+name = "Open Outreach"
+description = "Open Outreach provides a highly usable and feature rich website suited to small and medium sized non-profits and community organizations."
+distribution_name = "Open Outreach"
 core = "7.x"
 dependencies[] = "admin_menu_toolbar"
 dependencies[] = "advanced_help"
@@ -26,17 +29,12 @@ dependencies[] = "search"
 dependencies[] = "shortcut"
 dependencies[] = "strongarm"
 dependencies[] = "taxonomy"
-description = "Open Outreach provides a highly usable and feature rich website suited to small and medium sized non-profits and community organizations."
-distribution_name = "Open Outreach"
 files[] = "openoutreach.profile"
-name = "Open Outreach"
-php = "5.2.4"
 
 
-
-; Information added by drupal.org packaging script on 2012-06-19
-version = "7.x-1.0-rc1+15-dev"
+; Information added by drupal.org packaging script on 2012-06-22
+version = "7.x-1.0-rc2"
 core = "7.x"
 project = "openoutreach"
-datestamp = "1340065761"
+datestamp = "1340324497"
 

@@ -34,7 +34,7 @@ function apps_profile_install_tasks($install_state, $apps_server) {
       'apps_profile_authorize_transfer_' . $apps_server_name => array(
         'display' => FALSE,
         'type' => 'form',
-        'run' => (!is_writeable(conf_path()) && isset($_SESSION['apps']))?INSTALL_TASK_RUN_IF_NOT_COMPLETED:INSTALL_TASK_SKIP,
+        'run' => (!(is_writable(drupal_realpath('sites/all/modules'))) && isset($_SESSION['apps']))?INSTALL_TASK_RUN_IF_NOT_COMPLETED:INSTALL_TASK_SKIP,
         'function' => 'apps_profile_authorize_transfer',
       ),
       'apps_profile_install_app_modules_' . $apps_server_name => array(

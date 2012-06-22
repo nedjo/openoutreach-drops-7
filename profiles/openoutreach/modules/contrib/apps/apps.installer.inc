@@ -187,7 +187,7 @@ function apps_install_downloads() {
     // credentials. Instead, we instantiate a FileTransferLocal and invoke
     // update_authorize_run_update() directly.
     //if (fileowner($project_real_location) == fileowner(conf_path())) {
-    if (is_writeable(conf_path())) {
+    if (is_writable(drupal_realpath('sites/all/modules'))) {
       module_load_include('inc', 'update', 'update.authorize');
       $filetransfer = new FileTransferLocal(DRUPAL_ROOT);
       apps_run_install($filetransfer, $updates); //this is our change
