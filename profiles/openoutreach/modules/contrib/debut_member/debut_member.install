@@ -9,9 +9,6 @@
  * Implements hook_install().
  */
 function debut_member_install() {
-  // Ensure the tags vocabulary is present.
-  _debut_member_ensure_vocabulary_tags();
-
   // Set content_access view permissions for the member_page content type.
   // While these roles will be created by Features, they will not be available
   // yet when hook_install() is run, so we need to test for and create them
@@ -43,24 +40,11 @@ function debut_member_install() {
 }
 
 /**
- * Make sure the 'tags' vocabulary exists.
- *
- * Cribbed from media_gallery.install.
+ * Enable the Apps compatible module.
  */
-function _debut_member_ensure_vocabulary_tags() {
-  $t = get_t();
-
-  // Make sure the 'tags' vocabulary exists.
-  $vocabulary = taxonomy_vocabulary_machine_name_load('tags');
-  if (!$vocabulary) {
-    $description = $t('Use tags to group articles on similar topics into categories.');
-    $help = $t('Enter a comma-separated list of words to describe your content.');
-    $vocabulary = (object) array(
-      'name' => $t('Tags'),
-      'description' => $description,
-      'machine_name' => 'tags',
-      'help' => $help,
-    );
-    taxonomy_vocabulary_save($vocabulary);
+function debut_member_update_7000() {
+  if (!module_exists('apps_compatible') && !module_enable(array('apps_compatible'))) {
+    throw new Exception('This version of Debut Member requires the Apps compatible module but it could not be enabled.');
   }
 }
+

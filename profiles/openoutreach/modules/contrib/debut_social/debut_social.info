@@ -3,6 +3,9 @@ description = Social media integration including share and follow links.
 core = 7.x
 package = Features
 php = 5.2.4
+author = Chocolate Lily
+author_url = http://chocolatelilyweb.ca
+dependencies[] = apps_compatible
 dependencies[] = captcha
 dependencies[] = context
 dependencies[] = features
@@ -32,9 +35,9 @@ features[variable][] = service_links_in_links
 features[variable][] = service_links_show
 features[variable][] = service_links_weight
 
-; Information added by drupal.org packaging script on 2012-05-08
-version = "7.x-1.0-rc1"
+; Information added by drupal.org packaging script on 2012-08-08
+version = "7.x-1.0-rc2"
 core = "7.x"
 project = "debut_social"
-datestamp = "1336501256"
+datestamp = "1344453708"
 

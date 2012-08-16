@@ -6,6 +6,13 @@
  */
 
 /**
+ * The default list of file extensions allowed by file_save_upload().
+ *
+ * Adds support for docx, xlsx, pptx and ppsx.
+ */
+define('FILE_DEFAULT_ALLOWED_EXTENSIONS', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp');
+
+/**
  * As part of extending Drupal core's file entity API, this module adds some
  * functions to the 'file' namespace. For organization, those are kept in the
  * 'file_entity.file_api.inc' file.
@@ -260,6 +267,23 @@ function file_entity_menu() {
 }
 
 /**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function file_entity_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  // Add action link to 'file/add' on 'admin/content/file' page.
+  if ($root_path == 'admin/content/file') {
+    $item = menu_get_item('file/add');
+    if (!empty($item['access'])) {
+      $data['actions']['output'][] = array(
+        '#theme' => 'menu_local_action',
+        '#link' => $item,
+        '#weight' => $item['weight'],
+      );
+    }
+  }
+}
+
+/**
  * Implement hook_permission().
  */
 function file_entity_permission() {
@@ -283,6 +307,8 @@ function file_entity_permission() {
  */
 function file_entity_admin_paths() {
   $paths = array(
+    'file/add' => TRUE,
+    'file/add/*' => TRUE,
     'file/*/edit' => TRUE,
     'file/*/delete' => TRUE,
   );
@@ -881,4 +907,19 @@ function file_entity_file_is_local($file) {
   $scheme = file_uri_scheme($file->uri);
   $wrappers = file_get_stream_wrappers(STREAM_WRAPPERS_LOCAL);
   return !empty($wrappers[$scheme]) && empty($wrappers[$scheme]['remote']);
+}
+
+/**
+ * Pre-render callback for adding validation descriptions to file upload fields.
+ */
+function file_entity_upload_validators_pre_render($element) {
+  if (!empty($element['#upload_validators'])) {
+    if (!isset($element['#description'])) {
+      $element['#description'] = '';
+    }
+    if ($element['#description'] !== FALSE) {
+      $element['#description'] = theme('file_upload_help', array('description' => $element['#description'], 'upload_validators' => $element['#upload_validators']));
+    }
+  }
+  return $element;
 }

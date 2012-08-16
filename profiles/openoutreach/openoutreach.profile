@@ -47,6 +47,36 @@ function openoutreach_block_view() {
 }
 
 /**
+ * Implements hook_modules_installed().
+ *
+ * Unset distracting messages at install time.
+ */
+function openoutreach_modules_enabled($modules) {
+  if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install' && array_intersect($modules, array('captcha', 'date_api'))) {
+    drupal_get_messages('status');
+    drupal_get_messages('warning');
+  }
+}
+
+/**
+ * Implements hook_modules_installed().
+ *
+ * Add custom taxonomy terms to the event_type vocabulary if it is created.
+ */
+function openoutreach_entity_insert($entity, $type) {
+  if ($type == 'taxonomy_vocabulary' && $entity->machine_name == 'event_type') {
+    $names = array('Conference', 'Meeting', 'Workshop');
+    foreach ($names as $name) {
+      $term = new StdClass();
+      $term->name = $name;
+      $term->vid = $entity->vid;
+      $term->vocabulary_machine_name = $entity->machine_name;
+      taxonomy_term_save($term);
+    }
+  }
+}
+
+/**
  * Implements hook_admin_menu_output_build().
  *
  * Add links to the admin_menu shortcuts menu.
@@ -64,45 +94,29 @@ function openoutreach_admin_menu_output_build(&$content) {
 }
 
 /**
- * Determine whether a feature is being recreated.
- */
-function openoutreach_is_recreating($feature = NULL) {
-  // Test for Drush usage.
-  if (function_exists('drush_get_command') && $command = drush_get_command()) {
-    switch($command['command']) {
-      case 'features-update-all':
-        return TRUE;
-      case 'features-update':
-        // If a specific feature was requested, test for it. If not, return
-        // true for any feature recreation.
-        return is_null($feature) || in_array($feature, $command['arguments']);
-    }
-  }
-
-  // Test for admin UI usage.
-  $feature = is_null($feature) ? arg(3) : $feature;
-  if ($_GET['q'] == "admin/structure/features/{$feature}/recreate") {
-    return TRUE;
-  }
-  return FALSE;
-}
-
-/**
  * Implements hook_apps_servers_info().
  */
 function openoutreach_apps_servers_info() {
   $profile = variable_get('install_profile', 'standard');
   $info =  drupal_parse_info_file(drupal_get_path('profile', $profile) . '/' . $profile . '.info');
-  return array(
+  $return = array(
     'debut' => array(
       'title' => 'debut',
       'description' => t('Debut apps'),
       'manifest' => 'http://appserver.openoutreach.org/app/query',
       'profile' => $profile,
       'profile_version' => isset($info['version']) ? $info['version'] : '7.x-1.x',
-      'server_name' => $_SERVER['SERVER_NAME'],
-      'server_ip' => $_SERVER['SERVER_ADDR'],
     ),
   );
+
+  if (isset($_SERVER['SERVER_NAME'])) {
+    $return['debut']['server_name'] = $_SERVER['SERVER_NAME'];
+  }
+ 
+  if (isset($_SERVER['SERVER_ADDR'])) {
+    $return['debut']['server_ip'] = $_SERVER['SERVER_ADDR'];
+  }
+
+  return $return;
 }
 

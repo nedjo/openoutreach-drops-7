@@ -26,3 +26,12 @@ function debut_forum_install() {
   menu_link_save($item);
 }
 
+/**
+ * Enable the Apps compatible module.
+ */
+function debut_forum_update_7000() {
+  if (!module_exists('apps_compatible') && !module_enable(array('apps_compatible'))) {
+    throw new Exception('This version of Debut blog requires the Apps compatible module but it could not be enabled.');
+  }
+}
+

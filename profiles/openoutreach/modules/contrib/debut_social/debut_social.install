@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Install file for Debut Social.
+ */
+ 
+/**
  * Implements hook_install().
  */
 function debut_social_install() {
@@ -17,3 +22,13 @@ function debut_social_enable() {
   module_load_include('inc', 'debut_social', 'debut_social.util');
   debut_social_add_node_types($modules);
 }
+
+/**
+ * Enable the Apps compatible module.
+ */
+function debut_social_update_7000() {
+  if (!module_exists('apps_compatible') && !module_enable(array('apps_compatible'))) {
+    throw new Exception('This version of Debut Social requires the Apps compatible module but it could not be enabled.');
+  }
+}
+

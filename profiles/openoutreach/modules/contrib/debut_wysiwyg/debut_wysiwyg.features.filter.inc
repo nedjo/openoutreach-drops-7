@@ -10,7 +10,7 @@
 function debut_wysiwyg_filter_default_formats() {
   $formats = array();
 
-  // Exported format: Wysiwyg contributor
+  // Exported format: Wysiwyg contributor.
   $formats['wysiwyg_contributor'] = array(
     'format' => 'wysiwyg_contributor',
     'name' => 'Wysiwyg contributor',
@@ -39,10 +39,15 @@ function debut_wysiwyg_filter_default_formats() {
           'filter_url_length' => '72',
         ),
       ),
+      'media_filter' => array(
+        'weight' => '2',
+        'status' => '1',
+        'settings' => array(),
+      ),
     ),
   );
 
-  // Exported format: Wysiwyg editor
+  // Exported format: Wysiwyg editor.
   $formats['wysiwyg_editor'] = array(
     'format' => 'wysiwyg_editor',
     'name' => 'Wysiwyg editor',
@@ -72,14 +77,14 @@ function debut_wysiwyg_filter_default_formats() {
         ),
       ),
       'media_filter' => array(
-        'weight' => '0',
+        'weight' => '2',
         'status' => '1',
         'settings' => array(),
       ),
     ),
   );
 
-  // Exported format: Wysiwyg public
+  // Exported format: Wysiwyg public.
   $formats['wysiwyg_public'] = array(
     'format' => 'wysiwyg_public',
     'name' => 'Wysiwyg public',

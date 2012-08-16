@@ -13,44 +13,45 @@
 function apps_profile_install_tasks($install_state, $apps_server) {
   // Only use apps forms during interactive installs.
   $tasks = array();
-  if ($install_state['interactive']) {
-    $apps_server_name = $apps_server['machine name'];
+  $apps_server_name = $apps_server['machine name'];
 
-    $task_screen = 'apps_profile_apps_select_form_' . $apps_server_name;
-    $_SESSION['apps_servers'][$task_screen] = $apps_server;
-    $tasks = array(
-      $task_screen => array(
-        'display_name' => apps_profile_get_server_name($apps_server),
-        'type' => 'form',
-        'function' => 'apps_profile_apps_select_form',
-      ),
-      'apps_profile_download_app_modules_' . $apps_server_name => array(
-        'display' => FALSE,
-        'type' => 'batch',
-        'run' => (isset($_SESSION['apps']))?INSTALL_TASK_RUN_IF_NOT_COMPLETED:INSTALL_TASK_SKIP,
-        'function' => 'apps_profile_download_app_modules',
-      ),
-      // Only need this if using filetransfer authorization.
-      'apps_profile_authorize_transfer_' . $apps_server_name => array(
-        'display' => FALSE,
-        'type' => 'form',
-        'run' => (!(is_writable(drupal_realpath('sites/all/modules'))) && isset($_SESSION['apps']))?INSTALL_TASK_RUN_IF_NOT_COMPLETED:INSTALL_TASK_SKIP,
-        'function' => 'apps_profile_authorize_transfer',
-      ),
-      'apps_profile_install_app_modules_' . $apps_server_name => array(
-        'display' => FALSE,
-        'type' => 'batch',
-        'run' => (isset($_SESSION['apps']))?INSTALL_TASK_RUN_IF_NOT_COMPLETED:INSTALL_TASK_SKIP,
-        'function' => 'apps_profile_install_app_modules',
-      ),
-      'apps_profile_enable_app_modules_' . $apps_server_name => array(
-        'display' => FALSE,
-        'type' => 'batch',
-        'run' => (isset($_SESSION['apps']))?INSTALL_TASK_RUN_IF_NOT_COMPLETED:INSTALL_TASK_SKIP,
-        'function' => 'apps_profile_enable_app_modules',
-      ),
-    );
-  }
+  $task_screen = 'apps_profile_apps_select_form_' . $apps_server_name;
+  $_SESSION['apps_servers'][$task_screen] = $apps_server;
+  $tasks = array(
+    $task_screen => array(
+      'display_name' => apps_profile_get_server_name($apps_server),
+      'type' => 'form',
+      'function' => 'apps_profile_apps_select_form',
+    ),
+    'apps_profile_download_app_modules_' . $apps_server_name => array(
+      'display' => FALSE,
+      'type' => 'batch',
+      // If this is not an interactive install, we can download apps only if
+      // we have write access.
+      'run' => (!empty($_SESSION['apps_downloads']) && ($install_state['interactive'] || is_writable(drupal_realpath('sites/all/modules')))) ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
+      'function' => 'apps_profile_download_app_modules',
+    ),
+    // Only need this if using filetransfer authorization.
+    'apps_profile_authorize_transfer_' . $apps_server_name => array(
+      'display' => FALSE,
+      'type' => 'form',
+      'run' => ($install_state['interactive'] && !is_writable(drupal_realpath('sites/all/modules')) && !empty($_SESSION['apps_downloads'])) ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
+      'function' => 'apps_profile_authorize_transfer',
+    ),
+    'apps_profile_install_app_modules_' . $apps_server_name => array(
+      'display' => FALSE,
+      'type' => 'batch',
+      'run' => (!empty($_SESSION['apps_downloads']) && ($install_state['interactive'] || is_writable(drupal_realpath('sites/all/modules')))) ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
+      'function' => 'apps_profile_install_app_modules',
+    ),
+    'apps_profile_enable_app_modules_' . $apps_server_name => array(
+      'display' => FALSE,
+      'type' => 'batch',
+      'run' => (!empty($_SESSION['apps'])) ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
+      'function' => 'apps_profile_enable_app_modules',
+    ),
+  );
+
   return $tasks;
 }
 
@@ -144,8 +145,14 @@ function apps_profile_apps_select_form($form, $form_state, &$install_state) {
  */
 function apps_profile_apps_select_form_submit($form, &$form_state) {
   $_SESSION['apps'] = array();
-  if ($form_state['values']['op'] == t('Install Apps')) {
+  // Checking to make sure that skip was not clicked. Proceed if op is empty
+  // to cover the non-interactive case where there is no op.
+  if (empty($form_state['values']['op']) || $form_state['values']['op'] == t('Install Apps')) {
     $_SESSION['apps'] = array_filter($form_state['values']['apps']);
+    // Determine if any apps need to be downloaded.
+    apps_include('manifest');
+    $installed_apps = apps_apps($_SESSION['apps_server']['machine name'], array('installed' => TRUE), TRUE);
+    $_SESSION['apps_downloads'] = array_diff_key($_SESSION['apps'], $installed_apps) ? TRUE: FALSE;
     $_SESSION['apps_default_content'] = $form_state['values']['default_content'];
   }
 }
@@ -278,7 +285,20 @@ function apps_profile_install_app_modules(&$install_state) {
  * Install downloaded apps.
  */
 function apps_profile_enable_app_modules(&$install_state) {
+  // If this is not an interactive install, we may have apps that were selected
+  // but not installed. Filter them out.
+  if (!$install_state['interactive']) {
+    apps_include('manifest');
+    $installed_apps = apps_apps($_SESSION['apps_server']['machine name'], array('installed' => TRUE), TRUE);
+    $_SESSION['apps'] = array_intersect_key($_SESSION['apps'], $installed_apps);
+    // If no selected apps are installed, we have nothing to enable.
+    if (empty($_SESSION['apps'])) {
+      return;
+    }
+  }
+
   $modules = array_keys($_SESSION['apps']);
+
   // Allow profiles to add default content.
   if ($_SESSION['apps_default_content'] && isset($_SESSION['apps_server']['default content callback'])) {
     $function = $_SESSION['apps_server']['default content callback'];
@@ -335,6 +355,8 @@ function app_profile_enable_module($module, $module_name, &$context) {
  * Batch callback invoked when enable batch is completed.
  */
 function apps_profile_enable_app_modules_finished($success, $results) {
+  // Only display errors, on success do nothing since on success any
+  // message we print will show up in a weird context (next page)
   if (!empty($results['errors'])) {
     $error_list = array(
       'title' => t('Enabling apps failed:'),
@@ -342,10 +364,7 @@ function apps_profile_enable_app_modules_finished($success, $results) {
     );
     drupal_set_message(theme('item_list', $error_list), 'error');
   }
-  elseif ($success) {
-    drupal_set_message(t('Apps enabled successfully.'));
-  }
-  else {
+  elseif (!$success) {
     // Ideally we're catching all Exceptions, so they should never see this,
     // but just in case, we have to tell them something.
     drupal_set_message(t('Fatal error trying to enable apps.'), 'error');
@@ -359,6 +378,7 @@ function apps_profile_enable_app_modules_finished($success, $results) {
   unset($_SESSION['apps_default_content']);
   unset($_SESSION['apps_server']);
   unset($_SESSION['apps_manifest']);
+  unset($_SESSION['apps_downloads']);
 }
 
 /**

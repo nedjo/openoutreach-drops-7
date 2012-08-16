@@ -3,6 +3,9 @@ description = A media feature including media file views.
 core = 7.x
 package = Features
 php = 5.2.4
+author = Chocolate Lily
+author_url = http://chocolatelilyweb.ca
+dependencies[] = apps_compatible
 dependencies[] = context
 dependencies[] = features
 dependencies[] = file_admin
@@ -53,9 +56,9 @@ recommends[] = media_browser_plus
 recommends[] = styles_ui
 recommends[] = transliteration
 
-; Information added by drupal.org packaging script on 2012-05-08
-version = "7.x-1.0-rc1"
+; Information added by drupal.org packaging script on 2012-08-08
+version = "7.x-1.0-rc2"
 core = "7.x"
 project = "debut_media"
-datestamp = "1336500357"
+datestamp = "1344453108"
 

@@ -3,6 +3,7 @@ description = Provide organizational members with their own content.
 core = 7.x
 package = Features
 php = 5.2.4
+dependencies[] = apps_compatible
 dependencies[] = content_access
 dependencies[] = context
 dependencies[] = features
@@ -12,6 +13,8 @@ dependencies[] = menu
 dependencies[] = strongarm
 dependencies[] = taxonomy
 dependencies[] = views
+author = Chocolate Lily
+author_url = http://chocolatelilyweb.ca
 debut[media][node_types][member_page] = member_page
 features[context][] = member-page-content-type
 features[context][] = members_only
@@ -47,9 +50,9 @@ features[variable][] = node_submitted_member_page
 features[variable][] = pathauto_node_member_page_pattern
 features[views_view][] = member_page
 
-; Information added by drupal.org packaging script on 2012-05-08
-version = "7.x-1.0-beta1"
+; Information added by drupal.org packaging script on 2012-08-08
+version = "7.x-1.0-rc1"
 core = "7.x"
 project = "debut_member"
-datestamp = "1336435256"
+datestamp = "1344453706"
 

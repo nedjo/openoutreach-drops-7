@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Install file for debut_highlighted.
+ */
+
+/**
+ * Enable the Apps compatible module.
+ */
+function debut_highlighted_update_7000() {
+  if (!module_exists('apps_compatible') && !module_enable(array('apps_compatible'))) {
+    throw new Exception('This version of Debut Highlighted requires the Apps compatible module but it could not be enabled.');
+  }
+}
+

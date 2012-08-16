@@ -8,7 +8,7 @@ include_once('debut_media.features.inc');
  * Add javascript and css required for the media browser link.
  */
 function debut_media_init() {
-  if (arg(0) == 'file' && is_null(arg(1))) {
+  if (arg(0) == 'file' && is_null(arg(1)) && user_access('edit file')) {
     $path = drupal_get_path('module', 'media');
     $element['#attached'] = array(
       'js' => array($path . '/js/media.admin.js'),
@@ -22,14 +22,21 @@ function debut_media_init() {
 }
 
 /**
- * Implements hook_menu_alter().
+ * Implements hook_menu_local_tasks_alter().
  *
- * Add a local action link to the file page.
+ * Add an action link to 'media/browser' on 'file' page.
  */
-function debut_media_menu_alter(&$items) {
-  if (isset($items['media/browser'])) {
-    $items['file/add'] = $items['media/browser'];
-    $items['file/add']['type'] = MENU_LOCAL_ACTION;
+function debut_media_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  if ($root_path == 'file') {
+    $item = menu_get_item('media/browser');
+    // Only show this action link if the current user has file edit access.
+    if ($item['access'] && media_access('edit')) {
+      $item['title'] = t('Add a new media file');
+      $data['actions']['output'][] = array(
+        '#theme' => 'menu_local_action',
+        '#link' => $item,
+      );
+    }
   }
 }
 
@@ -180,15 +187,11 @@ function debut_media_field_default_fields_alter(&$items) {
  * Remove field_media instances.
  * Remove incorrect dependencies on debut_media, which are assigned to modules
  * that provide content types we've added the field_media field to.
- * Remove the tags vocabulary, which we create at install time so as not to
- * create a dependency on a feature providing the vocabulary.
  */
 function debut_media_features_export_alter(&$export, $module_name) {
   $node_types = debut_media_get_media_types();
 
   if ($module_name == 'debut_media') {
-    // Remove the tags vocabulary.
-    unset($export['features']['taxonomy']['tags']);
     // Remove any media fields from export.
     if (isset($export['features']['field'])) {
       foreach (array_keys($node_types) as $type) {
@@ -239,7 +242,6 @@ function debut_media_get_media_types() {
   foreach ($features as $feature) {
     $info = $feature->info;
     if (isset($info['debut']) && isset($info['debut']['media']) && isset($info['debut']['media']['node_types'])) {
-      // Key the array by node type to match the format of the 'service_links_node_types' variable.
       $node_types = array_merge($node_types, array_fill_keys($info['debut']['media']['node_types'], $feature->name));
     }
   }

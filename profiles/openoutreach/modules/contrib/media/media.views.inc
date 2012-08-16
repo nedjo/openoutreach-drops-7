@@ -68,8 +68,7 @@ function template_preprocess_media_views_view_media_browser(&$vars) {
   }
 
   // Add the files to JS so that they are accessible inside the browser
-  drupal_add_js(array('media' => array('files' => $files)), 'setting');
-
+  drupal_add_js(array('media' => array('files' => array_values($files))), 'setting');
 
   // Add classes and wrappers from the style plugin.
   $handler  = $vars['view']->style_plugin;

@@ -3,6 +3,9 @@ description = A content type suitable for constructing sections and other nested
 core = 7.x
 package = Features
 php = 5.2.4
+author = Chocolate Lily
+author_url = http://chocolatelilyweb.ca
+dependencies[] = apps_compatible
 dependencies[] = book
 dependencies[] = eva
 dependencies[] = features
@@ -39,9 +42,9 @@ features[variable][] = node_options_section
 features[variable][] = pathauto_node_section_pattern
 features[views_view][] = section_children
 
-; Information added by drupal.org packaging script on 2012-05-08
-version = "7.x-1.0-rc1"
+; Information added by drupal.org packaging script on 2012-08-08
+version = "7.x-1.0-rc2"
 core = "7.x"
 project = "debut_section"
-datestamp = "1336500358"
+datestamp = "1344452817"
 

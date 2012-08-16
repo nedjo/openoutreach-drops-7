@@ -3,8 +3,8 @@ description = Provide core components for the Open Outreach distribution.
 core = 7.x
 package = Features
 php = 5.2.4
+dependencies[] = apps_compatible
 dependencies[] = context
-dependencies[] = debut
 dependencies[] = features
 dependencies[] = image
 dependencies[] = menu
@@ -39,9 +39,9 @@ features[variable][] = user_picture_style
 features[variable][] = user_pictures
 features[variable][] = user_register
 
-; Information added by drupal.org packaging script on 2012-06-22
-version = "7.x-1.0-rc2"
+; Information added by drupal.org packaging script on 2012-08-14
+version = "7.x-1.0-rc4"
 core = "7.x"
 project = "openoutreach"
-datestamp = "1340324497"
+datestamp = "1344985039"
 

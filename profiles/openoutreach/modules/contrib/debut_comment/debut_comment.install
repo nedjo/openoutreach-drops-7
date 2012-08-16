@@ -17,3 +17,12 @@ function debut_comment_install() {
   }
 }
 
+/**
+ * Enable the Apps compatible module.
+ */
+function debut_comment_update_7000() {
+  if (!module_exists('apps_compatible') && !module_enable(array('apps_compatible'))) {
+    throw new Exception('This version of Debut Comment requires the <a href="http://drupal.org/project/apps_compatible">Apps compatible</a> module but it could not be enabled.');
+  }
+}
+

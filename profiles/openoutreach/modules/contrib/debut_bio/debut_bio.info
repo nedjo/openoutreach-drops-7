@@ -3,6 +3,9 @@ description = An author bio and associated display.
 core = 7.x
 package = Features
 php = 5.2.4
+author = Chocolate Lily
+author_url = http://chocolatelilyweb.ca
+dependencies[] = apps_compatible
 dependencies[] = context
 dependencies[] = debut_blog
 dependencies[] = features
@@ -23,9 +26,9 @@ features[user_permission][] = view any bio profile
 features[user_permission][] = view own bio profile
 features[views_view][] = bio_author
 
-; Information added by drupal.org packaging script on 2012-05-08
-version = "7.x-1.0-rc1"
+; Information added by drupal.org packaging script on 2012-08-08
+version = "7.x-1.0-rc2"
 core = "7.x"
 project = "debut_bio"
-datestamp = "1336489855"
+datestamp = "1344448608"
 

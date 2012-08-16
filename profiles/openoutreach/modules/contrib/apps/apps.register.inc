@@ -170,13 +170,14 @@ function _apps_menu() {
   }
 
   $menu['admin/config/system/apps'] = array(
-    'page callback' => 'apps_config_page',
     'title' => 'Apps Configuration',
-    'description' => 'Setting for the App Console',
-        'type'=> MENU_NORMAL_ITEM,
-  ) + $common;
+    'description' => 'Settings for the App Module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('apps_config_form'),
+    'access arguments' => array('administer apps'),
+    'file' => 'apps.pages.inc',
+  );
   return $menu;
-  
 }
 
 /**

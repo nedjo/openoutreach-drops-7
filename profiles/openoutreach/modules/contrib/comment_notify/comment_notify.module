@@ -134,9 +134,6 @@ function comment_notify_form_comment_form_alter(&$form, &$form_state, $form_id) 
     $form['notify_settings']['notify_type']['#value'] = key($available_options);
   }
 
-  // Otherwise, the submit buttons will jump below the node preview.
-  $form['actions']['#weight'] = 19;
-
   // If this is an existing comment we set the default value based on their selection last time.
   if ($form['cid']['#value'] != '') {
     $notify = comment_notify_get_notification_type($form['cid']['#value']);

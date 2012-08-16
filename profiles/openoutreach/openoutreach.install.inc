@@ -6,7 +6,7 @@
  */
 
 /**
- * Generate an install task to install subprofile features.
+ * Generate an install task to install apps.
  *
  * Adapted from panopoly_install_tasks().
  */
@@ -18,17 +18,10 @@ function openoutreach_install_tasks($install_state) {
   // Summon the power of the Apps module.
   require_once(drupal_get_path('module', 'apps') . '/apps.profile.inc');
 
-  // Set up a task to verify capability to run apps.
-  $tasks['openoutreach_apps_verify'] = array(
-    'display_name' => t('Verify apps support'),
-    'type' => 'form',
-  );
-
   // Set up the openoutreach Apps install task.
   $debut_server = array(
     'machine name' => 'debut',
     'default apps' => array(
-      'debut',
       'debut_article',
       'debut_bio',
       'debut_blog',
@@ -42,11 +35,27 @@ function openoutreach_install_tasks($install_state) {
       'debut_social',
       'debut_wysiwyg',
     ),
-    'required apps' => array(
-      'debut',
-    ),
+    'required apps' => array(),
   );
-  $tasks = $tasks + apps_profile_install_tasks($install_state, $debut_server);
+
+  // Insert the apps support verification test after the apps select form so
+  // that it shows only if needed.
+  $apps_tasks = apps_profile_install_tasks($install_state, $debut_server);
+  $task_name = 'apps_profile_apps_select_form_debut';
+  if (isset($apps_tasks[$task_name])) {
+    $apps_select_form_task = $apps_tasks[$task_name];
+    unset($apps_tasks[$task_name]);
+    $tasks[$task_name] = $apps_select_form_task;
+  }
+
+  // Set up a task to verify capability to run apps.
+  $tasks['openoutreach_apps_verify'] = array(
+    'display_name' => t('Verify apps support'),
+    'type' => 'form',
+    'run' => (!empty($_SESSION['apps_downloads'])) ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
+  );
+
+  $tasks = $tasks + $apps_tasks;
 
   // Rename one of the default apps tasks. In the case of a non-interactive
   // installation, apps_profile_install_tasks() never defines this task, so we
@@ -128,6 +137,8 @@ function openoutreach_form_apps_profile_apps_select_form_alter(&$form, $form_sta
     }
     ksort($options);
     $form['apps_fieldset']['apps']['#options'] = $options;
+    // Remove the deprecated Debut app.
+    unset($form['apps_fieldset']['apps']['#options']['debut']);
   }
 
   // Enable installation of Open Outreach features.
@@ -297,14 +308,13 @@ function openoutreach_apps_verify($form, &$form_state) {
     drupal_get_path('profile', 'openoutreach') . '/openoutreach.install.css',
   );
 
-  $form = array();
-
   $form['opening'] = array(
     '#markup' => '<h1>' . t('Verify Apps support') . '</h1>',
   );
 
   $profiles = install_find_profiles();
   $is_pantheon = isset($profiles['pantheon']);
+  $pantheon_local_enabled = FALSE;
 
   if ($is_pantheon) {
     // Note Pantheon requirements.
@@ -522,10 +532,6 @@ function openoutreach_theme_form_submit($form, &$form_state) {
  * Form to talk about preparing the site for prime time.
  */
 function openoutreach_prepare($form, &$form_state) {
-  // Hide some messages from various modules that are just too chatty!
-  drupal_get_messages('status');
-  drupal_get_messages('warning');
-
   $form = array();
 
   $form['opening'] = array(

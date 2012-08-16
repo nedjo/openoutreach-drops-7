@@ -66,6 +66,10 @@ function media_help($path, $arg) {
       $output .= '<ul><li>' . t('Enable WYSIWYG plugin on your desired <a href="@wysiwyg-profile">WYSIWYG profile</a>. Please note that you will need to have <a href="@wysiwyg">WYSIWYG</a> module enabled.', array('@wysiwyg-profile' => url('admin/config/content/wysiwyg'), '@wysiwyg' => 'http://drupal.org/project/wysiwyg')) . '</li>';
       $output .= '<li>' . t('Add Media Filter to the WYSIWYG enabled <a href="@input-format">Input format</a>', array('@input-format' => url('admin/config/content/formats'))) . '</li></ul></dd>';
       return $output;
+    case 'admin/structure/file-types/manage/%/display/media_preview':
+    case 'admin/structure/file-types/manage/%/file-display/media_preview':
+      drupal_set_message(t('Changing the Preview view mode could have unintended side effects such as breaking the Media browser or WYSIWYG integration. Only change these display settings if you know what you are doing.'), 'warning');
+      break;
   }
 }
 
@@ -238,12 +242,10 @@ function media_menu() {
 
 /**
  * Implements hook_menu_local_tasks_alter().
- *
- * @todo Move this to file_entity
  */
 function media_menu_local_tasks_alter(&$data, $router_item, $root_path) {
-  // Add action link to 'file/add' on 'admin/content/file' page.
-  if ($root_path == 'admin/content/file' || $root_path == 'admin/content/file/thumbnails') {
+  // Add action link to 'file/add' on 'admin/content/file/thumbnails' page.
+  if ($root_path == 'admin/content/file/thumbnails') {
     $item = menu_get_item('file/add');
     if (!empty($item['access'])) {
       $data['actions']['output'][] = array(
@@ -379,30 +381,6 @@ function media_file_delete($file) {
  */
 function media_image_style_flush($style) {
   // When a image style is flushed, clear the filter and field caches.
-  media_filter_invalidate_caches();
-}
-
-/**
- * Implements hook_file_style_flush().
- *
- * This hook is invoked by the File Styles module in Styles 1.x.
- *
- * @see media_styles_style_flush()
- */
-function media_file_style_flush($style) {
-  // When a file style is flushed, clear the filter and field caches.
-  media_filter_invalidate_caches();
-}
-
-/**
- * Implements hook_styles_style_flush().
- *
- * This hook is invoked by the Styles module in Styles 2.x.
- *
- * @see media_file_style_flush()
- */
-function media_styles_style_flush($style) {
-  // When a style is flushed, clear the filter and field caches.
   media_filter_invalidate_caches();
 }
 
@@ -588,6 +566,21 @@ function media_form_wysiwyg_profile_form_alter(&$form, &$form_state) {
   $form['buttons']['drupal']['media']['#element_validate'][] = 'media_wysiwyg_button_element_validate';
   $form['buttons']['drupal']['media']['#after_build'][] = 'media_wysiwyg_button_element_validate';
   form_load_include($form_state, 'inc', 'media', 'wysiwyg_plugins/media');
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function media_form_file_entity_add_upload_alter(&$form, &$form_state) {
+  if (isset($form['upload']['#upload_validators'])) {
+    $validators = &$form['upload']['#upload_validators'];
+
+    // If the list of allowed extensions is the default provided by file_entity
+    // then change the default to the more permissive media extension list.
+    if (isset($validators['file_validate_extensions']) && $validators['file_validate_extensions'] == array(FILE_DEFAULT_ALLOWED_EXTENSIONS)) {
+      $validators['file_validate_extensions'] = array(media_variable_get('file_extensions'));
+    }
+  }
 }
 
 /* ***************************************** */
@@ -935,7 +928,15 @@ function media_element_process(&$element, &$form_state, $form) {
   );
   // @todo Figure out how to update the preview image after the Edit modal is closed.
   $element['edit'] = array(
-    '#markup' => ctools_modal_text_button(t('Edit media'), 'media/' . $fid . '/edit/nojs', '', 'button edit ctools-modal-media-file-edit'),
+    '#type' => 'link',
+    '#href' => 'media/' . $fid . '/edit/nojs',
+    '#title' => t('Edit media'),
+    '#attributes' => array(
+      'class' => array(
+        'ctools-use-modal', 'use-ajax', // Required for CTools modal to work.
+        'ctools-modal-media-file-edit', 'button', 'edit',
+      ),
+    ),
     '#weight' => 20,
     '#access' => media_access('edit'),
   );

@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Install file for Debut Section.
+ */
+
+/**
+ * Enable the Apps compatible module.
+ */
+function debut_section_update_7000() {
+  if (!module_exists('apps_compatible') && !module_enable(array('apps_compatible'))) {
+    throw new Exception('This version of Debut Section requires the Apps compatible module but it could not be enabled.');
+  }
+}
+

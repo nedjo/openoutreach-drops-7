@@ -14,6 +14,6 @@ function granada_designkit_image($variables) {
  */
 function granada_preprocess_page(&$vars) {
   if (!isset($vars['logo']) || empty($vars['logo'])) {
-    $vars['logo'] = url(drupal_get_path('theme', 'granada') . '/img/logo.png', array('absolute' => TRUE));
+    $vars['logo'] = url(drupal_get_path('theme', 'granada') . '/logo.png', array('absolute' => TRUE));
   }
 }

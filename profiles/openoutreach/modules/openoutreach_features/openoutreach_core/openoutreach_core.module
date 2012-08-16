@@ -13,7 +13,7 @@ include_once('openoutreach_core.features.inc');
  * with the blogger role.
  */
 function openoutreach_core_context_default_contexts_alter(&$contexts) {
-  if (isset($contexts['shortcut']) && module_exists('debut_blog') && !openoutreach_is_recreating('openoutreach_core')) {
+  if (isset($contexts['shortcut']) && module_exists('debut_blog') && !apps_compatible_feature_is_recreating('openoutreach_core')) {
     $contexts['shortcut']->conditions['user']['values']['blogger'] = 'blogger';
   }
 }

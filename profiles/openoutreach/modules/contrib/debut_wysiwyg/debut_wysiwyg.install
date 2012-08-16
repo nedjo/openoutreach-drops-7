@@ -2,24 +2,15 @@
 
 /**
  * @file
- * Install file for debut_wysiwyg.
+ * Install file for Debut WYSIWYG.
  */
 
 /**
- * Implements hook_install().
- *
- * Create the 'contributor' and 'editor' roles if they don't already exist.
- * We do so here to avoid creating a dependency on a feature providing these
- * roles (debut).
+ * Enable the Apps compatible module.
  */
-function debut_wysiwyg_install() {
-  foreach (array('contributor', 'editor') as $name) {
-    // If there isn't an existing role by this name, create one.
-    if (!$role = user_role_load_by_name($name)) {
-      $role = new stdClass();
-      $role->name = $name;
-      user_role_save($role);
-    }
+function debut_wysiwyg_update_7000() {
+  if (!module_exists('apps_compatible') && !module_enable(array('apps_compatible'))) {
+    throw new Exception('This version of Debut Wysiwyg requires the Apps compatible module but it could not be enabled.');
   }
 }
 
