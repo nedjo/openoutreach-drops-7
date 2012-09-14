@@ -1,0 +1,35 @@
+; Drupal version
+core = 7.x
+api = 2
+
+; Contrib modules
+projects[addressfield][subdir] = contrib
+projects[addressfield][version] = 1.0-beta3
+projects[apps_compatible][subdir] = contrib
+projects[apps_compatible][version] = 1.0-alpha2
+projects[ctools][subdir] = contrib
+projects[ctools][version] = 1.2
+; projects[debut_redhen][subdir] = contrib
+; projects[debut_redhen][version] = 1.x-dev
+projects[entity][subdir] = contrib
+projects[entity][version] = 1.0-rc3
+projects[entityreference][subdir] = contrib
+projects[entityreference][version] = 1.0-rc3
+projects[features][subdir] = contrib
+projects[features][version] = 1.0
+projects[message][subdir] = contrib
+projects[message][version] = 1.5
+projects[redhen][subdir] = contrib
+projects[redhen][version] = 1.0-beta1
+projects[redhen_membership][subdir] = contrib
+projects[redhen_membership][version] = 1.0-beta1
+projects[registration][subdir] = contrib
+projects[registration][version] = 1.0-beta3
+projects[relation][subdir] = contrib
+projects[relation][version] = 1.0-rc3
+projects[strongarm][subdir] = contrib
+projects[strongarm][version] = 2.0
+projects[token][subdir] = contrib
+projects[token][version] = 1.2
+projects[views][subdir] = contrib
+projects[views][version] = 3.5

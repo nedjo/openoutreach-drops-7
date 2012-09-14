@@ -103,7 +103,7 @@ function file_admin_views_data_alter(&$data) {
  */
 function file_admin_views_query_substitutions() {
   return array(
-    '***ADMINISTER_MEDIA***' => intval(user_access('administer media')),
+    '***ADMINISTER_FILES***' => intval(user_access('administer files')),
     '***VIEW_OWN_UNPUBLISHED_MEDIA***' => intval(user_access('view own unpublished media')),
   );
 }

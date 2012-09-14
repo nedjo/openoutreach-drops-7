@@ -1,14 +1,14 @@
 core = 7.x
 name = File administration options
-description = "Adds file administration options to media items."
+description = "Adds file administration options to publish, promote, and make sticky at the top of lists."
 package = Media
-dependencies[] = media
+dependencies[] = file_entity
 
 files[] = includes/views_handler_filter_file_admin.inc
 
-; Information added by drupal.org packaging script on 2011-12-07
-version = "7.x-1.0-alpha1"
+; Information added by drupal.org packaging script on 2012-09-01
+version = "7.x-1.0-alpha2"
 core = "7.x"
 project = "file_admin"
-datestamp = "1323216678"
+datestamp = "1346462819"
 

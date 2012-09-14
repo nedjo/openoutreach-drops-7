@@ -14,7 +14,7 @@ A video tutorial is available here:  http://youtu.be/SF7bZw9wCwg
 -- REQUIREMENTS --
 
 A connector module is needed to access an app's server.
- An example of a connector module is Level Ten Apps http://drupal.org/project/levelten_apps
+ * An example of a connector module is Level Ten Apps http://drupal.org/project/levelten_apps
 
 -- INSTALLATION --
 
@@ -45,6 +45,15 @@ A connector module is needed to access an app's server.
 
 
 -- FAQ --
+
+*I am having trouble installing Apps that contain files from a GitHub download URL*
+
+GitHub download URLs are typically of the style, http://github.com/user/repo/tarball/branch
+Drupal's downloader and GitHub's download URLs have typically not played nice
+together, so we recommend either appending a filename to the end of the GitHub
+URL such as, http://github.com/user/repo/tarball/branch/filename.tar.gz or
+using a utility such as http://githubredir.debian.net/ to generate those
+URLs for you.
 
 
 -- APP INSTALLATION --
@@ -78,10 +87,10 @@ Install directly to sites directory
 
 This is not the preferred method of install and should be a last resort.
 
-In order to install directly to the sites directory it needs to be writable.
-In order to do this go to the root of your drupal install and type
+In order to install directly the sites/all/modules directory it needs to be
+writable. In order to do this go to the root of your drupal install and type
 
-sudo chmod -R 777 sites
+sudo chmod 777 sites/all/modules
 
 Be aware that there are security issues with leaving your site in this state.
 

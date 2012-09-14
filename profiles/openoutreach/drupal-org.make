@@ -13,8 +13,10 @@ core = 7.x
 ; includes[debut_forum] = "http://drupalcode.org/project/debut_forum.git/blob_plain/refs/heads/7.x-1.x:/debut_forum.make.inc"
 ; includes[debut_highlighted] = "http://drupalcode.org/project/debut_highlighted.git/blob_plain/refs/heads/7.x-1.x:/debut_highlighted.make.inc"
 ; includes[debut_link] = "http://drupalcode.org/project/debut_link.git/blob_plain/refs/heads/7.x-1.x:/debut_link.make.inc"
+; includes[debut_location] = "http://drupalcode.org/project/debut_location.git/blob_plain/refs/heads/7.x-1.x:/debut_location.make.inc"
 ; includes[debut_media] = "http://drupalcode.org/project/debut_media.git/blob_plain/refs/heads/7.x-1.x:/debut_media.make.inc"
 ; includes[debut_member] = "http://drupalcode.org/project/debut_member.git/blob_plain/refs/heads/7.x-1.x:/debut_member.make.inc"
+; includes[debut_redhen] = "http://drupalcode.org/project/debut_redhen.git/blob_plain/refs/heads/7.x-1.x:/debut_redhen.make.inc"
 ; includes[debut_section] = "http://drupalcode.org/project/debut_section.git/blob_plain/refs/heads/7.x-1.x:/debut_section.make.inc"
 ; includes[debut_seo] = "http://drupalcode.org/project/debut_seo.git/blob_plain/refs/heads/7.x-1.x:/debut_seo.make.inc"
 ; includes[debut_social] = "http://drupalcode.org/project/debut_social.git/blob_plain/refs/heads/7.x-1.x:/debut_social.make.inc"
@@ -24,22 +26,11 @@ core = 7.x
 projects[admin_menu][subdir] = contrib
 projects[admin_menu][version] = 3.0-rc3
 projects[apps][subdir] = contrib
-; Use the Dev version until app display issues are resolved in next stable
-; release after 1.0-beta6.
-projects[apps][version] = 1.x-dev
-; Since this patch conflicts with one below, using a combined version.
-; projects[apps][patch][http://drupal.org/files/1479164-apps-permissions-check-modules-not-conf-reroll.patch] = http://drupal.org/files/1479164-apps-permissions-check-modules-not-conf-reroll.patch
-; And now, using all three combined...
-; projects[apps][patch][http://drupal.org/files/skip-install-tasks-1714552-2+apps-permissions-check-1479164.patch] = http://drupal.org/files/skip-install-tasks-1714552-2+apps-permissions-check-1479164.patch
-projects[apps][patch][http://drupal.org/files/apps-drush-install-1561652-15.patch] = http://drupal.org/files/apps-drush-install-1561652-15.patch
-projects[apps][patch][http://drupal.org/files/profile-libraries-1623338-1.patch] = http://drupal.org/files/profile-libraries-1623338-1.patch
-projects[apps][patch][http://drupal.org/files/apps-enable-success-1721548-3.patch] = http://drupal.org/files/apps-enable-success-1721548-3.patch
+projects[apps][version] = 1.0-beta7
 projects[apps_compatible][subdir] = contrib
-projects[apps_compatible][version] = 1.0-alpha2
+projects[apps_compatible][version] = 1.0-alpha3
 projects[ctools][subdir] = contrib
-projects[ctools][version] = 1.1
-; Patch addresses an issue in openoutreach_front_page feature, so added here.
-projects[ctools][patch][http://drupal.org/files/ctools-1724332-1-combined.patch] = http://drupal.org/files/ctools-1724332-1-combined.patch
+projects[ctools][version] = 1.2
 projects[designkit][subdir] = contrib
 projects[designkit][version] = 1.0-beta1
 projects[fusion][subdir] = contrib
@@ -52,10 +43,12 @@ projects[mix_and_match][subdir] = contrib
 projects[mix_and_match][version] = 1.0
 projects[mix_and_match][patch][http://drupal.org/files/mix_and_match-fusion_apply-1372052-8.patch] = http://drupal.org/files/mix_and_match-fusion_apply-1372052-8.patch
 projects[panels][subdir] = contrib
-projects[panels][version] = 3.2
+projects[panels][version] = 3.3
 
 
 ; TODO: delete everything below once http://drupal.org/node/1427752 is fixed.
+projects[addressfield][subdir] = contrib
+projects[addressfield][version] = 1.0-beta3
 projects[advanced_forum][subdir] = contrib
 projects[advanced_forum][version] = 2.0
 projects[advanced_help][subdir] = contrib
@@ -93,10 +86,14 @@ projects[debut_highlighted][subdir] = contrib
 projects[debut_highlighted][version] = 1.0-rc2
 projects[debut_link][subdir] = contrib
 projects[debut_link][version] = 1.0-rc2
+projects[debut_location][subdir] = contrib
+projects[debut_location][version] = 1.0-alpha2
 projects[debut_media][subdir] = contrib
 projects[debut_media][version] = 1.0-rc2
 projects[debut_member][subdir] = contrib
 projects[debut_member][version] = 1.0-rc1
+projects[debut_redhen][subdir] = contrib
+projects[debut_redhen][version] = 1.0-alpha1
 projects[debut_section][subdir] = contrib
 projects[debut_section][version] = 1.0-rc2
 projects[debut_seo][subdir] = contrib
@@ -107,18 +104,29 @@ projects[debut_wysiwyg][subdir] = contrib
 projects[debut_wysiwyg][version] = 1.0-rc2
 projects[entity][subdir] = contrib
 projects[entity][version] = 1.0-rc3
+projects[entityreference][subdir] = contrib
+projects[entityreference][version] = 1.0-rc3
 projects[eva][subdir] = contrib
 projects[eva][version] = 1.2
 projects[features][subdir] = contrib
 projects[features][version] = 1.0
 projects[file_admin][subdir] = contrib
-projects[file_admin][version] = 1.0-alpha1
+projects[file_admin][version] = 1.0-alpha2
 projects[file_entity][subdir] = contrib
 projects[file_entity][version] = 2.0-unstable6
 projects[follow][subdir] = contrib
 projects[follow][version] = 1.0-alpha1
 projects[forward][subdir] = contrib
 projects[forward][version] = 1.3
+projects[geocoder][subdir] = contrib
+projects[geocoder][version] = 1.2
+projects[geofield][subdir] = contrib
+; No stable 2.x release yet. Use one when it's available.
+projects[geofield][version] = 2.x-dev
+projects[geophp][subdir] = contrib
+; Use dev release until the first stble release after 1.6
+; for the fix to http://drupal.org/node/1774098.
+projects[geophp][version] = 1.x-dev
 projects[globalredirect][subdir] = contrib
 projects[globalredirect][version] = 1.5
 projects[jcarousel][subdir] = contrib
@@ -137,14 +145,28 @@ projects[media_vimeo][subdir] = contrib
 projects[media_vimeo][version] = 1.0-beta5
 projects[media_youtube][subdir] = contrib
 projects[media_youtube][version] = 1.0-beta3
+projects[message][subdir] = contrib
+projects[message][version] = 1.5
 projects[metatag][subdir] = contrib
 projects[metatag][version] = 1.0-alpha8
 projects[multiform][subdir] = contrib
 projects[multiform][version] = 1.0
+projects[openlayers][subdir] = contrib
+; Using dev for fixes to marker tokens.
+; Switch back to stable with first release after 2.0-beta1.
+projects[openlayers][version] = 2.x-dev
 projects[pathauto][subdir] = contrib
 projects[pathauto][version] = 1.2
 projects[profile2][subdir] = contrib
 projects[profile2][version] = 1.2
+projects[redhen][subdir] = contrib
+projects[redhen][version] = 1.0-beta2
+projects[redhen_membership][subdir] = contrib
+projects[redhen_membership][version] = 1.0-beta1
+projects[registration][subdir] = contrib
+projects[registration][version] = 1.0-beta3
+projects[relation][subdir] = contrib
+projects[relation][version] = 1.0-rc3
 projects[remote_stream_wrapper][subdir] = contrib
 projects[remote_stream_wrapper][version] = 1.0-beta4
 projects[service_links][subdir] = contrib
@@ -155,13 +177,13 @@ projects[styles][patch][http://drupal.org/files/issues/1186624-styles-media-fiel
 projects[styles][subdir] = contrib
 projects[styles][version] = 2.0-alpha8
 projects[token][subdir] = contrib
-projects[token][version] = 1.2
+projects[token][version] = 1.3
 projects[transliteration][subdir] = contrib
 projects[transliteration][version] = 3.1
 projects[views_slideshow][subdir] = contrib
 projects[views_slideshow][version] = 3.0
 projects[views][subdir] = contrib
-projects[views][version] = 3.3
+projects[views][version] = 3.5
 projects[wysiwyg][subdir] = contrib
 projects[wysiwyg][version] = 2.x-dev
 projects[xmlsitemap][subdir] = contrib
