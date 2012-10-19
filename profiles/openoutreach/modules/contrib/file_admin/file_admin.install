@@ -7,6 +7,8 @@
 
 /**
  * Implements hook_install().
+ *
+ * Add fields to the file_managed table.
  */
 function file_admin_install() {
   $table = 'file_managed';

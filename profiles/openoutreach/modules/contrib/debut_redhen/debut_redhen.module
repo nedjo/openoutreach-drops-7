@@ -1,0 +1,30 @@
+<?php
+/**
+ * @file
+ * Code for the Debut RedHen feature.
+ */
+
+include_once('debut_redhen.features.inc');
+
+/**
+* Implements hook_default_redhen_membership_type_alter().
+*
+* If there is a 'member' role, tie it to the 'standard' membership type.
+*/
+function debut_redhen_default_redhen_membership_type_alter(&$items) {
+  if (isset($items['standard']) && ($role = user_role_load_by_name('member')) && !(apps_compatible_feature_is_recreating('debut_member'))) {
+    $items['standard']->role_id = $role->rid;
+  }
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function debut_redhen_admin_paths() {
+  $paths = array(
+    'redhen' => TRUE, 
+    'redhen/*' => TRUE,
+  );
+  return $paths;
+}
+

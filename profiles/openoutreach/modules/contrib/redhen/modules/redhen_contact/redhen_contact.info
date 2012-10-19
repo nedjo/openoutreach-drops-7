@@ -1,0 +1,26 @@
+name = RedHen Contacts
+description = Defines the base contact entity and features.
+package = RedHen
+core = 7.x
+
+dependencies[] = redhen
+dependencies[] = redhen_fields
+
+files[] = includes/redhen_contact_type.admin.inc
+files[] = includes/redhen_contact.pages.inc
+files[] = includes/redhen_contact.forms.inc
+
+; Classes
+files[] = includes/redhen_contact.entity.inc
+files[] = includes/redhen_contact.controller.inc
+files[] = includes/redhen_contact_type.entity.inc
+
+; Tests
+;files[] = tests/redhen_contact.test
+
+; Information added by drupal.org packaging script on 2012-08-28
+version = "7.x-1.0-beta2"
+core = "7.x"
+project = "redhen"
+datestamp = "1346197347"
+

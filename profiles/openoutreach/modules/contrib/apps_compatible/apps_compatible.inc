@@ -29,6 +29,8 @@ function apps_compatible_ensure_vocabulary($items) {
   $vocabularies = apps_compatible_vocabularies();
   foreach ($items as $item) {
     $vocabulary = taxonomy_vocabulary_machine_name_load($item['machine name']);
+    // If there isn't an existing vocabulary with this machine name, create
+    // one.
     if (!$vocabulary && isset($vocabularies[$item['machine name']])) {
       taxonomy_vocabulary_save((object) $vocabularies[$item['machine name']]);
     }
@@ -44,8 +46,9 @@ function apps_compatible_ensure_vocabulary($items) {
 function apps_compatible_ensure_role($items) {
   $roles = apps_compatible_roles();
   foreach ($items as $item) {
+    $role = user_role_load_by_name($item['machine name']);
     // If there isn't an existing role by this name, create one.
-    if (!$role = user_role_load_by_name($item['machine name'])) {
+    if (!$role && isset($roles[$item['machine name']])) {
       $role = (object) $roles[$item['machine name']];
       user_role_save($role);
     }
@@ -109,6 +112,14 @@ function apps_compatible_roles() {
 
   $roles['editor'] = array(
     'name' => 'editor',
+  );
+
+  $roles['manager'] = array(
+    'name' => 'manager',
+  );
+
+  $roles['member'] = array(
+    'name' => 'member',
   );
 
   return $roles;

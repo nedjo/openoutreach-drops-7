@@ -41,19 +41,17 @@ function openoutreach_install_tasks($install_state) {
   // Insert the apps support verification test after the apps select form so
   // that it shows only if needed.
   $apps_tasks = apps_profile_install_tasks($install_state, $debut_server);
-  $task_name = 'apps_profile_apps_select_form_debut';
-  if (isset($apps_tasks[$task_name])) {
-    $apps_select_form_task = $apps_tasks[$task_name];
-    unset($apps_tasks[$task_name]);
-    $tasks[$task_name] = $apps_select_form_task;
+  $select_task_name = 'apps_profile_apps_select_form_debut';
+  $verify_task_name = 'apps_install_verify';
+  if (isset($apps_tasks[$select_task_name]) && isset($apps_tasks[$verify_task_name])) {
+    $apps_select_form_task = $apps_tasks[$select_task_name];
+    $apps_verify_form_task = $apps_tasks[$verify_task_name];
+    unset($apps_tasks[$select_task_name]);
+    unset($apps_tasks[$verify_task_name]);
+    $tasks[$select_task_name] = $apps_select_form_task;
+    $apps_verify_form_task['run'] = (!empty($_SESSION['apps_downloads'])) ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP;
+    $tasks[$verify_task_name] = $apps_verify_form_task;
   }
-
-  // Set up a task to verify capability to run apps.
-  $tasks['openoutreach_apps_verify'] = array(
-    'display_name' => t('Verify apps support'),
-    'type' => 'form',
-    'run' => (!empty($_SESSION['apps_downloads'])) ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
-  );
 
   $tasks = $tasks + $apps_tasks;
 
@@ -297,135 +295,6 @@ function openoutreach_install_permissions() {
   module_load_include('inc', 'features', 'features.export');
   user_permission_features_rebuild('openoutreach_install');
 }
-
-/**
- * Form to check to see if Apps support is possible.
- */
-function openoutreach_apps_verify($form, &$form_state) {
-  $form = array();
-
-  $form['#attached']['css'] = array(
-    drupal_get_path('profile', 'openoutreach') . '/openoutreach.install.css',
-  );
-
-  $form['opening'] = array(
-    '#markup' => '<h1>' . t('Verify Apps support') . '</h1>',
-  );
-
-  $profiles = install_find_profiles();
-  $is_pantheon = isset($profiles['pantheon']);
-  $pantheon_local_enabled = FALSE;
-
-  if ($is_pantheon) {
-    // Note Pantheon requirements.
-    // We can test writability as a proxy for the Pantheon on server
-    // development site setting.
-    $pantheon_local_enabled = is_writeable(drupal_realpath('sites/all/modules'));
-    $form['pantheon'] = array(
-      '#title' => t('Pantheon'),
-      '#type' => 'fieldset',
-      '#description' => theme('image', array('path' => drupal_get_path('profile', 'openoutreach') . '/images/enable-apps-pantheon.png')),
-    );
-    if (!$pantheon_local_enabled) {
-      $form['pantheon']['#description'] .= t('Before installing Open Outreach on Pantheon, you need to enable "On Server Development" to use apps.') . '<br /><br />';
-    }
-    else {
-      $form['pantheon']['#description'] .= t('"On Server Development" is enabled, so you\'re good to go to install Open Outreach on Pantheon using apps.') . '<br /><br />';
-    }
-    $form['pantheon']['#description'] .= t('After you install your apps, you will need to use the "Commit" button to add them to the version control system.');
-    $form['#attached']['css'] = array(
-      drupal_get_path('profile', 'openoutreach') . '/openoutreach.install.css',
-    );
-  }
-  else {
-    $form['openingtext'] = array(
-      '#markup' => '<p>' . t('Apps downloads the code needed to install apps using the same mechanism as the Update module in Drupal core. This functionality depends on certain PHP extensions being enabled on your server. Below is the documentation & verification for the various methods of installing. <strong>Note that you need only <em>one</em> of these methods enabled in order to install apps.</strong>') . '</p>',
-      '#weight' => -10,
-    );
-
-    // Verify FTP support
-    $ftp_installed = extension_loaded('ftp');
-    $form['ftp'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('FTP (!status)', array('!status' => $ftp_installed ? t('Enabled!') : t('Not enabled'))),
-      '#description' => '',
-      '#collapsible' => !$ftp_installed,
-      '#collapsed' => !$ftp_installed,
-      '#weight' => $ftp_installed ? 0 : 10,
-    );
-    if (!$ftp_installed) {
-      $form['ftp']['#description'] .= t('Your server does not have the FTP PHP extension. You will need to install it or use an alternative method. See <a href="http://us2.php.net/manual/en/book.ftp.php">http://us2.php.net/manual/en/book.ftp.php</a> for how to install the FTP PHP extension.') . '<br /><br />';
-    }
-    $form['ftp']['#description'] .= t('To install with FTP, you will need an FTP username and password that has permissions to write to your site directory on your server. Be aware that FTP is not an encrypted protocol and your credentials will be transmitted in the clear.');
-
-    // Verify SSH support
-    $ssh_installed = extension_loaded('ssh2');
-    $form['ssh'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('SSH (!status)', array('!status' => $ssh_installed ? t('Enabled!') : t('Not enabled'))),
-      '#description' => '',
-      '#collapsible' => !$ssh_installed,
-      '#collapsed' => !$ssh_installed,
-      '#weight' => $ssh_installed ? 1 : 11,
-    );
-    if (!$ssh_installed) {
-      $form['ssh']['#description'] .= t('Your server does not have ssh2 installed. You will need to install it or use an alternative method. See <a href="http://us2.php.net/manual/en/book.ssh2.php">http://us2.php.net/manual/en/book.ssh2.php</a> for how to install the ssh2 php extension.') . '<br /><br />';
-    }
-    $form['ssh']['#description'] .= t('To install with SSH, you will need a username and password of a user that can SSH into the server and has write permissions to your site directory on your server.');
-
-    // Verify web server write permissions
-    $install_permissions = is_writeable(drupal_realpath('sites/all/modules'));
-    $vars = array('@install_path' => 'sites/all/modules');
-    $form['webserver'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Webserver direct install (!status)', array('!status' => $install_permissions ? t('Enabled!') : t('Not enabled'))),
-      '#description' => '',
-      '#collapsible' => !$install_permissions,
-      '#collapsed' => !$install_permissions,
-      '#weight' => $install_permissions ? 2 : 12,
-    );
-    $form['webserver']['#description'] .= $install_permissions
-      ? t('You have write permissions to @install_path and so can install using this method.', $vars) . '<br /><br />'
-      : t('You do not have sufficient permissions to instal by webserver direct install. In order to assign these permissions, go to the root of your drupal install and type <br/><br/><strong>sudo chmod -R 777 @install_path</strong>', $vars) . '<br /><br />';
-    $form['webserver']['#description'] .= t('Be aware that there are security issues with leaving your site in this state.');
-
-    // When altering this form and adding an install option, set this value to
-    // TRUE if your option is enabled (available). 
-    $form['app_enabled'] = array(
-      '#type' => 'value',
-      '#value' => $pantheon_local_enabled || $ftp_installed || $ssh_installed || $install_permissions ? TRUE : FALSE,
-    );
-
-    $form['#process'] = array('openoutreach_install_verify_process');
-  }
-
-  $form['continue'] = array(
-    '#type' => 'submit',
-    '#value' => t('Continue'),
-    '#weight' => 20,
-  );
-
-  return $form;
-}
-
-/**
- * Process callback for apps_install_verify form.
- *
- * If no options are enabled, show all of them and a message.
- */
-function openoutreach_install_verify_process($form) {
-  if (!$form['app_enabled']['#value']) {
-    foreach (element_children($form) as $key) {
-      if (isset($form[$key]['#type']) && $form[$key]['#type'] == 'fieldset') {
-        $form[$key]['#collapsible'] = FALSE;
-        $form[$key]['#collapsed'] = FALSE;
-      }
-    }
-    drupal_set_message(t('No enabled App install methods found.'), 'warning');
-  }
-  return $form;
-}
-
 
 /**
  * Form to choose the starting theme from list of available options.

@@ -177,6 +177,23 @@ function _apps_menu() {
     'access arguments' => array('administer apps'),
     'file' => 'apps.pages.inc',
   );
+  $menu['admin/config/system/apps/settings'] = array(
+    'title' => 'Apps Configuration',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $menu['admin/config/system/apps/verify'] = array(
+    'title' => 'Verify Apps support',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('apps_install_verify'),
+    'description' => 'Apps installation requirements check',
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer apps'),
+    'file' => 'apps.profile.inc',
+  );
+
+
+
   return $menu;
 }
 
