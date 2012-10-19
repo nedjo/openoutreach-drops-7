@@ -41,7 +41,7 @@ function debut_highlighted_image_default_styles() {
         'module' => 'image',
         'name' => 'image_scale',
         'data' => array(
-          'width' => '635',
+          'width' => '830',
           'height' => '',
           'upscale' => 0,
         ),
@@ -57,8 +57,8 @@ function debut_highlighted_image_default_styles() {
         'module' => 'image',
         'name' => 'image_crop',
         'data' => array(
-          'width' => '635',
-          'height' => '330',
+          'width' => '830',
+          'height' => '360',
           'anchor' => 'center-center',
         ),
         'weight' => '2',

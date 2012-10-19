@@ -3,40 +3,13 @@
 include_once('debut_media.features.inc');
 
 /**
- * Implements hook_init().
+ * Implements hook_menu_alter().
  *
- * Add javascript and css required for the media browser link.
+ * Convert the 'file/add' item to a local action.
  */
-function debut_media_init() {
-  if (arg(0) == 'file' && is_null(arg(1)) && user_access('edit file')) {
-    $path = drupal_get_path('module', 'media');
-    $element['#attached'] = array(
-      'js' => array($path . '/js/media.admin.js'),
-      'css' => array($path . '/css/media.css'),
-    );
-    module_load_include('inc', 'media', 'includes/media.browser');
-    media_attach_browser_js($element);
-    // Render an empty element to add the js and css.
-    drupal_render($element);
-  }
-}
-
-/**
- * Implements hook_menu_local_tasks_alter().
- *
- * Add an action link to 'media/browser' on 'file' page.
- */
-function debut_media_menu_local_tasks_alter(&$data, $router_item, $root_path) {
-  if ($root_path == 'file') {
-    $item = menu_get_item('media/browser');
-    // Only show this action link if the current user has file edit access.
-    if ($item['access'] && media_access('edit')) {
-      $item['title'] = t('Add a new media file');
-      $data['actions']['output'][] = array(
-        '#theme' => 'menu_local_action',
-        '#link' => $item,
-      );
-    }
+function debut_media_menu_alter(&$items) {
+  if (isset($items['file/add'])) {
+    $items['file/add']['type'] = MENU_LOCAL_ACTION;
   }
 }
 
@@ -66,31 +39,25 @@ function debut_media_module_implements_alter(&$implementations, $hook) {
 }
 
 /**
- * Implements hook_views_data_alter().
+ * Implements hook_jcarousel_options_alter(().
  *
- * Use the media_title field for the file fid argument's name field.
- *
- * @todo: determine why this doesn't appear to work with views contextual
- *   filters;
+ * Swap in setup and reload callbacks to make the media carousel responsive.
  */
-function debut_media_views_data_alter(&$data) {
-  $data['file_managed']['fid']['argument']['name field'] = 'media_title';
-  $data['file_managed']['fid']['argument']['name table'] = 'field_data_media_title';
-}
+function debut_media_jcarousel_options_alter(&$options, $class_name) {
+  static $added = FALSE;
 
-/**
- * Implements hook_page_alter().
- *
- * Set the page title for media items to the title of the item.
- */
-function debut_media_page_alter(&$variables) {
-  if (arg(0) == 'file' && $file = menu_get_object('file')) {
-    if (!empty($file->media_title['und'][0]['safe_value'])) {
-      drupal_set_title($file->media_title['und'][0]['safe_value']);
+  if (!empty($options['view_options']['view_name']) && $options['view_options']['view_name'] == 'media') {
+    foreach (array('setupCallback', 'reloadCallback') as $callback) {
+      if (!isset($options[$callback])) {
+        $options[$callback] = 'Drupal.debutMedia.' . $callback;
+        if (!$added) {
+          drupal_add_css(drupal_get_path('module', 'debut_media') . '/debut_media.css', array('weight' => 10));
+          drupal_add_js(drupal_get_path('module', 'debut_media') . '/debut_media.js');
+          $added = TRUE;
+        }
+      }
     }
   }
-  // Add late in the page generation process to override the jcarousel css.
-  drupal_add_css(drupal_get_path('module', 'debut_media') . '/debut_media.css');
 }
 
 /**
@@ -101,12 +68,12 @@ function debut_media_styles_default_styles() {
     'file' => array(
       'styles' => array(
         'medium_large' => array(
-          'label' => 'Medium large',
-          'description' => 'A medium large format of the media.',
+          'label' => t('Medium large'),
+          'description' => t('A medium large format of the media.'),
         ),
         'small_square_thumbnail' => array(
-          'label' => 'Small square thumbnail',
-          'description' => 'A small, square format of the media.',
+          'label' => t('Small square thumbnail'),
+          'description' => t('A small, square format of the media.'),
         ),
       ),
     ),

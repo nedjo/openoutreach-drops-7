@@ -64,8 +64,23 @@ function openoutreach_modules_enabled($modules) {
  * Add custom taxonomy terms to the event_type vocabulary if it is created.
  */
 function openoutreach_entity_insert($entity, $type) {
-  if ($type == 'taxonomy_vocabulary' && $entity->machine_name == 'event_type') {
-    $names = array('Conference', 'Meeting', 'Workshop');
+  if ($type == 'taxonomy_vocabulary') {
+    switch ($entity->machine_name) {
+      // Add custom contact and organization types for the vocabularies created
+      // by debut_redhen.
+      case 'contact_type':
+        $names = array('Staff', 'Volunteer', 'Media', 'Funder');
+        break;
+      case 'org_type':
+        $names = array('Nonprofit', 'Foundation', 'Government', 'Business');
+        break;
+      // Add custom event types for the vocabulary created by debut_event.
+      case 'event_type':
+        $names = array('Conference', 'Meeting', 'Workshop');
+        break;
+      default:
+        $names = array();
+    }
     foreach ($names as $name) {
       $term = new StdClass();
       $term->name = $name;

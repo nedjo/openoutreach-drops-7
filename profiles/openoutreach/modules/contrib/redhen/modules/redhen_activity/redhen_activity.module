@@ -159,7 +159,7 @@ function redhen_activity_menu() {
   $items['redhen/activity'] = array(
     'title' => 'RedHen Activity',
     'page callback' => 'redhen_activity_activity_page',
-    'access arguments' => array('access redhen messages'),
+    'access arguments' => array('access redhen activity'),
     'description' => 'View RedHen CRM activity.',
   );
 
@@ -179,7 +179,19 @@ function redhen_activity_menu() {
 }
 
 /**
- * Determine access to RedHen messages.
+ * Implements hook_permission().
+ */
+function redhen_activity_permission() {
+  return array(
+    'access redhen activity' =>  array(
+      'title' => t('Access RedHen activity stream'),
+      'description' => t('View the global RedHen activity stream and on a per entity type basis.'),
+    ),
+  );
+}
+
+/**
+ * Determine access to RedHen activity.
  *
  * @param $op
  *   The operation being performed. One of 'view', 'update', 'create' or
@@ -191,7 +203,7 @@ function redhen_activity_menu() {
  */
 function redhen_activity_access($op, $parent_entity, $account = NULL) {
   if (entity_access($op, $parent_entity->entityType(), $parent_entity, $account)) {
-    if ($op == 'view' && user_access('access redhen messages', $account)) {
+    if ($op == 'view' && user_access('access redhen activity', $account)) {
       return TRUE;
     }
   }
@@ -391,58 +403,58 @@ function redhen_activity_message_save($entity, $type, $op) {
 
       break;
     case 'redhen_note':
-      if ($entity->entity) {
+      $wrapper = entity_metadata_wrapper('redhen_note', $entity);
+      $parent_entity = $wrapper->entity->value();
+      if ($parent_entity) {
         $items = field_get_items('redhen_note', $entity, 'redhen_note_type');
         $note_type = taxonomy_term_load($items[0]['tid']);
         $message = message_create('redhen_note', array(
           'arguments' => array(
-            '%name' => $entity->entity->label(),
+            '%name' => $parent_entity->label(),
             '!op' => $op,
             '%type' => $note_type->name
           )
         ), $user);
         $wrapper = entity_metadata_wrapper('message', $message);
         $ref_field_name = "message_{$entity->entity_type}";
-        $wrapper->$ref_field_name->set($entity->entity);
+        $wrapper->$ref_field_name->set($parent_entity);
         $wrapper->save();
       }
 
       break;
     case 'relation':
-      if (in_array($entity->relation_type, array('redhen_affiliation', 'redhen_connection'))) {
-        $relation_type = relation_type_load($entity->relation_type);
-        $endpoints = field_get_items('relation', $entity, 'endpoints');
+      $endpoints = field_get_items('relation', $entity, 'endpoints');
+      $endpoint_entities = array();
+      foreach ($endpoints as $endpoint) {
+        $endpoint_entities[] = entity_load_single($endpoint['entity_type'], $endpoint['entity_id']);
+      }
+      $relation_type = relation_type_load($entity->relation_type);
 
-        $endpoint_entities = array(
-          entity_load_single($endpoints[0]['entity_type'], $endpoints[0]['entity_id']),
-          entity_load_single($endpoints[1]['entity_type'], $endpoints[1]['entity_id'])
-        );
-        // save a message for each entity in the relationship
-        foreach ($endpoint_entities as $endpoint_entity) {
-          if ($endpoint_entity) {
-            $label1 = $endpoint_entities[0] ? $endpoint_entities[0]->label() :
-              t('Entity !type with an ID of !id', array(
-                '!type' => $endpoints[0]['entity_type'],
-                '!id' => $endpoints[0]['entity_id']
-              ));
-            $label2 = $endpoint_entities[1] ? $endpoint_entities[1]->label() :
-              t('Entity !type with an ID of !id', array(
-                '!type' => $endpoints[1]['entity_type'],
-                '!id' => $endpoints[1]['entity_id']
-              ));
-            $message = message_create('redhen_relation', array(
-              'arguments' => array(
-                '%name1' => $label1,
-                '%name2' => $label2,
-                '!op' => $op,
-                '%type' => $relation_type->label
-              )
-            ), $user);
-            $wrapper = entity_metadata_wrapper('message', $message);
-            $ref_field_name = "message_{$endpoint_entity->entityType()}";
-            $wrapper->$ref_field_name->set($endpoint_entity);
-            $wrapper->save();
-          }
+      // save a message for each entity in the relationship
+      foreach ($endpoint_entities as $endpoint_entity) {
+        if (in_array($endpoint_entity->entityType(), array('redhen_contact', 'redhen_org'))) {
+          $label1 = $endpoint_entities[0] ? $endpoint_entities[0]->label() :
+            t('Entity !type with an ID of !id', array(
+              '!type' => $endpoints[0]['entity_type'],
+              '!id' => $endpoints[0]['entity_id']
+            ));
+          $label2 = $endpoint_entities[1] ? $endpoint_entities[1]->label() :
+            t('Entity !type with an ID of !id', array(
+              '!type' => $endpoints[1]['entity_type'],
+              '!id' => $endpoints[1]['entity_id']
+            ));
+          $message = message_create('redhen_relation', array(
+            'arguments' => array(
+              '%name1' => $label1,
+              '%name2' => $label2,
+              '!op' => $op,
+              '%type' => $relation_type->label
+            )
+          ), $user);
+          $wrapper = entity_metadata_wrapper('message', $message);
+          $ref_field_name = "message_{$endpoint_entity->entityType()}";
+          $wrapper->$ref_field_name->set($endpoint_entity);
+          $wrapper->save();
         }
       }
       break;
@@ -463,7 +475,8 @@ function redhen_activity_message_save($entity, $type, $op) {
 
       break;
     case 'redhen_membership':
-      $parent_entity = entity_load_single($entity->entity_type, $entity->entity_id);
+      $wrapper = entity_metadata_wrapper('redhen_membership', $entity);
+      $parent_entity = $wrapper->entity->value();
       $message = message_create('redhen_membership', array(
         'arguments' => array(
           '%name' => $entity->label(),

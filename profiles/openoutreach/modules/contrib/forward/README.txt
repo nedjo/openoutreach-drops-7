@@ -101,6 +101,11 @@ Step 8)
   forward_recent:Block - a Views list of recently forwarded nodes or pages
   forward_clickthroughs:Block - a Views list of nodes with most clicks
 
+VIEWS INTEGRATION FOR DRUPAL 7
+
+The Forward Log is now integrated with Views 3 for Drupal 7. You can create
+a view with log data including users who forwarded, the forwarded path, the
+data and time the forwarding occurred, and other information.
 
 DYNAMIC BLOCK ACCESS CONTROL
 

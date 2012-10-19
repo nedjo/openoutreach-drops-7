@@ -18,10 +18,8 @@ function openoutreach_install_tasks($install_state) {
   // Summon the power of the Apps module.
   require_once(drupal_get_path('module', 'apps') . '/apps.profile.inc');
 
-  // Set up the openoutreach Apps install task.
-  $debut_server = array(
-    'machine name' => 'debut',
-    'default apps' => array(
+  if ($install_state['interactive']) {
+    $default_apps = array(
       'debut_article',
       'debut_bio',
       'debut_blog',
@@ -34,7 +32,19 @@ function openoutreach_install_tasks($install_state) {
       'debut_seo',
       'debut_social',
       'debut_wysiwyg',
-    ),
+    );
+  }
+  // When installing automatically, there is no opportunity to select which
+  // apps to install. Therefore, don't enable any and let a site admin choose
+  // post-install.
+  else {
+    $default_apps = array();
+  }
+
+  // Set up the openoutreach Apps install task.
+  $debut_server = array(
+    'machine name' => 'debut',
+    'default apps' => $default_apps,
     'required apps' => array(),
   );
 
@@ -174,7 +184,7 @@ function openoutreach_form_apps_profile_apps_select_form_alter(&$form, $form_sta
  * features to be installed.
  */
 function openoutreach_apps_profile_apps_select_form_submit($form, &$form_state) {
-  if ($form_state['values']['op'] == t('Install Apps')) {
+  if (isset($form_state['values']['op']) && ($form_state['values']['op'] == t('Install Apps'))) {
     $features = array_keys(array_filter($form_state['values']['openoutreach_features']));
     if (!empty($features)) {
       $_SESSION['openoutreach_features'] = $features;
@@ -301,12 +311,19 @@ function openoutreach_install_permissions() {
  */
 function openoutreach_theme_form($form, &$form_state) {
 
-  // Create list of theme options, minus admin + testing + starter themes.
+  // Declare a white list of themes offered for selection along with data used
+  // to determine what modules should be enabled and what blocks configured.
+  $form_state['theme dependencies'] = array(
+    'outreach' => array('superfish'),
+    'sky' => array('superfish'),
+    'bartik' => array(),
+  );
+
+  // Create list of theme options.
+  $theme_data = array_intersect_key(system_rebuild_theme_data(), $form_state['theme dependencies']);
   $themes = array();
-  foreach(system_rebuild_theme_data() as $theme) {
-    if (!in_array($theme->name, array('test_theme', 'update_test_basetheme', 'update_test_subtheme', 'block_test_theme', 'stark', 'seven', 'fusion_core', 'fusion_starter', 'fusion_starter_lite', 'garland'))) {
-      $themes[$theme->name] = theme('image', array('path' => $theme->info['screenshot'])) . '<strong>' . $theme->info['name'] . '</strong><br><p><em>' . strip_tags($theme->info['description']) . '</em></p><p class="clearfix"></p>';
-    }
+  foreach($theme_data as $theme) {
+    $themes[$theme->name] = theme('image', array('path' => $theme->info['screenshot'])) . '<strong>' . $theme->info['name'] . '</strong><br><p><em>' . strip_tags($theme->info['description']) . '</em></p><p class="clearfix"></p>';
   }
 
   // Move Bartik to last.
@@ -318,7 +335,7 @@ function openoutreach_theme_form($form, &$form_state) {
     '#title' => t('Starting Theme'),
     '#type' => 'radios',
     '#options' => $themes,
-    '#default_value' => 'granada',
+    '#default_value' => 'outreach',
   );
 
   $form['submit'] = array(
@@ -338,35 +355,33 @@ function openoutreach_theme_form($form, &$form_state) {
  */
 function openoutreach_theme_form_submit($form, &$form_state) {
   // Enable and set the theme of choice.
-  $theme = $form_state['input']['theme'];
+  $theme = $form_state['values']['theme'];
   theme_enable(array($theme));
   variable_set('theme_default', $theme);
+  // Enable and set the theme of choice.
+  $dependencies = $form_state['theme dependencies'];
 
-  // Enable modules used by the default theme.
-  $info = drupal_parse_info_file(drupal_get_path('theme', $theme) . "/$theme.info");
-  $dependencies = array(
-    'fusion' => array('fusion_apply_ui'),
-    'designkit' => array('designkit'),
-  );
-  foreach ($dependencies as $key => $modules) {
-    if (isset($info[$key])) {
-      module_enable($modules);
-    }
+  if (!empty($dependencies[$theme])) {
+    module_enable($dependencies[$theme]);
   }
 
   // Assign regions for the theme.
-  // TODO: how does Panopoly automate this?
   $regions = system_region_list($theme);
   $blocks = array();
 
-  $assignments = array(
-    'system' => array(
-      'main' => 'content',
-      'main-menu' => 'main_menu',
-      'help' => 'help',
-    ),
+  $assignments = array();
+  $assignments['system'] = array(
+    'main' => 'content',
+    'help' => 'help',
   );
 
+  if (module_exists('superfish')) {
+    $assignments['superfish'] = array(
+      // 'menu_bar' is the region used by adaptivetheme subthemes.
+      'superfish_1' => 'menu_bar',
+    );
+  }
+    
   foreach ($assignments as $module => $module_blocks) {
     foreach ($module_blocks as $delta => $region) {
       if (isset($regions[$region])) {
@@ -404,7 +419,7 @@ function openoutreach_prepare($form, &$form_state) {
   $form = array();
 
   $form['opening'] = array(
-    '#markup' => '<h1>' . t('Prepare Site'),
+    '#markup' => '<h1>' . t('Prepare Site') . '</h1>',
   );
 
   $form['openingtext'] = array(

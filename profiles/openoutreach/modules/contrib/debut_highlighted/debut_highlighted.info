@@ -38,9 +38,9 @@ features[variable][] = node_preview_highlighted
 features[variable][] = node_submitted_highlighted
 features[views_view][] = highlighted
 
-; Information added by drupal.org packaging script on 2012-08-08
-version = "7.x-1.0-rc2"
+; Information added by drupal.org packaging script on 2012-10-19
+version = "7.x-1.0-rc3"
 core = "7.x"
 project = "debut_highlighted"
-datestamp = "1344451906"
+datestamp = "1350682567"
 

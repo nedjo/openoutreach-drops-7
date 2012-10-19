@@ -105,13 +105,13 @@ function redhen_engagements_page(RedhenContact $contact) {
 
   $header = array(
     'Score' => array(
-      'data' => 'Score',
+      'data' => t('Score'),
       'field' => 'score',
       'type' => 'property',
       'specifier' => 'score'
     ),
     'Type' => array(
-      'data' => 'Type',
+      'data' => t('Type'),
       'field' => 'type',
       'type' => 'property',
       'specifier' => 'type'
@@ -119,13 +119,13 @@ function redhen_engagements_page(RedhenContact $contact) {
     'Created' => array(
       'field' => 'created',
       'type' => 'property',
-      'data' => 'Created',
+      'data' => t('Created'),
       'sort' => 'desc',
       'specifier' => 'created'
     ),
-    'description' => array('data' => 'Description'),
-    'source' => array('data' => 'Source'),
-    'author' => array('data' => 'Author'),
+    'description' => array('data' => t('Description')),
+    'source' => array('data' => t('Source')),
+    'author' => array('data' => t('Author')),
   );
 
   $properties = isset($_GET['properties']) ? $_GET['properties'] : array();
@@ -323,9 +323,16 @@ function redhen_engagement_redhen_note_form_submit($form, $form_state) {
   $score = $form_state['values']['engagement_score'];
   if (!empty($score)) {
     $note = $form_state['redhen_note'];
+    if (isset($form_state['entity'])) {
+      $entity = $form_state['entity'];
+    }
+    else {
+      $wrapper = entity_metadata_wrapper('redhen_note', $note);
+      $entity = $wrapper->entity->value();
+    }
     $redhen_engagement = redhen_engagement_create(
       $score,
-      $note->entity->internalIdentifier(),
+      $entity->internalIdentifier(),
       t('Created when saving note @note', array('@note' => $note->internalIdentifier())),
       'redhen_note',
       $note->internalIdentifier()
@@ -335,18 +342,26 @@ function redhen_engagement_redhen_note_form_submit($form, $form_state) {
 }
 
 /**
- * Implements hook_entity_load().
- *   Add engagement scores to contacts.
- *
- * @param $entities
- * @param $type
+ * Implements hook_entity_property_info_alter().
  */
-function redhen_engagement_entity_load($entities, $type) {
-  if ($type == 'redhen_contact') {
-    foreach ($entities as $entity) {
-      $entity->engagement_score = redhen_engagement_contact_score($entity);
-    }
-  }
+function redhen_engagement_entity_property_info_alter(&$info) {
+  // Add engagement_score computed property to contacts
+  $properties = &$info['redhen_contact']['properties'];
+  $properties['engagement_score'] = array(
+    'label' => t('Engagement Score'),
+    'description' => t('The engagement score for this contact.'),
+    'type' => 'integer',
+    'computed' => TRUE,
+    'entity views field' => TRUE,
+    'getter callback' => 'redhen_engagement_property_contact_enagement_score_get',
+  );
+}
+
+/**
+ * Callback to get $contact->engagement_score
+ */
+function redhen_engagement_property_contact_enagement_score_get(RedhenContact $contact, array $options, $property_name, $entity_type) {
+  return redhen_engagement_contact_score($contact);
 }
 
 /**
@@ -359,7 +374,7 @@ function redhen_engagement_field_extra_fields_alter(&$info) {
   foreach (redhen_contact_get_types() as $type => $contact_type) {
     $info['redhen_contact'][$type]['display']['engagement_score'] = array(
       'label' => t('Engagement Score'),
-      'description' => t('This contacts engagement score.'),
+      'description' => t('The engagement score for this contact.'),
       'weight' => 0,
     );
   }
@@ -385,4 +400,29 @@ function redhen_engagement_redhen_contact_delete(RedhenContact $contact) {
   db_delete('redhen_engagement')
     ->condition('contact_id', $contact->contact_id)
     ->execute();
+}
+
+/**
+ * Implements hook_redhen_contact_view().
+ *
+ * @param RedhenContact $entity
+ * @param $view_mode
+ * @param $langcode
+ */
+function redhen_engagement_redhen_contact_view(RedhenContact $entity, $view_mode, $langcode) {
+  // add engagement scores to a contact entity
+  $wrapper = entity_metadata_wrapper('redhen_contact', $entity);;
+  $engagement_score = $wrapper->engagement_score->value();
+  if ($engagement_score) {
+    $entity->content['redhen_engagement'] = array(
+      '#theme' => 'redhen_property_field',
+      '#label' => t('Engagement Score'),
+      '#items' => array(
+        array(
+          '#markup' => $engagement_score
+        ),
+      ),
+      '#classes' => 'field field-label-inline clearfix',
+    );
+  }
 }

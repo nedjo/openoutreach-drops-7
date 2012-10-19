@@ -13,46 +13,35 @@ module_load_include('inc', 'redhen', 'includes/redhen.forms');
 function redhen_note_add($entity, $entity_type) {
   $redhen_note = entity_get_controller('redhen_note')->create(array('type' => 'redhen_note'));
   $redhen_note->entity_type = $entity_type;
-  $redhen_note->entity = $entity;
   module_load_include('inc', 'redhen_note', 'includes/redhen_note.forms');
-  return drupal_get_form('redhen_note_form', $redhen_note);
+  return drupal_get_form('redhen_note_form', $redhen_note, $entity);
 }
 
 /*
  * Show notes and actions
  */
 function redhen_note_notes_page($entity, $entity_type) {
-
   list($entity_id, ,) = entity_extract_ids($entity_type, $entity);
 
-  switch ($entity_type) {
-    case 'redhen_contact':
-      $path = 'contact';
-      break;
-    case 'redhen_org':
-      $path = 'org';
-      break;
-  }
-
   $header = array(
-    'Body',
-    'Note Type',
-    'Author',
+    t('Body'),
+    t('Note Type'),
+    t('Author'),
     'updated' => array(
       'field' => 'updated',
       'type' => 'property',
-      'data' => 'Updated',
+      'data' => t('Updated'),
       'sort' => 'asc',
       'specifier' => 'updated'
     ),
     'created' => array(
       'field' => 'created',
       'type' => 'property',
-      'data' => 'Created',
+      'data' => t('Created'),
       'sort' => 'asc',
       'specifier' => 'created'
     ),
-    'Actions',
+    t('Actions'),
   );
 
   // need to ensure the query doesn't execute when posing the form
@@ -66,26 +55,34 @@ function redhen_note_notes_page($entity, $entity_type) {
     $result = redhen_filter_query('redhen_note', $header, $bundle, $properties, $fields);
   }
 
-
   $rows = array();
   if ($result) {
     $notes = redhen_note_load_multiple(array_keys($result['redhen_note']));
     foreach ($notes as $note) {
+      $wrapper = entity_metadata_wrapper('redhen_note', $note);
+      $author = $wrapper->author->value();
+      $entity = $wrapper->entity->value();
+      $entity_uri = entity_uri($note->entity_type, $entity);
+
       $actions = array(
-        l('view', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view'),
-        l('edit', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view/edit', array('query' => drupal_get_destination())),
-        l('delete', 'redhen/' . $path . '/' . $entity_id . '/note/' . $note->note_id . '/view/delete', array('query' => drupal_get_destination())),
+        l(t('view'), $entity_uri['path'] . '/note/' . $note->note_id . '/view'),
+        l(t('edit'), $entity_uri['path'] .  '/note/' . $note->note_id . '/view/edit', array('query' => drupal_get_destination())),
+        l(t('delete'), $entity_uri['path'] .  '/note/' . $note->note_id . '/view/delete', array('query' => drupal_get_destination())),
       );
 
-      $body = $note->redhen_note_body[LANGUAGE_NONE][0]['value'];
-      $type_tid = (empty($note->redhen_note_type) == 1) ? '' : $note->redhen_note_type[LANGUAGE_NONE][0]['tid'];
-      $type = taxonomy_term_load($type_tid);
+      $teaser = field_view_value('redhen_note', $note, 'redhen_note_body',
+        $wrapper->redhen_note_body->value(),
+        array(
+          'label' => 'hidden',
+          'type' => 'text_trimmed',
+          'settings' => array('trim_length' => 100)
+      ));
 
       $rows[] = array(
         'data' => array(
-          substr($body, 0, 5) . ' ...',
-          (isset($type->name)) ? $type->name : '',
-          $note->author->name,
+          render($teaser),
+          $wrapper->redhen_note_type->value()->name,
+          (isset($author->name)) ? $author->name : '',
           redhen_format_date($note->updated),
           redhen_format_date($note->created),
           implode(' | ', $actions)
@@ -98,7 +95,7 @@ function redhen_note_notes_page($entity, $entity_type) {
     $rows[] = array(
       'data' => array(
         array(
-          'data' => t('Sorry, there are no note that match your criteria.'),
+          'data' => t('Sorry, there are no notes that match your criteria.'),
           'colspan' => 7
         )
       )

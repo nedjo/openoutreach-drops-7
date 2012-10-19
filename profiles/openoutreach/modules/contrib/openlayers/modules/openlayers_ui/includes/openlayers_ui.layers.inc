@@ -14,6 +14,11 @@
 function openlayers_ui_layers_form($form_state, $layer = NULL) {
   $form = array();
 
+  $edit = FALSE;
+  if ($form_state['op'] == 'add') {
+    $edit = TRUE;
+  }
+
   $form['basics'] = array(
     '#tree' => FALSE,
     '#type' => 'fieldset',
@@ -35,7 +40,7 @@ function openlayers_ui_layers_form($form_state, $layer = NULL) {
       'source' => array('basics', 'title'),
     ),
     '#description' => t('A unique machine-readable name for this block type. It must only contain lowercase letters, numbers, and underscores.'),
-    '#disabled' => !!$layer,
+    '#disabled' => !$edit,
   );
   $form['basics']['description'] = array(
     '#type' => 'textfield',

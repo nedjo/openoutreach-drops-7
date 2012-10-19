@@ -6,6 +6,18 @@
  */
 
 /**
+ * Implements hook_help().
+ */
+function metatag_help($path, $arg) {
+  if ($path == 'admin/config/search/metatags') {
+    return '<p>' . t('To view a summary of the default meta tags and the inheritance, click on a meta tag type.') . '</p>';
+  }
+  elseif ($path == 'admin/help#metatag') {
+    return '<p>' . t('The Meta tags module provides a options to let each page have customized meta data added to the "meta" tags in the HEAD section of the document.') . '</p>';
+  }
+}
+
+/**
  * Implements hook_theme().
  */
 function metatag_theme() {
@@ -66,15 +78,17 @@ function metatag_hook_info() {
 }
 
 /**
- * Implements hook_permisson().
+ * Implements hook_permission().
  */
 function metatag_permission() {
   $permissions['administer meta tags'] = array(
     'title' => t('Administer meta tags.'),
     'restrict access' => TRUE,
+    'description' => t('Control the main settings pages and modify per-object meta tags.'),
   );
   $permissions['edit meta tags'] = array(
-    'title' => t('Edit meta tags.'),
+    'title' => t('Edit meta tags'),
+    'description' => t('Modify meta tags on individual entity records (nodes, terms, users, etc).'),
   );
   return $permissions;
 }
@@ -287,12 +301,14 @@ function metatag_metatags_load_multiple($type, array $ids) {
 
   // Also need to check if the metatag table exists since this condition could
   // fire before the table has been installed yet.
-  $table_exists = &drupal_static(__FUNCTION__);
-  if (!isset($table_exists)) {
-    $table_exists = db_table_exists('metatag');
-  }
-  if (!$table_exists) {
-    return array();
+  if (!variable_get('metatag_schema_installed', FALSE)) {
+    if (db_table_exists('metatag')) {
+      variable_set('metatag_schema_installed', TRUE);
+    }
+    else {
+      watchdog('metatag', 'The system tried to load metatag data before the schema was fully loaded.', array(), WATCHDOG_WARNING);
+      return array();
+    }
   }
 
   $metatags = db_query("SELECT entity_id, data FROM {metatag} WHERE entity_type = :type AND entity_id IN (:ids)", array(
@@ -433,23 +449,44 @@ function metatag_field_attach_delete_revision($entity_type, $entity) {
 }
 
 /**
+ * Implements hook_taxonomy_term_view_alter().
+ */
+function metatag_taxonomy_term_view_alter(&$build, &$type) {
+  // This is only needed if hook_entity_view has not been added to core.
+  // @see http://drupal.org/node/1067120
+  if (isset($build['#term']) && !function_exists('taxonomy_term_view_multiple')) {
+    $entity = taxonomy_term_load($build['#term']->tid);
+    metatag_entity_view($entity, $type, 'full', NULL);
+  }
+}
+
+/**
  * Implements hook_entity_view().
  */
 function metatag_entity_view($entity, $entity_type, $view_mode, $langcode) {
-  if (!metatag_entity_has_metatags($entity_type, $entity)) {
-    return;
-  }
-
-  list($entity_id, $revision_id, $bundle) = entity_extract_ids($entity_type, $entity);
-  $instance = "{$entity_type}:{$bundle}";
-
+  // Only proceed if this entity object is the page being viewed.
   if (_metatag_entity_is_page($entity_type, $entity)) {
+    // If this entity object isn't allowed meta tags, skip it.
+    if (!metatag_entity_has_metatags($entity_type, $entity)) {
+      return;
+    }
+
+    list($entity_id, $revision_id, $bundle) = entity_extract_ids($entity_type, $entity);
+    $instance = "{$entity_type}:{$bundle}";
+
     $cid_parts = array(
       // @todo Why is this commented out?
       //'view_mode' => $view_mode,
       'langcode' => $langcode,
       'url' => $GLOBALS['base_url'] . '/' . current_path(),
     );
+    // Allow each page in a sequence to have different values.
+    if (isset($_GET['page'])) {
+      $cid_parts['page'] = $_GET['page'];
+    }
+    // Allow other modules to alter the page parts, e.g. Domain Access.
+    drupal_alter('metatag_page_cache_cid_parts', $cid_parts);
+
     $cid = "output:{$entity_type}:{$entity_id}:" . hash('sha256', serialize($cid_parts));
 
     if ($cache = cache_get($cid, 'cache_metatag')) {
@@ -702,6 +739,10 @@ function metatag_entity_has_metatags($entity_type, $entity) {
   // forms or processing meta tags on entity view.
   $config_exists = &drupal_static(__FUNCTION__, array());
   list( , , $bundle) = entity_extract_ids($entity_type, $entity);
+  // Do not pretend to have metatags when the bundle does not support them.
+  if (!metatag_entity_supports_metatags($entity_type, $bundle)) {
+    return FALSE;
+  }
   $instance = "{$entity_type}:{$bundle}";
   if (!isset($config_exists[$instance])) {
     $config_exists[$instance] = NULL;
@@ -837,22 +878,22 @@ function metatag_page_get_metatags() {
  * Implements hook_page_build().
  */
 function metatag_page_build(&$page) {
-  // For some reason with Overlay enabled we get an empty $page, so just fail
-  // this case.
-  if (!isset($page['content'])) {
-    return;
+  // Ensure these arrays exist, otherwise several use cases will fail.
+  if (!isset($page['content']) || !is_array($page['content'])) {
+    $page['content'] = array();
+  }
+  if (!isset($page['content']['metatags']) || !is_array($page['metatags'])) {
+    $page['content']['metatags'] = array();
   }
 
-  // Load the metatags render array in before any page content so that more
-  // more specific meta tags in the page content can override these meta tags.
-  $page['content'] = array('metatags' => metatag_page_get_metatags()) + $page['content'];
-
+  // The front page has special consideration.
   if (drupal_is_front_page()) {
     $page['content']['metatags']['global:frontpage'] = metatag_metatags_view('global:frontpage', array());
   }
-  elseif (!path_is_admin(current_path())) {
-    // Do not output the global metatags when on an administration path.
-    $page['content']['metatags']['global'] = metatag_metatags_view('global', array());
+  // Load any meta tags assigned via metatag_page_set_metatags(). Note: this
+  // must include the necessary defaults.
+  else {
+    $page['content']['metatags'] += metatag_page_get_metatags();
   }
 }
 
@@ -990,9 +1031,6 @@ function metatag_get_instance($metatag, array $data = array()) {
   if (!empty($info['class']) && class_exists($info['class'])) {
     $class = $info['class'];
     return new $class($info, $data);
-  }
-  else {
-    trigger_error("Failed to load class {$info['class']} for metatag $metatag.", E_USER_ERROR);
   }
 }
 

@@ -266,7 +266,7 @@ function openlayers_ui_styles_form($form, &$form_state, $style = NULL, $edit = F
       'source' => array('info', 'title'),
     ),
     '#description' => t('A unique machine-readable name for this block type. It must only contain lowercase letters, numbers, and underscores.'),
-    '#disabled' => !!$style,
+    '#disabled' => $edit,
   );
   $form['info']['description'] = array(
     '#title' => t(' Style Description'),

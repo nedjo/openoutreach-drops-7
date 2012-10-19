@@ -55,6 +55,8 @@ function _debut_media_controlled_fields() {
       'type' => 'text_long',
       'translatable' => TRUE,
     ),
+    // No longer created by debut_media but left so that it will be deleted
+    // on uninstall from legacy sites.
     'media_title' => array(
       'field_name' => 'media_title',
       'locked' => TRUE,

@@ -4,9 +4,9 @@ core = 7.x
 dependencies[] = metatag
 hidden = TRUE
 
-; Information added by drupal.org packaging script on 2012-08-11
-version = "7.x-1.0-alpha8"
+; Information added by drupal.org packaging script on 2012-10-19
+version = "7.x-1.0-beta1"
 core = "7.x"
 project = "metatag"
-datestamp = "1344705442"
+datestamp = "1350611220"
 

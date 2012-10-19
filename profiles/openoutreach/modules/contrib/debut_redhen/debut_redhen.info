@@ -6,7 +6,6 @@ php = 5.2.4
 dependencies[] = addressfield
 dependencies[] = apps_compatible
 dependencies[] = ctools
-dependencies[] = debut_event
 dependencies[] = entity
 dependencies[] = features
 dependencies[] = link
@@ -20,6 +19,7 @@ dependencies[] = relation
 dependencies[] = relation_endpoint
 dependencies[] = strongarm
 dependencies[] = taxonomy
+recommends[] = debut_event
 author = Chocolate Lily
 author_url = http://chocolatelilyweb.ca
 features[ctools][] = relation:relation_type_default:1
@@ -75,9 +75,9 @@ features[user_role][] = crm manager
 features[user_role][] = crm viewer
 features[variable][] = redhen_contact_connect_users
 
-; Information added by drupal.org packaging script on 2012-09-08
-version = "7.x-1.0-alpha1"
+; Information added by drupal.org packaging script on 2012-10-19
+version = "7.x-1.0-alpha2"
 core = "7.x"
 project = "debut_redhen"
-datestamp = "1347064339"
+datestamp = "1350682867"
 

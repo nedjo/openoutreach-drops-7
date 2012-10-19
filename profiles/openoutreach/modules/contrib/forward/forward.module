@@ -167,8 +167,14 @@ function forward_admin_settings($form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Form type'),
     '#default_value' => variable_get('forward_form_type', 'link'),
-    '#options' => array('link' => 'link', 'form' => 'form'),
+    '#options' => array('link' => t('link'), 'form' => t('form')),
     '#description' => t('Select link for a forward this page link or form to use a collapsible forwarding form.'),
+  );
+  $form['forward_options']['forward_link_nofollow'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Generate a nofollow tag on the forward link (rel="nofollow")'),
+    '#default_value' => variable_get('forward_link_nofollow', 0),
+    '#description' => t(' This option is ignored if the Form type is set to "form".'),
   );
   $form['forward_options']['forward_flood_control'] = array(
     '#type' => 'select',
@@ -1001,7 +1007,7 @@ function forward_form_submit($form, &$form_state) {
     'width' => variable_get('forward_width', 400),
     'logo' => (!empty($logo)) ? '<img src="' . url($logo, array('absolute' => TRUE)) . '" alt="" />' : '',
     'title' => ($emailtype == 'email') ? l($content->title, 'forward/emailref', array('absolute' => TRUE, 'query' => array('path' => $returnurl))) : FALSE,
-    'submitted' => (($emailtype == 'email') && theme_get_setting('toggle_node_info_' . $content->type)) ? t('by %author', array('%author' => $content->name)) : FALSE,
+    'submitted' => (($emailtype == 'email') && variable_get('node_submitted_' . $content->type)) ? ((!empty($content->name)) ? t('by %author', array('%author' => $content->name)) : t('by %author', array('%author' => variable_get('anonymous' , 'Anonymous')))) : FALSE,
     'node' => ($emailtype == 'email') ? $content->teaser : FALSE,
     'link' => ($emailtype == 'email') ? l(t('Click here to read more on our site'), 'forward/emailref', array('absolute' => TRUE, 'query' => array('path' => $returnurl . $form_state['values']['path_cid']))) : FALSE,
   );
@@ -1013,7 +1019,7 @@ function forward_form_submit($form, &$form_state) {
   }
   else {
     // Old forward_*_theme functions
-    $params['body'] = theme('forward_' . $emailtype, $vars);
+    $params['body'] = theme('forward_' . $emailtype, array('vars' => $vars));
   }
 
   $params['subject'] = t(variable_get('forward_' . $emailtype . '_subject', '!name has sent you a message from !site'), array('!name' => $form_state['values']['name'], '!site' => variable_get('site_name', 'Drupal')));
@@ -1161,7 +1167,7 @@ function forward_mollom_form_info($form_id) {
 
 /**
  * Implements hook_mail().
-().
+ *
  *
  * Constructs the email notification message when the site is out of date.
  *
@@ -1210,22 +1216,36 @@ function forward_node_view($node, $view_mode) {
         $html = FALSE;
         switch (variable_get('forward_link_style', 0)) {
           case 1:
-            $title = theme('image', array('path' => $img, 'alt' => $title, 'title' => '', 'attributes' => array('class' => 'forward-icon')));
+            $title = theme('image', array('path' => $img, 'alt' => $title, 'title' => '', 'attributes' => array('class' => array('forward-icon'))));
             $html = TRUE;
             break;
           case 2:
-            $title = theme('image', array('path' => $img, 'alt' => $title, 'title' => '', 'attributes' => array('class' => 'forward-icon forward-icon-margin'))) . $title;
+            $title = theme('image', array('path' => $img, 'alt' => $title, 'title' => '', 'attributes' => array('class' => array('forward-icon', 'forward-icon-margin')))) . $title;
             $html = TRUE;
             break;
         }
         $form_state['values']['path'] = 'node/' . $node->nid;
-        $links['forward_link'] = array(
-          'title'      => $title,
-          'href'       => 'forward',
-          'html'       => $html,
-          'attributes' => array('title' => variable_get('forward_email_title', t('Forward this page to a friend')), 'class' => 'forward-page'),
-          'query'      => array('path' => $form_state['values']['path']),
-        );
+        if (variable_get('forward_link_nofollow', 0)) {
+          $links['forward_link'] = array(
+            'title'      => $title,
+            'href'       => 'forward',
+            'html'       => $html,
+            'attributes' => array(
+              'title' => variable_get('forward_email_title', t('Forward this page to a friend')),
+              'class' => array('forward-page'),
+              'rel'   => 'nofollow',
+              ),
+            'query'      => array('path' => $form_state['values']['path']),
+          );
+        } else {
+          $links['forward_link'] = array(
+            'title'      => $title,
+            'href'       => 'forward',
+            'html'       => $html,
+            'attributes' => array('title' => variable_get('forward_email_title', t('Forward this page to a friend')), 'class' => array('forward-page')),
+            'query'      => array('path' => $form_state['values']['path']),
+          );
+        }
         $node->content['links']['forward'] = array(
           '#theme' => 'links',
           '#links' => $links,
@@ -1243,7 +1263,7 @@ function forward_node_view($node, $view_mode) {
 
 /**
  * Implements hook_theme().
-().
+ *
  */
 function forward_theme() {
   return array(
@@ -1265,8 +1285,7 @@ function forward_theme() {
 
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Implements hook_form_alter().
  */
 function forward_form_alter(&$form, $form_state, $form_id) {
   // Add the node-type settings option to activate the email this page link
@@ -1277,7 +1296,7 @@ function forward_form_alter(&$form, $form_state, $form_id) {
       '#title' => t('Show forwarding link/form'),
       '#return_value' => 1,
       '#default_value' => variable_get('forward_display_' . $form['#node_type']->type, '1'),
-      '#description' => t('Displays the form/link to allow visitors to forward the page to a friend. Further configuration is available on the !settings.', array('!settings' => l(t('settings page'), 'admin/config/forward' ))),
+      '#description' => t('Displays the form/link to allow visitors to forward the page to a friend. Further configuration is available on the !settings.', array('!settings' => l(t('settings page'), 'admin/config/user-interface/forward' ))),
     );
   }
   elseif ($form_id == 'comment_admin_settings') {
@@ -1286,7 +1305,7 @@ function forward_form_alter(&$form, $form_state, $form_id) {
       '#title' => t('Show forwarding link/form'),
       '#return_value' => 1,
       '#default_value' => variable_get('forward_display_comments', FALSE),
-      '#description' => t('Displays the form/link to allow visitors to forward the page to a friend. Further configuration is available on the !settings.', array('!settings' => l(t('settings page'), 'admin/config/forward' ))),
+      '#description' => t('Displays the form/link to allow visitors to forward the page to a friend. Further configuration is available on the !settings.', array('!settings' => l(t('settings page'), 'admin/config/user-interface/forward' ))),
     );
   }
 }
@@ -1297,7 +1316,7 @@ function forward_form_alter(&$form, $form_state, $form_id) {
  */
 function forward_tracking() {
   $output = array();
-  $output['forward_totals'] = '<p><strong>' . variable_get('forward_total', 0) . '</strong> ' . t('emails sent to') . ' <strong>' . variable_get('forward_recipients', 0) . '</strong> ' . t('recipients') . '</p>';
+  $output['forward_totals'] = array('#markup' => '<p><strong>' . variable_get('forward_total', 0) . '</strong> ' . t('emails sent to') . ' <strong>' . variable_get('forward_recipients', 0) . '</strong> ' . t('recipients') . '</p>');
 
   /**
    * Most Forwarded Nodes
@@ -1426,7 +1445,9 @@ function forward_tracking() {
  */
 function forward_block_info() {
   $blocks['stats']['info'] = t('Forward: Statistics');
+  $blocks['stats']['cache'] = DRUPAL_NO_CACHE;
   $blocks['form']['info'] = t('Forward: Form');
+  $blocks['form']['cache'] = DRUPAL_NO_CACHE;
   return $blocks;
 }
 

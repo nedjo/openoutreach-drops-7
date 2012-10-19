@@ -102,7 +102,7 @@ function openlayers_ui_maps_form($form, &$form_state, $map = FALSE, $edit = FALS
       'source' => array('info', 'title'),
     ),
     '#description' => t('A unique machine-readable name for this block type. It must only contain lowercase letters, numbers, and underscores.'),
-    '#disabled' => !!$map,
+    '#disabled' => $edit,
   );
   $form['info']['description'] = array(
     '#type' => 'textfield',
@@ -110,6 +110,7 @@ function openlayers_ui_maps_form($form, &$form_state, $map = FALSE, $edit = FALS
     '#description' => t('This is full description of the map and is mostly used on the map overview list page.'),
     '#default_value' => !empty($map->description) ? $map->description : '',
     '#required' => FALSE,
+    '#maxlength' => NULL,
   );
   $form['info']['width'] = array(
     '#type' => 'textfield',

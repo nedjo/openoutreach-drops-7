@@ -7,10 +7,10 @@
 include_once('debut_redhen.features.inc');
 
 /**
-* Implements hook_default_redhen_membership_type_alter().
-*
-* If there is a 'member' role, tie it to the 'standard' membership type.
-*/
+ * Implements hook_default_redhen_membership_type_alter().
+ *
+ * If there is a 'member' role, tie it to the 'standard' membership type.
+ */
 function debut_redhen_default_redhen_membership_type_alter(&$items) {
   if (isset($items['standard']) && ($role = user_role_load_by_name('member')) && !(apps_compatible_feature_is_recreating('debut_member'))) {
     $items['standard']->role_id = $role->rid;
@@ -28,3 +28,34 @@ function debut_redhen_admin_paths() {
   return $paths;
 }
 
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Fix up taxonomy term selects on the RedHen filter form.
+ *
+ * @todo: remove once either http://drupal.org/node/1801436 or
+ *   http://drupal.org/node/1801390 is applied.
+ */
+function debut_redhen_form_redhen_filter_form_alter(&$form, &$form_state) {
+
+  foreach (array('contact_type', 'org_type') as $name) {
+
+    if (isset($form['filter_fieldset']['filters']['fields']['field_' . $name])) {
+      $vocabulary = taxonomy_vocabulary_machine_name_load($name);
+      $tree = taxonomy_get_tree($vocabulary->vid);
+
+      $options = array('' => '-- ' . t('Any') . ' --');
+      foreach ($tree as $term) {
+        $options[$term->tid] = $term->name;
+      }
+
+      $form['filter_fieldset']['filters']['fields']['field_' . $name]['tid'] = array(
+        '#type' => 'select',
+        '#title' => check_plain($vocabulary->name),
+        '#options' => $options,
+        '#default_value' => isset($_GET['fields']['field_' . $name]) ? $_GET['fields']['field_' . $name] : NULL,
+      );
+    }
+  }
+
+}
