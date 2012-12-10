@@ -119,7 +119,6 @@ function message_entity_info() {
 
     foreach ($message_categories as $category_name => $category) {
       $items['message_type']['bundles'][$category_name] = array(
-        //@todo do we need a short label too?
         'label' => $category->category,
       );
     }
@@ -161,13 +160,12 @@ function message_entity_info() {
 
   foreach ($message_types as $type_name => $type) {
     $items['message']['bundles'][$type_name] = array(
-      //@todo do we need a short label too?
-      'label' => $type->name,
+      'label' => $type->description,
       'admin' => array(
         'path' => 'admin/structure/messages/manage/%message_type',
         'real path' => 'admin/structure/messages/manage/' . $type->name,
         'bundle argument' => 4,
-        'access arguments' => array('administer messages'),
+        'access arguments' => array('administer message types'),
       ),
     );
   }
@@ -186,7 +184,16 @@ function message_menu() {
     'description' => 'Manage message purging upon cron.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('message_user_admin_settings'),
-    'access arguments' => array('administer messages'),
+    'access arguments' => array('administer message types'),
+    'file' => 'includes/message.admin.inc',
+  );
+
+  $items['admin/config/system/message/text-copy'] = array(
+    'title' => 'Copy messages text fields',
+    'description' => 'Copy messages text fields from one language to others',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('message_admin_text_copy'),
+    'access arguments' => array('administer message types'),
     'file' => 'includes/message.admin.inc',
   );
 
@@ -444,7 +451,7 @@ function message_get_purgeable_by_type(&$purge_limit, $message_type_name, $purge
 function message_field_extra_fields() {
   $return = array();
   foreach (message_type_load() as $message_type) {
-    $wrapper = entity_metadata_wrapper('message_type', $message_type);
+
     // Iterate over any "message-text" field.
     foreach (field_info_instances('message_type', $message_type->category) as $field_name => $value) {
       $field = field_info_field($field_name);
@@ -452,7 +459,8 @@ function message_field_extra_fields() {
         continue;
       }
 
-      $count = $field['cardinality'] == 1 ? 1 : $wrapper->{$field_name}->count();
+      $field_items = field_get_items('message_type', $message_type, $field_name);
+      $count = is_array($field_items) ? count($field_items) : 1;
       for ($delta = 0; $delta < $count; $delta++) {
         $params = array('@label' => $value['label'], '@delta' => $delta);
         $return['message'][$message_type->name]['display']['message__' . $field['field_name'] . '__' . $delta] = array(
@@ -465,6 +473,60 @@ function message_field_extra_fields() {
   }
 
   return $return;
+}
+
+/**
+ * Implements hook_field_attach_form().
+ *
+ * Add on every message-text field partail, indication to which view-mode
+ * it is assigned to.
+ */
+function message_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+  if ($entity_type != 'message_type' || empty($entity->name)) {
+    return;
+  }
+
+  $bundle_settings = field_bundle_settings('message', $entity->name);
+  $entity_info = entity_get_info('message');
+  $current_view_modes = array();
+  // Build array keyed by the delta, and the view-modes as value.
+  foreach (message_get_text_fields() as $field_name) {
+    foreach ($bundle_settings['extra_fields']['display'] as $delta => $view_modes) {
+      $identeifer = "message__{$field_name}__";
+      if (strpos($delta, $identeifer) !== 0) {
+        // Field doesn't exist.
+        continue;
+      }
+
+      $delta = str_replace($identeifer, '', $delta);
+      foreach ($view_modes as $view_mode => $value) {
+        if ($value['visible']) {
+          $url = "admin/structure/messages/manage/{$entity->name}/display/{$view_mode}";
+          $current_view_modes[$field_name][$delta][] = l($entity_info['view modes'][$view_mode]['label'], $url);
+        }
+      }
+    }
+  }
+
+  foreach (message_get_text_fields() as $field_name) {
+    if (empty($form[$field_name])) {
+      continue;
+    }
+
+    $langcodes = $form[$field_name];
+    foreach (element_children($langcodes) as $langcode) {
+      $deltas = $form[$field_name][$langcode];
+      foreach (element_children($deltas) as $delta) {
+        if (empty($current_view_modes[$field_name][$delta])) {
+          continue;
+        }
+
+        $form[$field_name][$langcode][$delta]['view_mode'] = array(
+          '#markup' => t('View modes: !view-modes', array('!view-modes' => implode(', ', $current_view_modes[$field_name][$delta]))),
+        );
+      }
+    }
+  }
 }
 
 /**
@@ -763,4 +825,82 @@ function message_get_property_values(Message $message, $name, $key = NULL, $defa
 
   // No value found, so return the default value.
   return $default_value;
+}
+
+/**
+ * Find all message text fields.
+ *
+ * @return
+ *   Array of all field names that are marked as message-text.
+ */
+function message_get_text_fields() {
+  $message_fields = array();
+  foreach (field_info_fields() as $field_name => $field) {
+    if (!empty($field['settings']['message_text'])) {
+      $message_fields[] = $field_name;
+    }
+  }
+
+  return $message_fields;
+}
+
+/**
+ * Batch callback. Copy the message text fields from one language to others.
+ *
+ * @param $origin_lang
+ *   The origin language.
+ * @param $dest_langs
+ *   List of destination languages.
+ * @param $override
+ *   Whether to override existing values.
+ */
+function message_admin_text_copy_batch($origin_lang, $dest_langs, $override, &$context) {
+  if (empty($context['sandbox'])) {
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['current_id'] = 0;
+    $context['sandbox']['max'] = db_select('message_type')
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+  }
+
+  $result = db_select('message_type', 'mt')
+    ->fields('mt', array('id'))
+    ->condition('id', $context['sandbox']['current_id'], '>')
+    ->orderBy('id')
+    ->range(0, 50)
+    ->execute();
+
+  foreach ($result as $row) {
+    $context['sandbox']['progress']++;
+    $context['sandbox']['current_id'] = $row->id;
+
+    $entity = entity_load_single('message_type', $row->id);
+    // Ignore the current message type if it has no value in its origin
+    // language.
+    if (empty($entity->message_text[$origin_lang])) {
+      continue;
+    }
+    foreach ($entity->message_text[$origin_lang] as $delta => $message_text) {
+      // Copy the message text values from the origin language to the
+      // destination languages.
+      foreach ($dest_langs as $dest_lang) {
+        foreach (message_get_text_fields() as $field_name) {
+          // Check if there's already a value in the destination language. If so,
+          // skip it unless override is checked.
+          if (!$override && !empty($entity->{$field_name}[$dest_lang][$delta])) {
+            continue;
+          }
+          // Copy the origin language text.
+          $entity->{$field_name}[$dest_lang][$delta] = $message_text;
+        }
+      }
+    }
+    // Save the message type with the updated texts.
+    message_type_save($entity);
+  }
+
+  if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
+    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
 }

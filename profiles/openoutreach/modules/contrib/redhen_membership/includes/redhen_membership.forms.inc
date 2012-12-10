@@ -126,12 +126,15 @@ function redhen_membership_membership_form_submit($form, &$form_state) {
   global $user;
 
   $membership = &$form_state['membership'];
+
   if (isset($form_state['entity'])) {
     $entity = $form_state['entity'];
   }
   else {
-    $entity = $membership->entity;
+    $wrapper = entity_metadata_wrapper('redhen_membership', $membership);
+    $entity = $wrapper->entity->value();
   }
+
   $entity_type = $entity->entityType();
   $entity_uri = entity_uri($entity_type, $entity);
 

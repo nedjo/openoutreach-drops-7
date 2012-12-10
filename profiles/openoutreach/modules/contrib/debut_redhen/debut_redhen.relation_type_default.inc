@@ -16,16 +16,17 @@ function debut_redhen_relation_default_relation_types() {
   $relation_type->relation_type = 'redhen_affiliation';
   $relation_type->label = 'Organizational affiliation';
   $relation_type->reverse_label = 'Affiliated with';
-  $relation_type->directional = 0;
+  $relation_type->directional = 1;
   $relation_type->transitive = 0;
   $relation_type->r_unique = 1;
   $relation_type->min_arity = 2;
   $relation_type->max_arity = 2;
   $relation_type->source_bundles = array(
     0 => 'redhen_contact:*',
-    1 => 'redhen_org:*',
   );
-  $relation_type->target_bundles = array();
+  $relation_type->target_bundles = array(
+    0 => 'redhen_org:*',
+  );
   $export['redhen_affiliation'] = $relation_type;
 
   $relation_type = new stdClass();

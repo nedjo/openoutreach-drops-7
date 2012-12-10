@@ -21,9 +21,20 @@ function debut_media_user_default_permissions() {
     'module' => 'media_internet',
   );
 
-  // Exported permission: administer files.
-  $permissions['administer files'] = array(
-    'name' => 'administer files',
+  // Exported permission: create files.
+  $permissions['create files'] = array(
+    'name' => 'create files',
+    'roles' => array(
+      0 => 'administrator',
+      1 => 'contributor',
+      2 => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: delete any files.
+  $permissions['delete any files'] = array(
+    'name' => 'delete any files',
     'roles' => array(
       0 => 'administrator',
       1 => 'editor',
@@ -31,9 +42,30 @@ function debut_media_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: edit file.
-  $permissions['edit file'] = array(
-    'name' => 'edit file',
+  // Exported permission: delete own files.
+  $permissions['delete own files'] = array(
+    'name' => 'delete own files',
+    'roles' => array(
+      0 => 'administrator',
+      1 => 'contributor',
+      2 => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: edit any files.
+  $permissions['edit any files'] = array(
+    'name' => 'edit any files',
+    'roles' => array(
+      0 => 'administrator',
+      1 => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: edit own files.
+  $permissions['edit own files'] = array(
+    'name' => 'edit own files',
     'roles' => array(
       0 => 'administrator',
       1 => 'contributor',
@@ -53,9 +85,9 @@ function debut_media_user_default_permissions() {
     'module' => 'media',
   );
 
-  // Exported permission: view file.
-  $permissions['view file'] = array(
-    'name' => 'view file',
+  // Exported permission: view files.
+  $permissions['view files'] = array(
+    'name' => 'view files',
     'roles' => array(
       0 => 'administrator',
       1 => 'anonymous user',
@@ -66,9 +98,20 @@ function debut_media_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: view own unpublished media.
-  $permissions['view own unpublished media'] = array(
-    'name' => 'view own unpublished media',
+  // Exported permission: view own private files.
+  $permissions['view own private files'] = array(
+    'name' => 'view own private files',
+    'roles' => array(
+      0 => 'administrator',
+      1 => 'contributor',
+      2 => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: view own unpublished files.
+  $permissions['view own unpublished files'] = array(
+    'name' => 'view own unpublished files',
     'roles' => array(
       0 => 'administrator',
       1 => 'contributor',

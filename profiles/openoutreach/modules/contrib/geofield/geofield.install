@@ -9,17 +9,39 @@
  * Implements hook_field_schema().
  */
 function geofield_field_schema($field) {
+
+  $schema_callback = '';
+  ctools_include('plugins');
+  if (isset($field['settings']['backend'])) {
+    $backend = ctools_get_plugins('geofield', 'geofield_backend', $field['settings']['backend']);
+
+  }
+  else {
+    $backend = ctools_get_plugins('geofield', 'geofield_backend', 'default');
+  }
+
+  if (!empty($backend['schema'])) {
+    $schema_callback = $backend['schema'];
+  } else {
+    /**
+     * Edge case, during an update between 7.x-1.x and 7.x-2.x, if ctools is enabled,
+     * ctools will not see the geofield plugin without manually truncating the cache 
+     * tables. To bypass, we manually seed the $backend array directly if 
+     * $backend['schema'] still isn't declared.
+     **/
+    module_load_include('inc', 'geofield', 'includes/geofield_backend/default');
+    $schema_callback = 'geofield_backend_default_schema';
+  }
+
+  $geom_schema = $schema_callback($field);
+
   return array(
     'columns' => array(
-      'geom' => array(
-        'type' => 'blob',
-        'size' => 'big',
-        'not null' => FALSE,
-      ),
+      'geom' => $geom_schema, // Defined by the backend plugin
       'geo_type' => array(
-        'type' => 'text',
-        'size' => 'normal',
-        'not null' => FALSE,
+        'type' => 'varchar',
+        'default' => '',
+        'length' => 64,
       ),
       'lat' => array(
         'type' => 'numeric',
@@ -57,20 +79,23 @@ function geofield_field_schema($field) {
         'scale' => 12,
         'not null' => FALSE,
       ),
-      'srid' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => FALSE,
-        'default' => 4326,
-      ),
-      'accuracy' => array(
-        'type' => 'int',
+      'geohash' => array(
+        'type' => 'varchar',
+        'length' => GEOFIELD_GEOHASH_LENGTH,
         'not null' => FALSE,
       ),
-      'source' => array(
-        'type' => 'text',
-        'not null' => FALSE,
-      ),
+    ),
+    'indexes' => array(
+      //'geo_type' => array('geo_type'),
+      'lat' => array('lat'),
+      'lon' => array('lon'),
+      'top' => array('top'),
+      'bottom' => array('bottom'),
+      'left' => array('left'),
+      'right' => array('right'),
+      'geohash' => array('geohash'),
+      'centroid' => array('lat','lon'),
+      'bbox' => array('top','bottom','left','right'),
     ),
   );
 }
@@ -247,6 +272,79 @@ function geofield_update_7201(&$sandbox) {
   if ($sandbox['#finished'] == TRUE) {
     foreach($sandbox['geofield_tables'] as $table) {
       db_drop_field($table['table_name'], $table['field_name'] . '_wkt');
+    }
+  }
+}
+
+/**
+ * Drops unused table fields srid, accuracy and source, adds 
+ * geohash field, populates it.
+ */
+
+function geofield_update_7202(&$sandbox) {
+  foreach (field_info_fields() as $field_name => $field) {
+    if ($field['type'] != 'geofield') {
+      // Not a geofield field.
+      continue;
+    }
+
+    $table_name = _field_sql_storage_tablename($field);
+    $revision_table_name = _field_sql_storage_revision_tablename($field);
+
+    db_add_field($table_name, $field_name . '_geohash', array(
+      'type' => 'varchar',
+      'length' => 16,
+      'not null' => FALSE,
+    ));
+
+    db_add_field($revision_table_name, $field_name . '_geohash', array(
+      'type' => 'varchar',
+      'length' => 16,
+      'not null' => FALSE,
+    ));
+
+    // Populate geohash column.
+    geophp_load();
+    $results = db_query('SELECT ' . $field_name . '_geom AS geom, entity_id, revision_id, delta FROM {' . $table_name . '}');
+
+    foreach ($results as $record) {
+      if (!empty($record->geom)) {
+        $geom = geoPHP::load($record->geom);
+				// Truncate geohash to max length.
+        $geohash_truncated = substr($geom->out('geohash'), 0, GEOFIELD_GEOHASH_LENGTH);
+        db_update($table_name)
+          ->fields(array(
+            $field_name . '_geohash' => $geohash_truncated,
+          ))
+          ->condition('entity_id', $record->entity_id)
+          ->condition('revision_id', $record->revision_id)
+          ->condition('delta', $record->delta)
+          ->execute();
+      }
+    }
+
+    $results = db_query('SELECT ' . $field_name . '_geom AS geom, entity_id, revision_id, delta FROM {' . $revision_table_name . '}');
+
+    foreach ($results as $record) {
+      if (!empty($record->geom)) {
+        $geom = geoPHP::load($record->geom);
+				// Truncate geohash to max length.
+        $geohash_truncated = substr($geom->out('geohash'), 0, GEOFIELD_GEOHASH_LENGTH);
+        db_update($revision_table_name)
+          ->fields(array(
+            $field_name . '_geohash' => $geohash_truncated
+          ))
+          ->condition('entity_id', $record->entity_id)
+          ->condition('revision_id', $record->revision_id)
+          ->condition('delta', $record->delta)
+          ->execute();
+      }
+    }
+
+    $deleted_columns = array('srid', 'accuracy', 'source');
+    foreach ($deleted_columns as $column) {
+      db_drop_field($table_name, $field_name . '_' . $column);
+      db_drop_field($revision_table_name, $field_name . '_' . $column);
     }
   }
 }

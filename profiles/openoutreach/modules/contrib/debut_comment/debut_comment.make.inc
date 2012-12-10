@@ -4,16 +4,16 @@ api = 2
 
 ; Contrib modules
 projects[apps_compatible][subdir] = contrib
-projects[apps_compatible][version] = 1.0-alpha1
+projects[apps_compatible][version] = 1.0-alpha3
 projects[captcha][subdir] = contrib
 projects[captcha][version] = 1.0-beta2
 projects[comment_notify][subdir] = contrib
 projects[comment_notify][version] = 1.1
 projects[comment_notify][patch][http://drupal.org/files/1434718_dont_mess_with_buttons.patch] = http://drupal.org/files/1434718_dont_mess_with_buttons.patch
 projects[context][subdir] = contrib
-projects[context][version] = 3.0-beta2
+projects[context][version] = 3.0-beta4
 projects[ctools][subdir] = contrib
-projects[ctools][version] = 1.0
+projects[ctools][version] = 1.
 projects[debut_comment][subdir] = contrib
 projects[debut_comment][version] = 1.0-rc2
 projects[features][subdir] = contrib

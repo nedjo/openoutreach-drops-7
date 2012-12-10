@@ -10,7 +10,7 @@
 function debut_media_field_default_fields() {
   $fields = array();
 
-  // Exported field: 'file-application-field_tags'
+  // Exported field: 'file-application-field_tags'.
   $fields['file-application-field_tags'] = array(
     'field_config' => array(
       'active' => '1',
@@ -31,6 +31,7 @@ function debut_media_field_default_fields() {
           0 => 'tid',
         ),
       ),
+      'locked' => '0',
       'module' => 'taxonomy',
       'settings' => array(
         'allowed_values' => array(
@@ -94,6 +95,18 @@ function debut_media_field_default_fields() {
           'type' => 'hidden',
           'weight' => '3',
         ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'file',
       'field_name' => 'field_tags',
@@ -114,7 +127,7 @@ function debut_media_field_default_fields() {
     ),
   );
 
-  // Exported field: 'file-application-media_description'
+  // Exported field: 'file-application-media_description'.
   $fields['file-application-media_description'] = array(
     'field_config' => array(
       'active' => '1',
@@ -135,6 +148,7 @@ function debut_media_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '1',
@@ -212,6 +226,18 @@ function debut_media_field_default_fields() {
           'type' => 'hidden',
           'weight' => '2',
         ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'file',
       'field_name' => 'media_description',
@@ -232,7 +258,7 @@ function debut_media_field_default_fields() {
     ),
   );
 
-  // Exported field: 'file-audio-field_tags'
+  // Exported field: 'file-audio-field_tags'.
   $fields['file-audio-field_tags'] = array(
     'field_config' => array(
       'active' => '1',
@@ -253,6 +279,7 @@ function debut_media_field_default_fields() {
           0 => 'tid',
         ),
       ),
+      'locked' => '0',
       'module' => 'taxonomy',
       'settings' => array(
         'allowed_values' => array(
@@ -316,6 +343,18 @@ function debut_media_field_default_fields() {
           'type' => 'hidden',
           'weight' => '3',
         ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'file',
       'field_name' => 'field_tags',
@@ -336,7 +375,7 @@ function debut_media_field_default_fields() {
     ),
   );
 
-  // Exported field: 'file-audio-media_description'
+  // Exported field: 'file-audio-media_description'.
   $fields['file-audio-media_description'] = array(
     'field_config' => array(
       'active' => '1',
@@ -357,6 +396,7 @@ function debut_media_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '1',
@@ -434,6 +474,18 @@ function debut_media_field_default_fields() {
           'type' => 'hidden',
           'weight' => '2',
         ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'file',
       'field_name' => 'media_description',
@@ -454,7 +506,7 @@ function debut_media_field_default_fields() {
     ),
   );
 
-  // Exported field: 'file-default-field_tags'
+  // Exported field: 'file-default-field_tags'.
   $fields['file-default-field_tags'] = array(
     'field_config' => array(
       'active' => '1',
@@ -475,6 +527,7 @@ function debut_media_field_default_fields() {
           0 => 'tid',
         ),
       ),
+      'locked' => '0',
       'module' => 'taxonomy',
       'settings' => array(
         'allowed_values' => array(
@@ -538,6 +591,18 @@ function debut_media_field_default_fields() {
           'type' => 'hidden',
           'weight' => '3',
         ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'file',
       'field_name' => 'field_tags',
@@ -558,7 +623,7 @@ function debut_media_field_default_fields() {
     ),
   );
 
-  // Exported field: 'file-default-media_description'
+  // Exported field: 'file-default-media_description'.
   $fields['file-default-media_description'] = array(
     'field_config' => array(
       'active' => '1',
@@ -579,6 +644,7 @@ function debut_media_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '1',
@@ -656,6 +722,18 @@ function debut_media_field_default_fields() {
           'type' => 'hidden',
           'weight' => '2',
         ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'file',
       'field_name' => 'media_description',
@@ -676,7 +754,7 @@ function debut_media_field_default_fields() {
     ),
   );
 
-  // Exported field: 'file-image-field_tags'
+  // Exported field: 'file-image-field_tags'.
   $fields['file-image-field_tags'] = array(
     'field_config' => array(
       'active' => '1',
@@ -697,6 +775,7 @@ function debut_media_field_default_fields() {
           0 => 'tid',
         ),
       ),
+      'locked' => '0',
       'module' => 'taxonomy',
       'settings' => array(
         'allowed_values' => array(
@@ -760,6 +839,18 @@ function debut_media_field_default_fields() {
           'type' => 'hidden',
           'weight' => '3',
         ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'file',
       'field_name' => 'field_tags',
@@ -780,7 +871,7 @@ function debut_media_field_default_fields() {
     ),
   );
 
-  // Exported field: 'file-image-media_description'
+  // Exported field: 'file-image-media_description'.
   $fields['file-image-media_description'] = array(
     'field_config' => array(
       'active' => '1',
@@ -801,6 +892,7 @@ function debut_media_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '1',
@@ -878,6 +970,18 @@ function debut_media_field_default_fields() {
           'type' => 'hidden',
           'weight' => '2',
         ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'file',
       'field_name' => 'media_description',
@@ -898,7 +1002,7 @@ function debut_media_field_default_fields() {
     ),
   );
 
-  // Exported field: 'file-text-field_tags'
+  // Exported field: 'file-text-field_tags'.
   $fields['file-text-field_tags'] = array(
     'field_config' => array(
       'active' => '1',
@@ -919,6 +1023,7 @@ function debut_media_field_default_fields() {
           0 => 'tid',
         ),
       ),
+      'locked' => '0',
       'module' => 'taxonomy',
       'settings' => array(
         'allowed_values' => array(
@@ -982,6 +1087,18 @@ function debut_media_field_default_fields() {
           'type' => 'hidden',
           'weight' => '3',
         ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'file',
       'field_name' => 'field_tags',
@@ -1002,7 +1119,7 @@ function debut_media_field_default_fields() {
     ),
   );
 
-  // Exported field: 'file-text-media_description'
+  // Exported field: 'file-text-media_description'.
   $fields['file-text-media_description'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1023,6 +1140,7 @@ function debut_media_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '1',
@@ -1099,6 +1217,18 @@ function debut_media_field_default_fields() {
           'settings' => array(),
           'type' => 'hidden',
           'weight' => '2',
+        ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
         ),
       ),
       'entity_type' => 'file',
@@ -1120,7 +1250,7 @@ function debut_media_field_default_fields() {
     ),
   );
 
-  // Exported field: 'file-video-field_tags'
+  // Exported field: 'file-video-field_tags'.
   $fields['file-video-field_tags'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1141,6 +1271,7 @@ function debut_media_field_default_fields() {
           0 => 'tid',
         ),
       ),
+      'locked' => '0',
       'module' => 'taxonomy',
       'settings' => array(
         'allowed_values' => array(
@@ -1204,6 +1335,18 @@ function debut_media_field_default_fields() {
           'type' => 'hidden',
           'weight' => '3',
         ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'file',
       'field_name' => 'field_tags',
@@ -1224,7 +1367,7 @@ function debut_media_field_default_fields() {
     ),
   );
 
-  // Exported field: 'file-video-media_description'
+  // Exported field: 'file-video-media_description'.
   $fields['file-video-media_description'] = array(
     'field_config' => array(
       'active' => '1',
@@ -1245,6 +1388,7 @@ function debut_media_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '1',
@@ -1321,6 +1465,18 @@ function debut_media_field_default_fields() {
           'settings' => array(),
           'type' => 'hidden',
           'weight' => '2',
+        ),
+        'preview' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
         ),
       ),
       'entity_type' => 'file',

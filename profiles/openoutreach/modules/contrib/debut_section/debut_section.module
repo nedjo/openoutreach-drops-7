@@ -25,21 +25,6 @@ function debut_section_node_view($node) {
 }
 
 /**
- * Implements hook_enable().
- *
- * Ensure section is an allowed book type. We do this here rather than
- * in a Strongarm variable to avoid overriding other feature's use
- * of book.
- */
-function debut_section_enable() {
-  $types = variable_get('book_allowed_types', array('book'));
-  if (!in_array('section', $types)) {
-    $types[] = 'section';
-    variable_set('book_allowed_types', $types);
-  }
-}
-
-/**
  * Implements hook_form_FORM_ID_alter().
  *
  * When creating a new section not part of an existing book, default to new

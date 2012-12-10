@@ -14,13 +14,29 @@ function debut_media_menu_alter(&$items) {
 }
 
 /**
+ * Implements hook_menu_link_alter().
+ *
+ * Set the file/% link to hidden to avoid navigation menu error,
+ * see http://drupal.org/node/1018614.
+ *
+ * @todo: remove when http://drupal.org/node/1018614 is fixed.
+ */
+function debut_media_menu_link_alter(&$item) {
+  if ($item['link_path'] == 'file/%') {
+    $item['hidden'] = TRUE;
+  }
+}
+
+/**
  * Implements hook_entity_info_alter().
  *
  * Enable custom settings for the 'full' file view mode.
  * See http://drupal.org/node/1291428.
  */
 function debut_media_entity_info_alter(&$entity_info) {
-  $entity_info['file']['view modes']['full']['custom settings'] = TRUE;
+  if (isset($entity_info['file']['view modes']['full'])) {
+    $entity_info['file']['view modes']['full']['custom settings'] = TRUE;
+  }
 }
 
 /**

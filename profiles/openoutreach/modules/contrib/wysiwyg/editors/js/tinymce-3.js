@@ -76,13 +76,6 @@ Drupal.wysiwyg.editor.attach.tinymce = function(context, params, settings) {
 
   // Attach editor.
   ed.render();
-  if (tinymce.minorVersion == '5.7') {
-    // Work around a TinyMCE bug hiding new instances when switching to them.
-    // @see http://www.tinymce.com/develop/bugtracker_view.php?id=5510
-    setTimeout(function () {
-      tinymce.DOM.show(ed.editorContainer);
-    }, 1);
-  }
 };
 
 /**

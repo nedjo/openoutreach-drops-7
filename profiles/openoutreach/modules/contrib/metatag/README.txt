@@ -21,6 +21,8 @@ The primary features include:
   COPYRIGHT, GENERATOR, IMAGE_SRC, KEYWORDS, PUBLISHER, ROBOTS, SHORTLINK and
   the page's TITLE tag.
 
+* Multi-lingual support using the Entity Translation module.
+
 * Per-path control over meta tags using the "Meta tags: Context" submodule
   (requires the Context module).
 
@@ -29,6 +31,9 @@ The primary features include:
 
 * The Open Graph Protocol meta tags, as used by Facebook, may be added by
   enabling the "Meta tags: Open Graph" submodule.
+
+* The Twitter Cards meta tags may be added by enabling the "Meta tags: Twitter
+  Cards" submodule.
 
 * An API allowing for additional meta tags to be added, beyond what is provided
   by this module - see metatag.api.php for full details.
@@ -59,7 +64,10 @@ Configuration
 
 Known Issues
 ------------------------------------------------------------------------------
-
+* Versions of Drupal older than v7.17 were missing necessary functionality for
+  taxonomy term pages to work correctly.
+* Using Metatag with values assigned for the page title and the Page Title
+  module simultaneously can cause conflicts and unexpected results.
 
 
 Related modules

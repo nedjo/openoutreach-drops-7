@@ -100,17 +100,11 @@ function _designkit_form_alter(&$form, &$form_state) {
  * Submit handler for system_theme_settings.
  */
 function _designkit_system_theme_settings_submit(&$form, &$form_state) {
-  if ($form_state['values']['op'] == t('Reset to defaults')) {
-    variable_del('designkit_image');
-    variable_del('designkit_color');
+  if (isset($form_state['values']['designkit_image'])) {
+    variable_set('designkit_image', $form_state['values']['designkit_image']);
   }
-  else {
-    if (isset($form_state['values']['designkit_image'])) {
-      variable_set('designkit_image', $form_state['values']['designkit_image']);
-    }
-    if (isset($form_state['values']['designkit_color'])) {
-      variable_set('designkit_color', $form_state['values']['designkit_color']);
-    }
+  if (isset($form_state['values']['designkit_color'])) {
+    variable_set('designkit_color', $form_state['values']['designkit_color']);
   }
 }
 

@@ -40,7 +40,7 @@ function debut_media_views_default_views() {
   $handler->display->display_options['fields']['fid']['table'] = 'file_managed';
   $handler->display->display_options['fields']['fid']['field'] = 'fid';
   $handler->display->display_options['fields']['fid']['exclude'] = TRUE;
-  /* Field: File: File */
+  /* Field: File: Rendered */
   $handler->display->display_options['fields']['rendered']['id'] = 'rendered';
   $handler->display->display_options['fields']['rendered']['table'] = 'file_managed';
   $handler->display->display_options['fields']['rendered']['field'] = 'rendered';
@@ -49,7 +49,7 @@ function debut_media_views_default_views() {
   $handler->display->display_options['fields']['rendered']['alter']['path'] = 'file/[fid]';
   $handler->display->display_options['fields']['rendered']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['rendered']['hide_alter_empty'] = FALSE;
-  $handler->display->display_options['fields']['rendered']['file_view_mode'] = 'media_preview';
+  $handler->display->display_options['fields']['rendered']['file_view_mode'] = 'preview';
   /* Field: File: Name */
   $handler->display->display_options['fields']['filename']['id'] = 'filename';
   $handler->display->display_options['fields']['filename']['table'] = 'file_managed';
@@ -63,10 +63,6 @@ function debut_media_views_default_views() {
   $handler->display->display_options['fields']['field_tags']['label'] = '';
   $handler->display->display_options['fields']['field_tags']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_tags']['delta_offset'] = '0';
-  /* Field: File: Type */
-  $handler->display->display_options['fields']['type']['id'] = 'type';
-  $handler->display->display_options['fields']['type']['table'] = 'file_managed';
-  $handler->display->display_options['fields']['type']['field'] = 'type';
   /* Sort criterion: File: Upload date */
   $handler->display->display_options['sorts']['timestamp']['id'] = 'timestamp';
   $handler->display->display_options['sorts']['timestamp']['table'] = 'file_managed';
@@ -95,7 +91,7 @@ function debut_media_views_default_views() {
   $handler->display->display_options['fields']['fid']['table'] = 'file_managed';
   $handler->display->display_options['fields']['fid']['field'] = 'fid';
   $handler->display->display_options['fields']['fid']['exclude'] = TRUE;
-  /* Field: File: File */
+  /* Field: File: Rendered */
   $handler->display->display_options['fields']['rendered']['id'] = 'rendered';
   $handler->display->display_options['fields']['rendered']['table'] = 'file_managed';
   $handler->display->display_options['fields']['rendered']['field'] = 'rendered';
@@ -104,7 +100,7 @@ function debut_media_views_default_views() {
   $handler->display->display_options['fields']['rendered']['alter']['path'] = 'file/[fid]';
   $handler->display->display_options['fields']['rendered']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['rendered']['hide_alter_empty'] = FALSE;
-  $handler->display->display_options['fields']['rendered']['file_view_mode'] = 'media_preview';
+  $handler->display->display_options['fields']['rendered']['file_view_mode'] = 'preview';
   /* Field: File: Name */
   $handler->display->display_options['fields']['filename']['id'] = 'filename';
   $handler->display->display_options['fields']['filename']['table'] = 'file_managed';
@@ -161,35 +157,6 @@ function debut_media_views_default_views() {
   $handler->display->display_options['defaults']['row_plugin'] = FALSE;
   $handler->display->display_options['row_plugin'] = 'fields';
   $handler->display->display_options['defaults']['row_options'] = FALSE;
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: File: File ID */
-  $handler->display->display_options['fields']['fid']['id'] = 'fid';
-  $handler->display->display_options['fields']['fid']['table'] = 'file_managed';
-  $handler->display->display_options['fields']['fid']['field'] = 'fid';
-  $handler->display->display_options['fields']['fid']['exclude'] = TRUE;
-  /* Field: File: File */
-  $handler->display->display_options['fields']['rendered']['id'] = 'rendered';
-  $handler->display->display_options['fields']['rendered']['table'] = 'file_managed';
-  $handler->display->display_options['fields']['rendered']['field'] = 'rendered';
-  $handler->display->display_options['fields']['rendered']['label'] = '';
-  $handler->display->display_options['fields']['rendered']['alter']['make_link'] = TRUE;
-  $handler->display->display_options['fields']['rendered']['alter']['path'] = 'file/[fid]';
-  $handler->display->display_options['fields']['rendered']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['rendered']['hide_alter_empty'] = FALSE;
-  $handler->display->display_options['fields']['rendered']['file_view_mode'] = 'media_preview';
-  /* Field: File: Name */
-  $handler->display->display_options['fields']['filename']['id'] = 'filename';
-  $handler->display->display_options['fields']['filename']['table'] = 'file_managed';
-  $handler->display->display_options['fields']['filename']['field'] = 'filename';
-  $handler->display->display_options['fields']['filename']['label'] = '';
-  $handler->display->display_options['fields']['filename']['element_label_colon'] = FALSE;
-  /* Field: Field: Tags */
-  $handler->display->display_options['fields']['field_tags']['id'] = 'field_tags';
-  $handler->display->display_options['fields']['field_tags']['table'] = 'field_data_field_tags';
-  $handler->display->display_options['fields']['field_tags']['field'] = 'field_tags';
-  $handler->display->display_options['fields']['field_tags']['label'] = '';
-  $handler->display->display_options['fields']['field_tags']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_tags']['delta_offset'] = '0';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: File: Type */
@@ -274,7 +241,7 @@ function debut_media_views_default_views() {
   $handler->display->display_options['fields']['fid']['table'] = 'file_managed';
   $handler->display->display_options['fields']['fid']['field'] = 'fid';
   $handler->display->display_options['fields']['fid']['exclude'] = TRUE;
-  /* Field: File: File */
+  /* Field: File: Rendered */
   $handler->display->display_options['fields']['rendered']['id'] = 'rendered';
   $handler->display->display_options['fields']['rendered']['table'] = 'file_managed';
   $handler->display->display_options['fields']['rendered']['field'] = 'rendered';
@@ -283,7 +250,7 @@ function debut_media_views_default_views() {
   $handler->display->display_options['fields']['rendered']['alter']['path'] = 'file/[fid]';
   $handler->display->display_options['fields']['rendered']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['rendered']['hide_alter_empty'] = FALSE;
-  $handler->display->display_options['fields']['rendered']['file_view_mode'] = 'media_preview';
+  $handler->display->display_options['fields']['rendered']['file_view_mode'] = 'preview';
   /* Field: File: Name */
   $handler->display->display_options['fields']['filename']['id'] = 'filename';
   $handler->display->display_options['fields']['filename']['table'] = 'file_managed';

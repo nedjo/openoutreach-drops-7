@@ -40,8 +40,9 @@ define('FILE_STICKY', 1);
  */
 function file_admin_permission() {
   $perms = array(
-    'view own unpublished media' => array(
-      'title' => t('View own unpublished media'),
+    'view own unpublished files' => array(
+      'title' => t('View own unpublished file details'),
+      'description' => t('For viewing file details, not for downloading files.'),
     ),
   );
 
@@ -49,61 +50,36 @@ function file_admin_permission() {
 }
 
 /**
- * Implements hook_entity_insert().
+ * Implements hook_entity_presave().
  *
- * Set created timestamp when entity is created.
+ * Set created timestamp and file admin settings when entity is created.
  */
 function file_admin_entity_presave($entity, $type) {
   if ($type == 'file' && !isset($entity->fid)) {
     $entity->created = REQUEST_TIME;
     $file_options = variable_get('file_admin_file_options_' . $entity->type, array('published'));
-    foreach ($file_options as $setting) {
-      $entity->$setting = 1;
+    foreach (array('published', 'promote', 'sticky') as $key) {
+      $entity->$key = (int) in_array($key, $file_options);
     }
   }
 }
 
 /**
- * Implements hook_menu().
+ * Implements hook_file_entity_access().
  *
- * @see file_entity_menu().
+ * Restrict view access to file entities based on published status.
  */
-function file_admin_menu() {
-  $items = array();
-
-  // Attach a "Settings" tab to each file type in the same way that
-  // Field UI attaches "Manage fields" and "Manage display" tabs. Note that
-  // Field UI does not have to be enabled; we're just using the same IA pattern
-  // here for attaching the "Settings" page.
-  $entity_info = entity_get_info('file');
-  foreach ($entity_info['bundles'] as $file_type => $bundle_info) {
-    if (isset($bundle_info['admin'])) {
-      // Get the base path and access.
-      $path = $bundle_info['admin']['path'];
-      $access = array_intersect_key($bundle_info['admin'], drupal_map_assoc(array('access callback', 'access arguments')));
-      $access += array(
-        'access callback' => 'user_access',
-        'access arguments' => array('administer file types'),
-      );
-
-      // The file type must be passed to the page callbacks. It might be
-      // configured as a wildcard (multiple file types sharing the same menu
-      // router path).
-      $file_type_argument = isset($bundle_info['admin']['bundle argument']) ? $bundle_info['admin']['bundle argument'] : $file_type;
-
-      // Add the 'settings' tab.
-      $items["$path/settings"] = array(
-        'title' => 'Settings',
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('file_admin_file_type_settings_form', $file_type_argument),
-        'type' => MENU_LOCAL_TASK,
-        'weight' => -1,
-        'file' => 'file_admin.admin.inc',
-      ) + $access;
-    }
+function file_admin_file_entity_access($op, $file, $account) {
+  // Deny view access to unpublished files unless the user has "bypass file
+  // access" permission or has "view own published files" and is the author of
+  // the file.
+  if ($op == 'view' &&
+    $file->published == FILE_NOT_PUBLISHED &&
+    !user_access('bypass file access', $account) &&
+    !(user_access('view own unpublished files', $account) && $account->uid == $file->uid && $account->uid != 0)) {
+    return FILE_ENTITY_ACCESS_DENY;
   }
-
-  return $items;
+  return FILE_ENTITY_ACCESS_IGNORE;
 }
 
 /**
@@ -140,6 +116,62 @@ function file_admin_form_file_entity_admin_files_alter(&$form, &$form_state) {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter() for file_entity_edit.
+ *
+ * Add file settings defaults.
+ */
+function file_admin_form_file_entity_file_type_form_alter(&$form, &$form_state) {
+  $form['additional_settings'] = array(
+    '#type' => 'vertical_tabs',
+    '#attached' => array(
+      'js' => array(drupal_get_path('module', 'file_admin') . '/file_admin.js'),
+    ),
+  );
+  $form['submission'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Submission form settings'),
+    '#collapsible' => TRUE,
+    '#group' => 'additional_settings',
+  );
+  $form['submission']['help']  = array(
+    '#type' => 'textarea',
+    '#title' => t('Explanation or submission guidelines'),
+    '#default_value' => variable_get('file_admin_help_' . $form['#file_type'], ''),
+    '#description' => t('This text will be displayed at the top of the page when creating or editing files of this type.'),
+  );
+  $form['workflow'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Publishing options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'additional_settings',
+  );
+  $form['workflow']['file_options'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Default options'),
+    '#default_value' => variable_get('file_admin_file_options_' . $form['#file_type'], array('published')),
+    '#options' => array(
+      'published' => t('Published'),
+      'promote' => t('Promoted'),
+      'sticky' => t('Sticky at top of lists'),
+    ),
+    '#description' => t('Users with the <em>Administer files</em> permission will be able to override these options.'),
+  );
+  $form['submit']['#weight'] = 10;
+  $form['#submit'][] = 'file_admin_file_entity_file_type_form_submit';
+}
+
+/**
+ * Submit handler for file_entity_file_type_form.
+ */
+function file_admin_file_entity_file_type_form_submit($form, &$form_state) {
+  $type = $form['#file_type'];
+  foreach (array('help', 'file_options') as $variable) {
+    variable_set('file_admin_' . $variable . '_' . $type, $form_state['values'][$variable]);
+  }
+}
+
+/**
  * Implements hook_views_api().
  */
 function file_admin_views_api() {
@@ -156,7 +188,7 @@ function file_admin_views_api() {
  */
 function file_admin_page_alter(&$page) {
   if (isset($page['content']['system_main']['file_type_table'])) {
-    $types = file_info_file_types();
+    $types = file_type_get_all_types();
     $entity_info = entity_get_info('file');
     $i = 0;
     // We're adding a column.
@@ -301,7 +333,7 @@ function file_admin_file_operations_info() {
     'publish' => array(
       'label' => t('Publish'),
       'callback' => 'file_admin_mass_update',
-      'callback arguments' => array('updates' => array('published' => FILE_NOT_PUBLISHED)),
+      'callback arguments' => array('updates' => array('published' => FILE_PUBLISHED)),
     ),
     'unpublish' => array(
       'label' => t('Unpublish'),

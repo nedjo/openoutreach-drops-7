@@ -37,7 +37,7 @@ function openoutreach_front_page_default_panels_mini() {
   $display->content = array();
   $display->panels = array();
     $pane = new stdClass();
-    $pane->pid = 'new-6';
+    $pane->pid = 'new-1';
     $pane->panel = 'left';
     $pane->type = 'views_panes';
     $pane->subtype = 'front_page_top_stories-panel_pane_2';
@@ -55,10 +55,10 @@ function openoutreach_front_page_default_panels_mini() {
     $pane->extras = array();
     $pane->position = 0;
     $pane->locks = '';
-    $display->content['new-6'] = $pane;
-    $display->panels['left'][0] = 'new-6';
+    $display->content['new-1'] = $pane;
+    $display->panels['left'][0] = 'new-1';
     $pane = new stdClass();
-    $pane->pid = 'new-7';
+    $pane->pid = 'new-2';
     $pane->panel = 'right';
     $pane->type = 'views_panes';
     $pane->subtype = 'front_page_top_stories-panel_pane_3';
@@ -76,10 +76,10 @@ function openoutreach_front_page_default_panels_mini() {
     $pane->extras = array();
     $pane->position = 0;
     $pane->locks = '';
-    $display->content['new-7'] = $pane;
-    $display->panels['right'][0] = 'new-7';
+    $display->content['new-2'] = $pane;
+    $display->panels['right'][0] = 'new-2';
     $pane = new stdClass();
-    $pane->pid = 'new-8';
+    $pane->pid = 'new-3';
     $pane->panel = 'top';
     $pane->type = 'views_panes';
     $pane->subtype = 'front_page_top_stories-panel_pane_1';
@@ -97,10 +97,10 @@ function openoutreach_front_page_default_panels_mini() {
     $pane->extras = array();
     $pane->position = 0;
     $pane->locks = '';
-    $display->content['new-8'] = $pane;
-    $display->panels['top'][0] = 'new-8';
+    $display->content['new-3'] = $pane;
+    $display->panels['top'][0] = 'new-3';
   $display->hide_title = PANELS_TITLE_FIXED;
-  $display->title_pane = 'new-8';
+  $display->title_pane = 'new-3';
   $mini->display = $display;
   $export['front_page_upper_section'] = $mini;
 

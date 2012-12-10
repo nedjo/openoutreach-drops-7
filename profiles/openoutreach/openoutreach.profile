@@ -135,3 +135,66 @@ function openoutreach_apps_servers_info() {
   return $return;
 }
 
+/**
+ * Implements hook_update_projects_alter().
+ *
+ * Cribbed from commerce_kickstart.
+ */
+function openoutreach_update_projects_alter(&$projects) {
+  // Enable update status for the Open Outreach profile.
+  $modules = system_rebuild_module_data();
+  // The module object is shared in the request, so we need to clone it here.
+  $openoutreach = clone $modules['openoutreach'];
+  $openoutreach->info['hidden'] = FALSE;
+  _update_process_info_list($projects, array('openoutreach' => $openoutreach), 'module', TRUE);
+}
+
+/**
+ * Implements hook_update_status_alter().
+ *
+ * Disable reporting of projects that are in the distribution, but only
+ * if they have not been updated manually.
+ *
+ * Projects with insecure / revoked / unsupported releases are only shown
+ * after two days, which gives enough time to prepare a new Open Outreach
+ * release which users can install and solve the problem.
+ *
+ * Cribbed from commerce_kickstart.
+ */
+function openoutreach_update_status_alter(&$projects) {
+  $bad_statuses = array(
+    UPDATE_NOT_SECURE,
+    UPDATE_REVOKED,
+    UPDATE_NOT_SUPPORTED,
+  );
+
+  $make_filepath = drupal_get_path('module', 'openoutreach') . '/drupal-org.make';
+  if (!file_exists($make_filepath)) {
+    return;
+  }
+
+  $make_info = drupal_parse_info_file($make_filepath);
+  foreach ($projects as $project_name => $project_info) {
+    // Hide Open Outreach features. They have no update status of their own.
+    if (strpos($project_name, 'openoutreach_') !== FALSE) {
+      unset($projects[$project_name]);
+    }
+    // Hide bad releases (insecure, revoked, unsupported) if they are younger
+    // than two days (giving Open Outreach time to prepare an update).
+    elseif (isset($project_info['status']) && in_array($project_info['status'], $bad_statuses)) {
+      $two_days_ago = strtotime('2 days ago');
+      if ($project_info['releases'][$project_info['recommended']]['date'] < $two_days_ago) {
+        unset($projects[$project_name]);
+      }
+    }
+    // Hide projects shipped with Open Outreach if they haven't been manually
+    // updated.
+    elseif (isset($make_info['projects'][$project_name])) {
+      $version = $make_info['projects'][$project_name]['version'];
+      if (strpos($version, 'dev') !== FALSE || (DRUPAL_CORE_COMPATIBILITY . '-' . $version == $project_info['info']['version'])) {
+        unset($projects[$project_name]);
+      }
+    }
+  }
+}
+

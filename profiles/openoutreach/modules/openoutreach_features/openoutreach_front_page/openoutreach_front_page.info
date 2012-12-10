@@ -4,10 +4,6 @@ core = 7.x
 package = Features
 php = 5.2.4
 dependencies[] = ctools
-dependencies[] = debut_article
-dependencies[] = debut_blog
-dependencies[] = debut_highlighted
-dependencies[] = debut_media
 dependencies[] = page_manager
 dependencies[] = panels_mini
 dependencies[] = strongarm
@@ -23,9 +19,9 @@ features[panels_mini][] = front_page_upper_section
 features[variable][] = site_frontpage
 features[views_view][] = front_page_top_stories
 
-; Information added by drupal.org packaging script on 2012-10-19
-version = "7.x-1.0-rc6"
+; Information added by drupal.org packaging script on 2012-12-07
+version = "7.x-1.0-rc7"
 core = "7.x"
 project = "openoutreach"
-datestamp = "1350686513"
+datestamp = "1354898635"
 

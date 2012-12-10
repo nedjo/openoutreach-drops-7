@@ -38,7 +38,7 @@ function debut_location_field_default_fields() {
       'settings' => array(
         'profile2_private' => FALSE,
       ),
-      'translatable' => '0',
+      'translatable' => '1',
       'type' => 'text_with_summary',
     ),
     'field_instance' => array(
@@ -162,11 +162,45 @@ function debut_location_field_default_fields() {
       'entity_types' => array(),
       'field_name' => 'field_geolocation',
       'foreign keys' => array(),
-      'indexes' => array(),
+      'indexes' => array(
+        'bbox' => array(
+          0 => 'top',
+          1 => 'bottom',
+          2 => 'left',
+          3 => 'right',
+        ),
+        'bottom' => array(
+          0 => 'bottom',
+        ),
+        'centroid' => array(
+          0 => 'lat',
+          1 => 'lon',
+        ),
+        'geohash' => array(
+          0 => 'geohash',
+        ),
+        'lat' => array(
+          0 => 'lat',
+        ),
+        'left' => array(
+          0 => 'left',
+        ),
+        'lon' => array(
+          0 => 'lon',
+        ),
+        'right' => array(
+          0 => 'right',
+        ),
+        'top' => array(
+          0 => 'top',
+        ),
+      ),
       'locked' => '0',
       'module' => 'geofield',
       'settings' => array(
+        'backend' => 'default',
         'profile2_private' => FALSE,
+        'srid' => '4326',
       ),
       'translatable' => '0',
       'type' => 'geofield',

@@ -94,6 +94,7 @@ class metatag_context_reaction extends context_reaction {
       $output = array();
       $contexts = context_active_contexts();
       $options = array();
+      $instance_names = array();
 
       foreach ($contexts as $context) {
         if (!empty($context->reactions['metatag_context_reaction']['metatags'])) {
@@ -103,19 +104,31 @@ class metatag_context_reaction extends context_reaction {
               $metatags[$key] = $data;//t(check_plain($data['value']));
             }
           }
+
+          // Add this context to the list of instances.
+          $instance_names[] = $context->name;
         }
       }
 
-      $metatags += metatag_config_load_with_defaults('');
+      // Only proceed if metatags were assigned.
+      if (!empty($metatags)) {
+        $metatags += metatag_config_load_with_defaults('');
 
-      $output = array();
-      foreach ($metatags as $metatag => $data) {
-        if ($metatag_instance = metatag_get_instance($metatag, $data)) {
-          $output[$metatag] = $metatag_instance->getElement($options);
+        foreach ($metatags as $metatag => $data) {
+          if ($metatag_instance = metatag_get_instance($metatag, $data)) {
+            $output[$metatag] = $metatag_instance->getElement($options);
+          }
         }
-      }
 
-      drupal_alter('metatag_metatags_view', $output);
+        // Compile the identifier for this combination based on the context
+        // names.
+        asort($instance_names);
+        $instance = 'context:' . implode(',', $instance_names);
+
+        // Allow the output meta tags to be modified using
+        // hook_metatag_metatags_view_alter().
+        drupal_alter('metatag_metatags_view', $output, $instance);
+      }
     }
   }
 }

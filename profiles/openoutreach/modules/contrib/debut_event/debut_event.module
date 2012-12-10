@@ -68,13 +68,24 @@ function debut_event_date_formats() {
  * Implements hook_field_default_fields_alter().
  *
  * If debut_media module is present, use an image style it provides instead of
- * the default 'large' style.
+ * the default 'large' style. Also alter fields to add ical view mode.
  */
 function debut_event_field_default_fields_alter(&$fields) {
-  // TBD: why doesn't the call to apps_compatible_feature_is_recreating() work
-  // here?
+  // Todo: the call to apps_compatible_feature_is_recreating doesn't work with
+  // pseudo exportables like fields.
   if (isset($fields['node-event-field_content_image']) && module_exists('debut_media') && !apps_compatible_feature_is_recreating('debut_event')) {
     $fields['node-event-field_content_image']['field_instance']['display']['default']['settings']['image_style'] = 'medium_large';
+  }
+  // Prevent meaningless overrides by adding ical view mode display settings.
+  foreach ($fields as $key => $field) {
+    if (!isset($field['field_instance']['display']['ical'])) {
+      $fields[$key]['field_instance']['display']['ical'] = array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      );
+    }
   }
 }
 

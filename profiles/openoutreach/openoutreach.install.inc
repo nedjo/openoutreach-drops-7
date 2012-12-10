@@ -24,7 +24,6 @@ function openoutreach_install_tasks($install_state) {
       'debut_bio',
       'debut_blog',
       'debut_comment',
-      'debut_event',
       'debut_highlighted',
       'debut_link',
       'debut_media',
@@ -118,6 +117,8 @@ function openoutreach_form_install_configure_form_alter(&$form, &$form_state) {
     $form['site_information']['site_mail']['#default_value'] = 'admin@'. $_SERVER['HTTP_HOST'];
     $form['admin_account']['account']['mail']['#default_value'] = 'admin@'. $_SERVER['HTTP_HOST'];
   }
+  // Hide update notifications.
+  $form['update_notifications']['#access'] = FALSE;
 }
 
 /**

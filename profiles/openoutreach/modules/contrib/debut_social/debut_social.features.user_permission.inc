@@ -14,8 +14,9 @@ function debut_social_user_default_permissions() {
   $permissions['access forward'] = array(
     'name' => 'access forward',
     'roles' => array(
-      0 => 'anonymous user',
-      1 => 'authenticated user',
+      0 => 'administrator',
+      1 => 'anonymous user',
+      2 => 'authenticated user',
     ),
     'module' => 'forward',
   );
@@ -24,8 +25,9 @@ function debut_social_user_default_permissions() {
   $permissions['access service links'] = array(
     'name' => 'access service links',
     'roles' => array(
-      0 => 'anonymous user',
-      1 => 'authenticated user',
+      0 => 'administrator',
+      1 => 'anonymous user',
+      2 => 'authenticated user',
     ),
     'module' => 'service_links',
   );
@@ -71,7 +73,8 @@ function debut_social_user_default_permissions() {
   $permissions['edit own follow links'] = array(
     'name' => 'edit own follow links',
     'roles' => array(
-      0 => 'authenticated user',
+      0 => 'administrator',
+      1 => 'authenticated user',
     ),
     'module' => 'follow',
   );

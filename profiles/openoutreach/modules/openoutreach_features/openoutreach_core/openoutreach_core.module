@@ -4,7 +4,7 @@
  * Code for the Open Outreach core feature.
  */
 
-include_once('openoutreach_core.features.inc');
+include_once 'openoutreach_core.features.inc';
 
 /**
  * Implements hook_context_default_contexts_alter().
@@ -17,5 +17,3 @@ function openoutreach_core_context_default_contexts_alter(&$contexts) {
     $contexts['shortcut']->conditions['user']['values']['blogger'] = 'blogger';
   }
 }
-
-

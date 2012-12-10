@@ -22,7 +22,6 @@ function debut_redhen_event_default_registration_type() {
     "locked" : "0",
     "weight" : "0",
     "data" : null,
-    "metatags" : [],
     "rdf_mapping" : []
   }');
   return $items;

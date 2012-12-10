@@ -29,7 +29,6 @@ function debut_redhen_default_redhen_contact_type() {
     "locked" : "0",
     "weight" : "0",
     "data" : null,
-    "metatags" : [],
     "rdf_mapping" : []
   }');
   return $items;
@@ -45,7 +44,6 @@ function debut_redhen_default_redhen_engagement_score() {
     "label" : "High-value engagement",
     "locked" : null,
     "score" : "10",
-    "metatags" : [],
     "rdf_mapping" : []
   }');
   $items['standard'] = entity_import('redhen_engagement_score', '{
@@ -53,7 +51,6 @@ function debut_redhen_default_redhen_engagement_score() {
     "label" : "Standard-value engagement",
     "locked" : null,
     "score" : "5",
-    "metatags" : [],
     "rdf_mapping" : []
   }');
   return $items;
@@ -67,11 +64,10 @@ function debut_redhen_default_redhen_membership_type() {
   $items['standard'] = entity_import('redhen_membership_type', '{
     "name" : "standard",
     "label" : "Standard",
-    "role_id" : null,
+    "role_id" : NULL,
     "locked" : "0",
     "weight" : "0",
     "data" : null,
-    "metatags" : [],
     "rdf_mapping" : []
   }');
   return $items;
@@ -88,7 +84,6 @@ function debut_redhen_default_redhen_org_type() {
     "locked" : "0",
     "weight" : "0",
     "data" : null,
-    "metatags" : [],
     "rdf_mapping" : []
   }');
   return $items;

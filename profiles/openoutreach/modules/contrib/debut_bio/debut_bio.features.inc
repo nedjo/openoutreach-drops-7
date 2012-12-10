@@ -37,7 +37,6 @@ function debut_bio_default_profile2_type() {
     "label" : "Author bio",
     "weight" : "0",
     "data" : { "registration" : 0 },
-    "metatags" : [],
     "rdf_mapping" : []
   }');
   return $items;

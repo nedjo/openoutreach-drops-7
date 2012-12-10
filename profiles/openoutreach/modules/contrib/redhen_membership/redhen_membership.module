@@ -21,6 +21,7 @@ function redhen_membership_entity_info() {
       'controller class' => 'RedhenMembershipEntityController',
       'metadata controller class' => 'RedhenMembershipMetadataController',
       'entity class' => 'RedhenMembership',
+      'views controller class' => 'RedhenMembershipViewsController',
       'base table' => 'redhen_membership',
       'fieldable' => TRUE,
       'entity keys' => array(
@@ -128,7 +129,7 @@ function redhen_membership_menu() {
       'title' => 'Add Membership',
       'page callback' => 'redhen_membership_types_list_page',
       'access callback' => 'redhen_membership_access',
-      'access arguments' => array('edit', 2),
+      'access arguments' => array('create', 2),
       'type' => MENU_LOCAL_ACTION,
       'file' => 'includes/redhen_membership.pages.inc',
     );
@@ -142,68 +143,68 @@ function redhen_membership_menu() {
         'page callback' => 'redhen_membership_add_page',
         'page arguments' => array($key, $entity_type, 2),
         'access callback' => 'redhen_membership_access',
-        'access arguments' => array('edit', 2),
+        'access arguments' => array('create', 2),
         'file' => 'includes/redhen_membership.pages.inc',
       );
     }
-  }
 
-  $items['redhen/membership/%redhen_membership'] = array(
-    'title callback' => 'redhen_membership_membership_title',
-    'title arguments' => array(2),
-    'page callback' => 'redhen_membership_view',
-    'page arguments' => array(2),
-    'access callback' => 'redhen_membership_access',
-    'access arguments' => array('view', 2),
-    'weight' => 10,
-  );
-  $items['redhen/membership/%redhen_membership/view'] = array(
-    'title' => 'View',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
-    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-  );
-  $items['redhen/membership/%redhen_membership/edit'] = array(
-    'title' => 'Edit Membership',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_membership_membership_form', 2),
-    'access callback' => 'redhen_membership_access',
-    'access arguments' => array('edit', 2),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'includes/redhen_membership.forms.inc',
-  );
-  $items['redhen/membership/%redhen_membership/delete'] = array(
-    'title' => 'Delete',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_membership_membership_delete_form', 2),
-    'access callback' => 'redhen_membership_access',
-    'access arguments' => array('delete', 2),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 10,
-    'file' => 'includes/redhen_membership.forms.inc',
-  );
-
-  if (module_exists('devel')) {
-    $items['redhen/membership/%redhen_membership/devel'] = array(
-      'title' => 'Devel',
-      'page callback' => 'redhen_devel_load_object',
-      'page arguments' => array('redhen_membership', 2),
-      'access arguments' => array('access devel information'),
-      'type' => MENU_LOCAL_TASK,
-      'weight' => 100,
+    $items["redhen/{$path}/%{$entity_type}/membership/%redhen_membership"] = array(
+      'title callback' => 'redhen_membership_membership_title',
+      'title arguments' => array(4),
+      'page callback' => 'redhen_membership_view',
+      'page arguments' => array(4),
+      'access callback' => 'redhen_membership_access',
+      'access arguments' => array('view', 4),
+      'weight' => 10,
     );
-    $items['redhen/membership/%redhen_membership/devel/load'] = array(
-      'title' => 'Load',
+    $items["redhen/{$path}/%{$entity_type}/membership/%redhen_membership/view"] = array(
+      'title' => 'View',
       'type' => MENU_DEFAULT_LOCAL_TASK,
+      'weight' => -10,
+      'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     );
-    $items['redhen/membership/%redhen_membership/devel/render'] = array(
-      'title' => 'Render',
-      'page callback' => 'redhen_devel_render_object',
-      'page arguments' => array('redhen_membership', 2),
-      'access arguments' => array('access devel information'),
+    $items["redhen/{$path}/%{$entity_type}/membership/%redhen_membership/edit"] = array(
+      'title' => 'Edit Membership',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('redhen_membership_membership_form', 4),
+      'access callback' => 'redhen_membership_access',
+      'access arguments' => array('edit', 4),
       'type' => MENU_LOCAL_TASK,
-      'weight' => 100,
+      'file' => 'includes/redhen_membership.forms.inc',
     );
+    $items["redhen/{$path}/%{$entity_type}/membership/%redhen_membership/delete"] = array(
+      'title' => 'Delete',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('redhen_membership_membership_delete_form', 4),
+      'access callback' => 'redhen_membership_access',
+      'access arguments' => array('delete', 4),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 10,
+      'file' => 'includes/redhen_membership.forms.inc',
+    );
+
+    if (module_exists('devel')) {
+      $items["redhen/{$path}/%{$entity_type}/membership/%redhen_membership/devel"] = array(
+        'title' => 'Devel',
+        'page callback' => 'redhen_devel_load_object',
+        'page arguments' => array('redhen_membership', 4),
+        'access arguments' => array('access devel information'),
+        'type' => MENU_LOCAL_TASK,
+        'weight' => 100,
+      );
+      $items["redhen/{$path}/%{$entity_type}/membership/%redhen_membership/devel/load"] = array(
+        'title' => 'Load',
+        'type' => MENU_DEFAULT_LOCAL_TASK,
+      );
+      $items["redhen/{$path}/%{$entity_type}/membership/%redhen_membership/devel/render"] = array(
+        'title' => 'Render',
+        'page callback' => 'redhen_devel_render_object',
+        'page arguments' => array('redhen_membership', 4),
+        'access arguments' => array('access devel information'),
+        'type' => MENU_LOCAL_TASK,
+        'weight' => 100,
+      );
+    }
   }
 
   return $items;
@@ -236,21 +237,37 @@ function redhen_membership_permission() {
       'title' => t('List RedHen Memberships'),
       'description' => t('List all memberships.'),
     ),
-    'view redhen org memberships' => array(
-      'title' => t('Access RedHen Org Memberships'),
+   'view redhen org memberships' => array(
+      'title' => t('View RedHen Org Memberships'),
       'description' => t('View the memberships for an organization.'),
     ),
     'view redhen contact memberships' => array(
-      'title' => t('Access RedHen Contact Memberships'),
+      'title' => t('View RedHen Contact Memberships'),
       'description' => t('View the memberships for a contact.'),
     ),
     'edit redhen org memberships' => array(
-      'title' => t('Manage RedHen Org Memberships'),
-      'description' => t('Add and edit memberships for an organization.'),
+      'title' => t('Edit RedHen Org Memberships'),
+      'description' => t('Edit memberships for an organization.'),
     ),
     'edit redhen contact memberships' => array(
-      'title' => t('Manage RedHen Contact Memberships'),
-      'description' => t('Add and edit memberships for a contact.'),
+      'title' => t('Edit RedHen Contact Memberships'),
+      'description' => t('Edit memberships for a contact.'),
+    ),
+    'create redhen org memberships' => array(
+      'title' => t('Create RedHen Org Memberships'),
+      'description' => t('Create the memberships for an organization.'),
+    ),
+    'create redhen contact memberships' => array(
+      'title' => t('Create RedHen Contact Memberships'),
+      'description' => t('Create the memberships for a contact.'),
+    ),
+    'delete redhen org memberships' => array(
+      'title' => t('Delete RedHen Org Memberships'),
+      'description' => t('Delete memberships for an organization.'),
+    ),
+    'delete redhen contact memberships' => array(
+      'title' => t('Delete RedHen Contact Memberships'),
+      'description' => t('Delete memberships for a contact.'),
     ),
   );
 }
@@ -571,10 +588,12 @@ function theme_redhen_membership_list($variables) {
       );
 
       $membership_type = redhen_membership_type_load($membership->type);
-      $entity_uri = entity_uri($membership->entity->entityType(), $membership->entity);
+      $wrapper = entity_metadata_wrapper('redhen_membership', $membership);
+      $entity = $wrapper->entity->value();
+      $entity_uri = entity_uri($membership->entity_type, $entity);
       $data = array(
         $membership_type->label,
-        l($membership->entity->label(), $entity_uri['path']),
+        l($entity->label(), $entity_uri['path']),
         ($membership->start_date != '') ? date('m/d/Y', $membership->start_date) : '',
         ($membership->expire_date != '') ? date('m/d/Y', $membership->expire_date) : '',
         $membership->note,
@@ -625,8 +644,10 @@ function redhen_membership_membership_contacts(RedhenMembership $membership) {
     $contact_ids[] = $membership->entity_id;
   }
   if ($membership->entity_type == 'redhen_org') {
+    $wrapper = entity_metadata_wrapper('redhen_membership', $membership);
+    $entity = $wrapper->entity->value();
     // Get all affiliated contact ids.
-    $relations = redhen_relation_relations($membership->entity, REDHEN_RELATION_AFFILIATION);
+    $relations = redhen_relation_relations($entity, REDHEN_RELATION_AFFILIATION);
     foreach ($relations as $relation => $related_entities) {
       foreach ($related_entities as $id => $related_entity) {
         $contact_ids[] = $related_entity->internalIdentifier();
@@ -733,12 +754,14 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
     }
     foreach ($contacts as $contact) {
       // check if the contact has a user linked to them
-      if (isset($contact->user)) {
+      $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
+      $user = $wrapper->user->value();
+      if (isset($user)) {
         // If the membership is active, we are not forcing removal of roles, and the user doesn't already have the role
         if (($membership->membership_state == REDHEN_MEMBERSHIP_ACTIVE) && (!$remove)) {
           // only set if the user doesn't already have this role
-          if (!isset($contact->user->roles[$membership_rid])) {
-            $contact->user->roles[$membership_rid] = TRUE;
+          if (!isset($user->roles[$membership_rid])) {
+            $user->roles[$membership_rid] = TRUE;
           }
         }
         else {
@@ -761,10 +784,10 @@ function redhen_membership_toggle_roles(RedhenMembership $membership, $contacts 
 
           if ($delete) {
             // No active memberships with the same role_id were found, so we go ahead and remove the role
-            unset($contact->user->roles[$membership_rid]);
+            unset($user->roles[$membership_rid]);
           }
         }
-        user_save($contact->user);
+        user_save($user);
       }
     }
   }
@@ -784,13 +807,13 @@ function redhen_membership_redhen_contact_user_update($op, RedhenContact $contac
       $remove = TRUE;
       break;
   }
-  
+
   // Get all the memberships associated with this user
   $memberships = redhen_membership_contact_memberships($contact);
   foreach ($memberships as $membership) {
     redhen_membership_toggle_roles($membership, array($contact), $remove);
   }
-  
+
 }
 
 /**
@@ -859,7 +882,9 @@ function redhen_membership_redhen_entity_predelete($entity, $entity_type) {
   switch ($entity_type) {
     case 'redhen_contact':
       // If the contact has a user associated with them we need to remove all of its roles from memberships.
-      if ($entity->user) {
+      $wrapper = entity_metadata_wrapper('redhen_contact', $entity);
+      $user = $wrapper->user->value();
+      if ($user) {
         // Get all active memberships impacting this contact
         $contact_memberships = redhen_membership_contact_memberships($entity, REDHEN_MEMBERSHIP_ACTIVE);
         foreach ($contact_memberships as $membership) {
@@ -917,15 +942,5 @@ function redhen_membership_state_options() {
     REDHEN_MEMBERSHIP_ACTIVE => t('Active'),
     REDHEN_MEMBERSHIP_INACTIVE => t('Inactive'),
     REDHEN_MEMBERSHIP_EXPIRED => t('Expired'),
-  );
-}
-
-/**
- * Implements hook_views_api().
- */
-function redhen_membership_views_api() {
-  return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'redhen_membership') . '/includes/views',
   );
 }

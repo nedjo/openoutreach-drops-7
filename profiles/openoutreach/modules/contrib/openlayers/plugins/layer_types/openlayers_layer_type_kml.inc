@@ -71,6 +71,14 @@ class openlayers_layer_type_kml extends openlayers_layer_type {
             $this->data['formatOptions']['extractStyles']) ?
             $this->data['formatOptions']['extractStyles'] : TRUE,
         ),
+        'extractTracks' => array(
+          '#type' => 'checkbox',
+          '#title' => t('Extract Tracks'),
+          '#description' => t('Extract tracks from KML.'),
+          '#default_value' => isset(
+          $this->data['formatOptions']['extractTracks']) ?
+            $this->data['formatOptions']['extractTracks'] : TRUE,
+        ),
         'extractAttributes' => array(
           '#type' => 'checkbox',
           '#title' => t('Extract Attributes'),
