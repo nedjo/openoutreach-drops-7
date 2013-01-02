@@ -49,3 +49,11 @@ body .olControlAttribution {
 body .olImageLoadError {
   background: transparent;
 }
+
+/*
+ * Do not display the close button on tooltips.
+ * See #1875844
+ */
+.openlayers-container #tooltip #tooltip_close {
+    display: none;
+}

@@ -9,9 +9,9 @@ dependencies[] = openlayers
 
 files[] = geofield_openlayers.test
 
-; Information added by drupal.org packaging script on 2012-12-06
-version = "7.x-2.0-alpha2+0-dev"
+; Information added by drupal.org packaging script on 2012-12-19
+version = "7.x-2.0-alpha2+2-dev"
 core = "7.x"
 project = "geofield"
-datestamp = "1354798896"
+datestamp = "1355879007"
 

@@ -6,6 +6,9 @@
  * OpenLayers default packaged layers
  */
 function _openlayers_openlayers_layers() {
+  global $is_https;
+  $mapquest_host = $is_https ? '-s.mqcdn.com' : '.mqcdn.com';
+
   $layers = array();
 
   $layer = new stdClass();
@@ -77,10 +80,10 @@ function _openlayers_openlayers_layers() {
     'projection' => array('900913'),
     'layer_type' => 'openlayers_layer_type_xyz',
     'url' => array(
-      '//otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png',
-      '//otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png',
-      '//otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png',
-      '//otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png',
+      '//otile1' . $mapquest_host . '/tiles/1.0.0/osm/${z}/${x}/${y}.png',
+      '//otile2' . $mapquest_host . '/tiles/1.0.0/osm/${z}/${x}/${y}.png',
+      '//otile3' . $mapquest_host . '/tiles/1.0.0/osm/${z}/${x}/${y}.png',
+      '//otile4' . $mapquest_host . '/tiles/1.0.0/osm/${z}/${x}/${y}.png',
     ),
     'wrapDateLine' => TRUE,
   );
@@ -98,10 +101,10 @@ function _openlayers_openlayers_layers() {
     'projection' => array('900913'),
     'layer_type' => 'openlayers_layer_type_xyz',
     'url' => array(
-      '//oatile1.mqcdn.com/naip/${z}/${x}/${y}.png',
-      '//oatile2.mqcdn.com/naip/${z}/${x}/${y}.png',
-      '//oatile3.mqcdn.com/naip/${z}/${x}/${y}.png',
-      '//oatile4.mqcdn.com/naip/${z}/${x}/${y}.png',
+      '//oatile1' . $mapquest_host . '/naip/${z}/${x}/${y}.png',
+      '//oatile2' . $mapquest_host . '/naip/${z}/${x}/${y}.png',
+      '//oatile3' . $mapquest_host . '/naip/${z}/${x}/${y}.png',
+      '//oatile4' . $mapquest_host . '/naip/${z}/${x}/${y}.png',
     ),
     'wrapDateLine' => TRUE,
   );
@@ -146,42 +149,45 @@ function _openlayers_openlayers_layers() {
   );
   $layers[$layer->name] = $layer;
 
+  // Bing Road
   $layer = new stdClass();
   $layer->api_version = 1;
-  $layer->name = 'virtualearth_street';
-  $layer->title = 'Virtual Earth Street';
-  $layer->description = 'Virtual Earth (Bing) street tiles.';
+  $layer->name = 'bing_road';
+  $layer->title = 'Bing Road';
+  $layer->description = 'Bing Road tiles.';
   $layer->data = array(
     'baselayer' => TRUE,
-    'type' => 'street',
+    'type' => 'Road',
     'projection' => array('900913'),
-    'layer_type' => 'openlayers_layer_type_virtualearth',
+    'layer_type' => 'openlayers_layer_type_bing',
   );
   $layers[$layer->name] = $layer;
 
+  // Bing Aerial
   $layer = new stdClass();
   $layer->api_version = 1;
-  $layer->name = 'virtualearth_satellite';
-  $layer->title = 'Virtual Earth Satellite';
-  $layer->description = 'Virtual Earth (Bing) satellite tiles.';
+  $layer->name = 'bing_aerial';
+  $layer->title = 'Bing Aerial';
+  $layer->description = 'Bing Aerial tiles.';
   $layer->data = array(
     'baselayer' => TRUE,
-    'type' => 'satellite',
+    'type' => 'Aerial',
     'projection' => array('900913'),
-    'layer_type' => 'openlayers_layer_type_virtualearth',
+    'layer_type' => 'openlayers_layer_type_bing',
   );
   $layers[$layer->name] = $layer;
 
+  // Bing Hybrid
   $layer = new stdClass();
   $layer->api_version = 1;
-  $layer->name = 'virtualearth_hybrid';
-  $layer->title = 'Virtual Earth Hybrid';
-  $layer->description = 'Virtual Earth (Bing) hybrid of streets and satellite tiles.';
+  $layer->name = 'bing_hybrid';
+  $layer->title = 'Bing Hybrid';
+  $layer->description = 'Bing Hybrid tiles.';
   $layer->data = array(
     'baselayer' => TRUE,
-    'type' => 'hybrid',
+    'type' => 'AerialWithLabels',
     'projection' => array('900913'),
-    'layer_type' => 'openlayers_layer_type_virtualearth',
+    'layer_type' => 'openlayers_layer_type_bing',
   );
   $layers[$layer->name] = $layer;
 
@@ -207,28 +213,6 @@ function _openlayers_openlayers_layers() {
   );
   $layers[$layer->name] = $layer;
 
-  // OpenStreetMap Tiles @ Home
-  $layer = new stdClass();
-  $layer->api_version = 1;
-  $layer->name = 'osm_tah';
-  $layer->title = 'OSM Tiles@Home';
-  $layer->description = 'Alternative, community-rendered OpenStreetMap';
-  $layer->data = array(
-    'baselayer' => TRUE,
-    'attribution' => t('&copy;<a href="@ccbysa">CCBYSA</a> '.
-        '<a href="@openstreetmap">&copy; OpenStreetMap contributors</a>',
-      array(
-        '@openstreetmap' => 'http://www.openstreetmap.org/copyright',
-        '@ccbysa' => 'http://creativecommons.org/licenses/by-sa/2.0/',
-      )
-    ),
-    'projection' => array('900913'),
-    'layer_type' => 'openlayers_layer_type_xyz',
-    'url' => '//tah.openstreetmap.org/Tiles/tile/${z}/${x}/${y}.png',
-    'wrapDateLine' => TRUE,
-  );
-  $layers[$layer->name] = $layer;
-
   // OpenStreetMap Cycling Map
   $layer = new stdClass();
   $layer->api_version = 1;
@@ -246,7 +230,7 @@ function _openlayers_openlayers_layers() {
     ),
     'projection' => array('900913'),
     'layer_type' => 'openlayers_layer_type_xyz',
-    'url' => '//andy.sandbox.cloudmade.com/tiles/cycle/${z}/${x}/${y}.png',
+    'url' => '//a.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png',
     'wrapDateLine' => TRUE,
   );
   $layers[$layer->name] = $layer;
@@ -353,14 +337,13 @@ function _openlayers_openlayers_layers_i18n() {
     t('Google Maps Hybrid'),
     t('Google Maps Normal'),
     t('Google Maps Physical'),
+    t('Bing Road'),
+    t('Bing Aerial'),
+    t('Bing Hybrid'),
     t('Yahoo Maps Street'),
     t('Yahoo Maps Hybrid'),
     t('Yahoo Maps Satellite'),
-    t('Virtual Earth Street'),
-    t('Virtual Earth Satellite'),
-    t('Virtual Earth Hybrid'),
     t('OSM Mapnik'),
-    t('OSM Tiles@Home'),
     t('OSM Cycling Map'),
     t('OSM Overlay'),
     t('Default OpenLayers WMS'),
@@ -375,9 +358,9 @@ function _openlayers_openlayers_layers_i18n() {
       WSG84 for use on non spherical-mercator maps.'),
     t('Standard Google Maps Roads'),
     t('The main OpenStreetMap map'),
-    t('Virtual Earth (Bing) hybrid of streets and satellite tiles.'),
-    t('Virtual Earth (Bing) satellite tiles.'),
-    t('Virtual Earth (Bing) street tiles.'),
+    t('Bing Road tiles.'),
+    t('Bing Aerial tiles.'),
+    t('Bing Hybrid tiles.'),
     t('Yahoo hybrid of streets and satellite tiles.'),
     t('Yahoo satellite imagery tiles.'),
     t('Yahoo streets tiles.'),

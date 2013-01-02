@@ -7,15 +7,17 @@
 /**
  * Define the Ctools plugin options.
  */
-$plugin = array(
-  'title' => t('Yahoo'),
-  'description' => t('Yahoo Maps API Map'),
-  'layer_type' => array(
-    'file' => 'openlayers_layer_type_yahoo.inc',
-    'class' => 'openlayers_layer_type_yahoo',
-    'parent' => 'openlayers_layer_type',
-  ),
-);
+function openlayers_openlayers_layer_type_yahoo_openlayers_layer_types() {
+  return array(
+    'title' => t('Yahoo'),
+    'description' => t('Yahoo Maps API Map'),
+    'layer_type' => array(
+      'file' => 'openlayers_layer_type_yahoo.inc',
+      'class' => 'openlayers_layer_type_yahoo',
+      'parent' => 'openlayers_layer_type',
+    ),
+  );
+}
 
 /**
  * OpenLayers Yahoo Layer Type class

@@ -7,17 +7,18 @@
 /**
  * Ctools plugin definition.
  */
-$plugin = array(
-   'title' => t('Draw Features'),
-   'description' => t('Provides functionality for adding features to a map.'),
-   'type' => 'layer',
-   'behavior' => array(
-    'file' => 'openlayers_behavior_drawfeatures.inc',
-     'class' => 'openlayers_behavior_drawfeatures',
-     'parent' => 'openlayers_behavior',
-   ),
-);
-
+function openlayers_openlayers_behavior_drawfeatures_openlayers_behaviors() {
+  return array(
+    'title' => t('Draw Features'),
+    'description' => t('Provides functionality for adding features to a map.'),
+    'type' => 'layer',
+    'behavior' => array(
+      'file' => 'openlayers_behavior_drawfeatures.inc',
+      'class' => 'openlayers_behavior_drawfeatures',
+      'parent' => 'openlayers_behavior',
+    ),
+  );
+}
 /**
  * Draw Features behavior
  */

@@ -7,15 +7,17 @@
 /**
  * Ctools plugin definition
  */
-$plugin = array(
-  'title' => t('OpenLayers_Views'),
-  'description' => t('OpenLayers Views Vector'),
-  'layer_type' => array(
-    'file' => 'openlayers_views_vector.inc',
-    'class' => 'openlayers_layer_type_openlayers_views_vector',
-    'parent' => 'openlayers_layer_type',
-  ),
-);
+function openlayers_views_openlayers_views_vector_openlayers_layer_types() {
+  return array(
+    'title' => t('OpenLayers_Views'),
+    'description' => t('OpenLayers Views Vector'),
+    'layer_type' => array(
+      'file' => 'openlayers_views_vector.inc',
+      'class' => 'openlayers_layer_type_openlayers_views_vector',
+      'parent' => 'openlayers_layer_type',
+    ),
+  );
+}
 
 class openlayers_layer_type_openlayers_views_vector
   extends openlayers_layer_type {

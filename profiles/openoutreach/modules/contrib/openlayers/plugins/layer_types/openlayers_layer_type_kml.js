@@ -21,13 +21,16 @@ Drupal.openlayers.layer.kml = function(title, map, options) {
   kml_options.externalProjection = new OpenLayers.Projection(options.projection);
 
   // Use an AJAX like call to get data from URL
-  OpenLayers.loadURL(options.url, {}, null, function (response) {
-    var format = new OpenLayers.Format.KML(kml_options);
-    var features = format.read(response.responseText);
-    // Add features, if needed
-    if (features) {
-      layer.addFeatures(features);
-      layer.events.triggerEvent('loadend');
+  OpenLayers.Request.GET({
+    url: options.url,
+    callback: function (response) {
+      var format = new OpenLayers.Format.KML(kml_options);
+      var features = format.read(response.responseText);
+      // Add features, if needed
+      if (features) {
+        layer.addFeatures(features);
+        layer.events.triggerEvent('loadend');
+      }
     }
   });
 

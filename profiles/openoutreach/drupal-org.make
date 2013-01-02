@@ -1,5 +1,5 @@
 api = 2
-core = 7.17
+core = 7.18
 
 ; Includes are not yet supported on drupal-org.make files.
 ; See http://drupal.org/node/1427752.
@@ -76,7 +76,7 @@ projects[comment_notify][patch][http://drupal.org/files/1434718_dont_mess_with_b
 projects[content_access][subdir] = contrib
 projects[content_access][version] = 1.x-dev
 projects[context][subdir] = contrib
-projects[context][version] = 3.0-beta5
+projects[context][version] = 3.0-beta6
 projects[date][subdir] = contrib
 projects[date][version] = 2.6
 projects[date_ical][subdir] = contrib
@@ -114,7 +114,7 @@ projects[debut_social][version] = 1.0-rc3
 projects[debut_wysiwyg][subdir] = contrib
 projects[debut_wysiwyg][version] = 1.0-rc3
 projects[entity][subdir] = contrib
-projects[entity][version] = 1.0-rc3
+projects[entity][version] = 1.0
 projects[entityreference][subdir] = contrib
 projects[entityreference][version] = 1.0
 projects[eva][subdir] = contrib
@@ -154,21 +154,21 @@ projects[media_vimeo][version] = 1.0-beta5
 projects[media_youtube][subdir] = contrib
 projects[media_youtube][version] = 1.0-beta3
 projects[message][subdir] = contrib
-projects[message][version] = 1.6
+projects[message][version] = 1.7
 projects[metatag][subdir] = contrib
 projects[metatag][version] = 1.0-beta4
 projects[multiform][subdir] = contrib
 projects[multiform][version] = 1.0
 projects[openlayers][subdir] = contrib
-; Using dev for fixes to marker tokens.
-; Switch back to stable with first release after 2.0-beta1.
-projects[openlayers][version] = 2.x-dev
+projects[openlayers][version] = 2.0-beta3
 projects[pathauto][subdir] = contrib
 projects[pathauto][version] = 1.2
 projects[profile2][subdir] = contrib
-projects[profile2][version] = 1.2
+projects[profile2][version] = 1.3
 projects[redhen][subdir] = contrib
 projects[redhen][version] = 1.0-beta3
+; Remove after first release after 1.0-beta3 is released.
+projects[redhen][patch][http://drupal.org/files/remove-revision-creation-6730834-17_0.patch] = http://drupal.org/files/remove-revision-creation-6730834-17_0.patch
 projects[redhen_membership][subdir] = contrib
 projects[redhen_membership][version] = 1.0-beta2
 projects[registration][subdir] = contrib
@@ -192,7 +192,7 @@ projects[views][version] = 3.5
 projects[wysiwyg][subdir] = contrib
 projects[wysiwyg][version] = 2.2
 projects[xmlsitemap][subdir] = contrib
-projects[xmlsitemap][version] = 2.0-rc1
+projects[xmlsitemap][version] = 2.0-rc2
 
 libraries[ckeditor][directory_name] = "ckeditor"
 libraries[ckeditor][download][type] = "get"

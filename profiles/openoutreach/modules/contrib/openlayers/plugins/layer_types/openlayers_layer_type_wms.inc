@@ -7,16 +7,18 @@
 /**
  * Define the Ctools plugin options.
  */
-$plugin = array(
-  'title' => t('WMS'),
-  'description' => t('<a href="!url">Web Map Service</a>',
-    array('!url' => 'http://en.wikipedia.org/wiki/Web_Map_Service')),
-  'layer_type' => array(
-    'file' => 'openlayers_layer_type_wms.inc',
-    'class' => 'openlayers_layer_type_wms',
-    'parent' => 'openlayers_layer_type',
-  ),
-);
+function openlayers_openlayers_layer_type_wms_openlayers_layer_types() {
+  return array(
+    'title' => t('WMS'),
+    'description' => t('<a href="!url">Web Map Service</a>',
+      array('!url' => 'http://en.wikipedia.org/wiki/Web_Map_Service')),
+    'layer_type' => array(
+      'file' => 'openlayers_layer_type_wms.inc',
+      'class' => 'openlayers_layer_type_wms',
+      'parent' => 'openlayers_layer_type',
+    ),
+  );
+}
 
 /**
  * OpenLayers WMS Layer Type class

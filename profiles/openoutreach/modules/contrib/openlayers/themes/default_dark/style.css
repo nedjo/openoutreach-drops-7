@@ -38,6 +38,10 @@ label.olButton {
   display: inline;
 }
 
+.openlayers-container {
+    position: relative;
+}
+
 /**
  * The following are images that are not in
  * this theme (but should be).

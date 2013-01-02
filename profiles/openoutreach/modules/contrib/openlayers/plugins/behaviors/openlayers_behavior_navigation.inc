@@ -7,16 +7,18 @@
 /**
  * Ctools plugin definition.
  */
-$plugin = array(
-  'title' => t('Navigation'),
-  'description' => t('Provides the ability to navigate the map interface.  This is just for user interactions and does not show any visual controls.  This behavior automatically includes the Pan Zoom, Zoom Box, and Pinch Zoom controls.'),
-  'type' => 'map',
-  'behavior' => array(
-    'file' => 'openlayers_behavior_navigation.inc',
-    'class' => 'openlayers_behavior_navigation',
-    'parent' => 'openlayers_behavior',
-  ),
-);
+function openlayers_openlayers_behavior_navigation_openlayers_behaviors() {
+  return array(
+    'title' => t('Navigation'),
+    'description' => t('Provides the ability to navigate the map interface.  This is just for user interactions and does not show any visual controls.  This behavior automatically includes the Pan Zoom, Zoom Box, and Pinch Zoom controls.'),
+    'type' => 'map',
+    'behavior' => array(
+      'file' => 'openlayers_behavior_navigation.inc',
+      'class' => 'openlayers_behavior_navigation',
+      'parent' => 'openlayers_behavior',
+    ),
+  );
+}
 
 /**
  * Navigation Behavior

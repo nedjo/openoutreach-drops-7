@@ -7,17 +7,19 @@
 /**
  * Define the Ctools plugin options.
  */
-$plugin = array(
-  'title' => t('Raw'),
-  'description' => t('Layer type for raw data input -
+function openlayers_openlayers_layer_type_raw_openlayers_layer_types() {
+  return array(
+    'title' => t('Raw'),
+    'description' => t('Layer type for raw data input -
     not meant to be added with the UI.'
-  ),
-  'layer_type' => array(
-    'file' => 'openlayers_layer_type_raw.inc',
-    'class' => 'openlayers_layer_type_raw',
-    'parent' => 'openlayers_layer_type',
-  ),
-);
+    ),
+    'layer_type' => array(
+      'file' => 'openlayers_layer_type_raw.inc',
+      'class' => 'openlayers_layer_type_raw',
+      'parent' => 'openlayers_layer_type',
+    ),
+  );
+}
 
 /**
  * @file

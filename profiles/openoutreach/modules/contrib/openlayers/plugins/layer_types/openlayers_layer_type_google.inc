@@ -7,15 +7,17 @@
 /**
  * Define the Ctools plugin options.
  */
-$plugin = array(
-  'title' => t('Google'),
-  'description' => t('Google Maps API Map'),
-  'layer_type' => array(
-    'file' => 'openlayers_layer_type_google.inc',
-    'class' => 'openlayers_layer_type_google',
-    'parent' => 'openlayers_layer_type',
-  ),
-);
+function openlayers_openlayers_layer_type_google_openlayers_layer_types() {
+  return array(
+    'title' => t('Google'),
+    'description' => t('Google Maps API Map'),
+    'layer_type' => array(
+      'file' => 'openlayers_layer_type_google.inc',
+      'class' => 'openlayers_layer_type_google',
+      'parent' => 'openlayers_layer_type',
+    ),
+  );
+}
 
 /**
  * OpenLayers Google Layer Type class
@@ -140,7 +142,7 @@ class openlayers_layer_type_google extends openlayers_layer_type {
         // Create URL for google include
         $url = '//maps.google.com/maps?file=api&sensor=false&v=' . $version;
         $key = variable_get('openlayers_layers_google_api', variable_get('googlemap_api_key', ''));
-        $url = !empty($key) ? '&key=' . $key : '';
+        $url .= !empty($key) ? '&key=' . $key : '';
       }
       else {
         // Create URL for google include

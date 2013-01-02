@@ -188,9 +188,9 @@ function _openlayers_openlayers_maps() {
   $openlayers_maps = new stdClass;
   $openlayers_maps->disabled = FALSE;
   $openlayers_maps->api_version = 1;
-  $openlayers_maps->name = 'example_virtual_earth';
-  $openlayers_maps->title = t('Example Virtual Earth (Bing) Map');
-  $openlayers_maps->description = t('This map uses the Virtual Earth (Bing) map API.');
+  $openlayers_maps->name = 'example_bing';
+  $openlayers_maps->title = t('Example Microsoft Bing Map');
+  $openlayers_maps->description = t('This map uses the Microsoft Bing map API.');
   $openlayers_maps->data = array(
     'width' => 'auto',
     'height' => '400px',
@@ -230,9 +230,9 @@ function _openlayers_openlayers_maps() {
     ),
     'default_layer' => 'virtualearth_street',
     'layers' => array(
-      'virtualearth_street' => 'virtualearth_street',
-      'virtualearth_satellite' => 'virtualearth_satellite',
-      'virtualearth_hybrid' => 'virtualearth_hybrid',
+      'bing_road' => 'bing_road',
+      'bing_hybrid' => 'bing_hybrid',
+      'bing_aerial' => 'bing_aerial',
     ),
     'projection' => '900913',
     'displayProjection' => '4326',
@@ -242,7 +242,7 @@ function _openlayers_openlayers_maps() {
       'temporary' => 'default',
     ),
   );
-  $items["example_virtual_earth"] = $openlayers_maps;
+  $items['example_bing'] = $openlayers_maps;
 
   // Example OpenStreetMap
   $openlayers_maps = new stdClass;
@@ -283,12 +283,13 @@ function _openlayers_openlayers_maps() {
         'zoomBoxEnabled' => 1,
         'documentDrag' => 0,
       ),
+      'openlayers_behavior_zoompanel' => array(),
+
       'openlayers_behavior_scaleline' => array(),
     ),
     'default_layer' => 'osm_mapnik',
     'layers' => array(
       'osm_mapnik' => 'osm_mapnik',
-      'osm_tah' => 'osm_tah',
       'osm_cycle' => 'osm_cycle',
     ),
     'projection' => '900913',

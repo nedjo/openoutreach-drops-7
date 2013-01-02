@@ -4,7 +4,7 @@
  * See function ctools_plugin_load_includes() in the module ctools.
  */
 function openlayers_ui_openlayers_layers_ctools_export_ui() {
-  $plugin = array(
+  return array(
     'schema' => 'openlayers_layers',
     'access' => 'administer openlayers',
     'menu' => array(
@@ -44,7 +44,6 @@ function openlayers_ui_openlayers_layers_ctools_export_ui() {
       'validate' => 'openlayers_layers_ctools_export_ui_form_validate',
     ),
   );
-  return $plugin;
 }
 
 function openlayers_layers_ctools_export_ui_form_settings(&$form, &$form_state) {
@@ -65,5 +64,3 @@ function openlayers_layers_ctools_export_ui_form_validate(&$form, &$form_state) 
     form_set_error('layer_type', t('Layer type must be set.'));
   }
 }
-
-?>

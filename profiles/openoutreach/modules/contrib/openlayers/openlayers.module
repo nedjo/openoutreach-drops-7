@@ -51,9 +51,9 @@ function openlayers_theme($existing, $type, $theme, $path) {
     'openlayers_map' => array(
       'arguments' => array(
         'map' => array(),
-        'map_name' => '',
       ),
       'file' => 'includes/openlayers.theme.inc',
+      'template' => '/templates/openlayers-map'
     ),
     'openlayers_styles' => array(
       'arguments' => array(
@@ -125,7 +125,7 @@ function openlayers_include() {
     }
 
     drupal_add_css(drupal_get_path('module', 'openlayers') .
-      '/openlayers.css', 'file');
+      '/css/openlayers.css', 'file');
     drupal_add_js(drupal_get_path('module', 'openlayers') .
       '/js/openlayers.js', 'file');
   }
@@ -198,12 +198,10 @@ function openlayers_build_map($map = array()) {
  *
  * @param $map
  *   Associative array of map paramters.
- * @param $map_name
- *   Name of the map used for use in the theme function.
  * @return
  *   Map HTML.
  */
-function openlayers_render_map_data($map = array(), $map_name = '') {
+function openlayers_render_map_data($map = array()) {
   // Run map through build process
   $map = openlayers_build_map($map);
   $output = '';
@@ -230,7 +228,6 @@ function openlayers_render_map_data($map = array(), $map_name = '') {
     // Push map through theme function and return
     $output = theme('openlayers_map', array(
       'map' => $map,
-      'map_name' => $map_name
     ));
   }
   return $output;
@@ -265,11 +262,7 @@ function openlayers_render_map($map = '') {
     $map = openlayers_map_load($map_name);
   }
 
-  if (!isset($map_name)) {
-    $map_name = $map->name;
-  }
-
-  return openlayers_render_map_data($map->data, $map_name);
+  return openlayers_render_map_data($map->data);
 }
 
 /**
@@ -308,38 +301,6 @@ function openlayers_get_layer_object($layer, $map = array()) {
       WATCHDOG_ERROR);
     return FALSE;
   }
-}
-
-/**
- * Menu loader for layers. %openlayers_layer_export
- * @ingroup openlayers_api
- *
- * @param $name
- *   Layer name
- * @return object
- *   Layer export
- */
-function openlayers_layer_export_load($name, $reset = TRUE) {
-  ctools_include('export');
-  if ($reset) ctools_export_load_object_reset('openlayers_layers');
-  $layers = ctools_export_load_object('openlayers_layers', 'all', array($name));
-  return !empty($layers[$name]) ? $layers[$name] : FALSE;
-}
-
-/**
- * Get all openlayers layers.
- * @ingroup openlayers_api
- *
- * @param $reset
- *   Boolean whether to reset cache or not
- * @return array
- *   layer exports
- */
-function openlayers_layers_export_load($reset = TRUE) {
-  ctools_include('export');
-  if ($reset) ctools_export_load_object_reset('openlayers_layers');
-  $layers = ctools_export_load_object('openlayers_layers', 'all', array());
-  return $layers;
 }
 
 /**

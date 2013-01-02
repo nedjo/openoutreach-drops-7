@@ -4,7 +4,7 @@
  * See function ctools_plugin_load_includes() in the module ctools.
  */
 function openlayers_ui_openlayers_styles_ctools_export_ui() {
-  $plugin = array(
+  return array(
     'schema' => 'openlayers_styles',
     'access' => 'administer openlayers',
     'menu' => array(
@@ -43,7 +43,6 @@ function openlayers_ui_openlayers_styles_ctools_export_ui() {
       'settings' => 'openlayers_styles_ctools_export_ui_form_settings',
     ),
   );
-  return $plugin;
 }
 
 function openlayers_styles_ctools_export_ui_form_settings(&$form, &$form_state) {
@@ -63,4 +62,3 @@ function openlayers_styles_ctools_export_ui_form_settings(&$form, &$form_state) 
   }
 }
 
-?>

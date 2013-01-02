@@ -7,16 +7,18 @@
 /**
  * Define the Ctools plugin options.
  */
-$plugin = array(
-  'title' => t('KML'),
-  'description' => t('<a href="!url">KML</a> overlay.',
-    array('!url' => 'http://en.wikipedia.org/wiki/Keyhole_Markup_Language')),
-  'layer_type' => array(
-    'file' => 'openlayers_layer_type_kml.inc',
-    'class' => 'openlayers_layer_type_kml',
-    'parent' => 'openlayers_layer_type',
-  ),
-);
+function openlayers_openlayers_layer_type_kml_openlayers_layer_types() {
+  return array(
+    'title' => t('KML'),
+    'description' => t('<a href="!url">KML</a> overlay.',
+      array('!url' => 'http://en.wikipedia.org/wiki/Keyhole_Markup_Language')),
+    'layer_type' => array(
+      'file' => 'openlayers_layer_type_kml.inc',
+      'class' => 'openlayers_layer_type_kml',
+      'parent' => 'openlayers_layer_type',
+    ),
+  );
+}
 
 /**
  * OpenLayers KML Layer Type class

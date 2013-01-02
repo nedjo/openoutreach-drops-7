@@ -49,7 +49,7 @@ Drupal.openlayers.addBehavior('openlayers_behavior_popup', function (data, optio
       }
     }
   }
-  
+
   // if only 1 layer exists, do not add as an array.  Kind of a
   // hack, see https://drupal.org/node/1393460
   if (layers.length == 1) {
@@ -76,16 +76,19 @@ Drupal.openlayers.addBehavior('openlayers_behavior_popup', function (data, optio
 
         // Assign popup to feature and map.
         feature.popup = popup;
+        feature.popup.panMapIfOutOfView = options.panMapIfOutOfView;
+        feature.popup.keepInMap = options.keepInMap;
         feature.layer.map.addPopup(popup);
         Drupal.attachBehaviors();
         Drupal.openlayers.popup.selectedFeature = feature;
       },
-      onUnselect: function(feature) {
-        // Remove popup if feature is unselected.
-        feature.layer.map.removePopup(feature.popup);
-        feature.popup.destroy();
-        feature.popup = null;
-      }
+      unselect: function(feature) {
+        if (feature.popup != null && feature.popup) {
+          map.removePopup(feature.popup);
+          feature.popup.destroy();
+          feature.popup = null;
+        }
+      },
     }
   );
 

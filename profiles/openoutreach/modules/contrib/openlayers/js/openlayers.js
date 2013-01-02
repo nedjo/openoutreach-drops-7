@@ -159,11 +159,12 @@ Drupal.openlayers = {
 
     var sorted = [];
     for (var name in map.layers) {
-      sorted.push({'name': name, 'weight': map.layers[name].weight });
+      sorted.push({'name': name, 'weight': map.layers[name].weight, 'baselayer': map.layers[name].baselayer });
     }
+
     sorted.sort(function(a, b) {
       var x = parseInt(a.weight, 10), y = parseInt(b.weight, 10);
-      return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+      return ((a.baselayer && x < y) ? -1 : ((b.baselayer || x > y) ? 1 : 0));
     });
 
     for (var i = 0; i < sorted.length; ++i) {

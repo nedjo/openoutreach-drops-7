@@ -7,16 +7,18 @@
 /**
  * Define the Ctools plugin options.
  */
-$plugin = array(
-  'title' => t('MapTiler'),
-  'description' => t('<a href="!url">MapTiler</a> or GDAL2Tiles',
-    array('!url' => 'http://www.maptiler.org/')),
-  'layer_type' => array(
-    'file' => 'openlayers_layer_type_maptiler.inc',
-    'class' => 'openlayers_layer_type_maptiler',
-    'parent' => 'openlayers_layer_type',
-  ),
-);
+function openlayers_openlayers_layer_type_maptiler_openlayers_layer_types() {
+  return array(
+    'title' => t('MapTiler'),
+    'description' => t('<a href="!url">MapTiler</a> or GDAL2Tiles',
+      array('!url' => 'http://www.maptiler.org/')),
+    'layer_type' => array(
+      'file' => 'openlayers_layer_type_maptiler.inc',
+      'class' => 'openlayers_layer_type_maptiler',
+      'parent' => 'openlayers_layer_type',
+    ),
+  );
+}
 
 /**
  * OpenLayers MapTiler Layer Type class

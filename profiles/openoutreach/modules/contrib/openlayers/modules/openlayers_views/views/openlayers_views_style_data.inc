@@ -329,7 +329,9 @@ class openlayers_views_style_data extends views_plugin_style {
           if ($this->options['data_source']['description_field'] === '#node' &&
             is_object($record) && isset($record->nid)) {
             $view_mode = $this->options['data_source']['view_mode'] ? $this->options['data_source']['view_mode'] : 'full';
-            $attributes['#node_rendered'] = drupal_render(node_view(node_load($record->nid), $view_mode));
+            // This has to be done to avoid warning on some version of PHP.
+            $node_view = node_view(node_load($record->nid), $view_mode);
+            $attributes['#node_rendered'] = drupal_render($node_view);
           }
         }
 
@@ -443,66 +445,9 @@ class openlayers_views_style_data extends views_plugin_style {
    * openlayers_views_style_data specific
    */
   function get_group_wkt($wkt_array) {
-    //@@TODO: DO this in geoPHP - four lines of code...
-    $output = 'GEOMETRYCOLLECTION(';
-    $i = 0;
-    foreach ($wkt_array as $wkt) {
-      $wkt = strtoupper($wkt);
-      if ($i != 0) {
-        $output .= ',';
-      }
-      switch (substr($wkt,0,5)) {
-        case 'POINT':
-        case 'LINES':
-        case 'POLYG':
-          $output .= $wkt;
-          break;
-        case 'MULTI':
-          $subwkt = str_replace(array('MULTIPOINT','MULTIPOLYGON','MULTILINESTRING'),'',$wkt);
-          $subwkt = str_replace(', ',',',$subwkt);
-          $subwkt = trim($subwkt);
-          switch (substr($wkt,0,10)) {
-            case 'MULTIPOINT':
-              $subwkt = str_replace(array('(',')'),'',$subwkt);
-              $parts = explode(',',$subwkt);
-              $j = 0;
-              foreach ($parts as $part) {
-                if ($j != 0) $output .= ',';
-                $output .= 'POINT('.$part.')';
-                $j++;
-              }
-              break;
-            case 'MULTILINES':
-              $subwkt = str_replace(array('((','))'),'',$subwkt);
-              $parts = explode('),(',$subwkt);
-              $j = 0;
-              foreach ($parts as $part) {
-                if ($j != 0) $output .= ',';
-                $output .= 'LINESTRING('.$part.')';
-                $j++;
-              }
-              break;
-            case 'MULTIPOLYG':
-              //@@TODO: This does not support polygons with holes
-              $subwkt = str_replace(array('(((',')))'),'',$subwkt);
-              $parts = explode(')),((',$subwkt);
-              $j = 0;
-              foreach ($parts as $part) {
-                if ($j != 0) $output .= ',';
-                $output .= 'POLYGON(('.$part.'))';
-                $j++;
-              }
-              break;
-          }
-          break;
-        case 'GEOME':
-          $output .= trim(substr($wkt,18,-1));
-          break;
-      }
-      $i++;
-    }
-    $output .= ')';
-    return $output;
+    geophp_load();
+    $geophp = geoPHP::load($wkt_array, 'wkt');
+    return $geophp->out('wkt');
   }
 
   /**
