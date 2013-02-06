@@ -1,5 +1,5 @@
 api = 2
-core = 7.18
+core = 7.19
 
 ; Includes are not yet supported on drupal-org.make files.
 ; See http://drupal.org/node/1427752.
@@ -26,7 +26,7 @@ core = 7.18
 projects[adaptivetheme][subdir] = contrib
 projects[adaptivetheme][version] = 3.1
 projects[admin_menu][subdir] = contrib
-projects[admin_menu][version] = 3.0-rc3
+projects[admin_menu][version] = 3.0-rc4
 projects[apps][subdir] = contrib
 projects[apps][version] = 1.0-beta7
 projects[apps_compatible][subdir] = contrib
@@ -150,9 +150,13 @@ projects[media_browser_plus][version] = 1.0-beta3
 projects[media][subdir] = contrib
 projects[media][version] = 2.0-unstable7
 projects[media_vimeo][subdir] = contrib
-projects[media_vimeo][version] = 1.0-beta5
+; Use development release for fix to http://drupal.org/node/1823078.
+; Use first stable release in 2.x branch.
+projects[media_vimeo][version] = 2.x-dev
 projects[media_youtube][subdir] = contrib
-projects[media_youtube][version] = 1.0-beta3
+; Use development release for fix to http://drupal.org/node/1812976.
+; Use first stable release after 2.0-rc1.
+projects[media_youtube][version] = 2.x-dev
 projects[message][subdir] = contrib
 projects[message][version] = 1.7
 projects[metatag][subdir] = contrib
@@ -172,7 +176,7 @@ projects[redhen][patch][http://drupal.org/files/remove-revision-creation-6730834
 projects[redhen_membership][subdir] = contrib
 projects[redhen_membership][version] = 1.0-beta2
 projects[registration][subdir] = contrib
-projects[registration][version] = 1.0-beta3
+projects[registration][version] = 1.0
 projects[relation][subdir] = contrib
 projects[relation][version] = 1.0-rc3
 projects[remote_stream_wrapper][subdir] = contrib
@@ -196,10 +200,10 @@ projects[xmlsitemap][version] = 2.0-rc2
 
 libraries[ckeditor][directory_name] = "ckeditor"
 libraries[ckeditor][download][type] = "get"
-libraries[ckeditor][download][url] = "http://download.cksource.com/CKEditor/CKEditor/CKEditor%203.6.2/ckeditor_3.6.2.tar.gz"
+libraries[ckeditor][download][url] = "http://download.cksource.com/CKEditor/CKEditor/CKEditor%203.6.6/ckeditor_3.6.6.zip"
 libraries[colorbox][directory_name] = "colorbox"
 libraries[colorbox][download][type] = "get"
-libraries[colorbox][download][url] = "https://github.com/jackmoore/colorbox/zipball/v1.3.16"
+libraries[colorbox][download][url] = "https://github.com/jackmoore/colorbox/archive/master.zip"
 libraries[jquery.cycle][download][type] = "get"
 ; Permissions wrong when specifying single file. See http://drupal.org/node/1459618.
 ; libraries[jquery.cycle][download][url] = "https://raw.github.com/malsup/cycle/master/jquery.cycle.all.js"

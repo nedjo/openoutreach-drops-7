@@ -24,9 +24,9 @@ files[] = views/proximity_plugins/geofieldProximityOtherGeofield.inc
 files[] = views/proximity_plugins/geofieldProximityCurrentUser.inc
 files[] = views/proximity_plugins/geofieldProximityExposedFilter.inc
 
-; Information added by drupal.org packaging script on 2012-12-19
-version = "7.x-2.0-alpha2+2-dev"
+; Information added by drupal.org packaging script on 2013-01-13
+version = "7.x-2.0-alpha2+6-dev"
 core = "7.x"
 project = "geofield"
-datestamp = "1355879007"
+datestamp = "1358082078"
 

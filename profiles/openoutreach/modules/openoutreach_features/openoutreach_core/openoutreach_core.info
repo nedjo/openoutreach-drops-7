@@ -39,9 +39,10 @@ features[variable][] = user_picture_style
 features[variable][] = user_pictures
 features[variable][] = user_register
 
-; Information added by drupal.org packaging script on 2013-01-01
-version = "7.x-1.0-rc8"
+
+; Information added by drupal.org packaging script on 2013-02-06
+version = "7.x-1.0-rc9"
 core = "7.x"
 project = "openoutreach"
-datestamp = "1357047552"
+datestamp = "1360111955"
 

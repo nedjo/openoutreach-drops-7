@@ -163,7 +163,7 @@ function openlayers_field_widget_form(&$form, &$form_state, $field, $instance, $
   // Essentially we compress all the elements into delta 0, then deconstruct them on the other side when it comes time to validate them
   $geoms = array();
   foreach ($items as $delta => $item) {
-    if (array_key_exists('geom', $item)) {
+    if (is_array($item) && array_key_exists('geom', $item)) {
       $geoms[] = geoPHP::load($item['geom']);
     }
     else {
@@ -171,18 +171,24 @@ function openlayers_field_widget_form(&$form, &$form_state, $field, $instance, $
     }
   }
   $combined_geom = geoPHP::geometryReduce($geoms);
-
-  // We want to force the combined_geom into a geometryCollection
-  $geom_type = $combined_geom->geometryType();
-  if ($geom_type == 'MultiPolygon' || $geom_type == 'MultiLineString' || $geom_type == 'MultiPoint') {
-    $combined_geom = new GeometryCollection($combined_geom->getComponents());
+  
+  if ($combined_geom) {
+    // We want to force the combined_geom into a geometryCollection
+    $geom_type = $combined_geom->geometryType();
+    if ($geom_type == 'MultiPolygon' || $geom_type == 'MultiLineString' || $geom_type == 'MultiPoint') {
+      $combined_geom = new GeometryCollection($combined_geom->getComponents());
+    }
+  
+    $combined_wkt = $combined_geom->out('wkt');
+    // A value of 'GEOMETRYCOLLECTION EMPTY' breaks OpenLayers JS later on down the line.
+    if ($combined_wkt == 'GEOMETRYCOLLECTION EMPTY') {
+      $combined_wkt = '';
+    }
   }
-
-  $combined_wkt = $combined_geom->out('wkt');
-  // A value of 'GEOMETRYCOLLECTION EMPTY' breaks OpenLayers JS later on down the line.
-  if ($combined_wkt == 'GEOMETRYCOLLECTION EMPTY') {
+  else {
     $combined_wkt = '';
   }
+  
   $items = array(array('wkt' => $combined_wkt));
 
   $element['geom'] = array(

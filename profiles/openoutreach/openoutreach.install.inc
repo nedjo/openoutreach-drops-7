@@ -382,7 +382,7 @@ function openoutreach_theme_form_submit($form, &$form_state) {
       'superfish_1' => 'menu_bar',
     );
   }
-    
+
   foreach ($assignments as $module => $module_blocks) {
     foreach ($module_blocks as $delta => $region) {
       if (isset($regions[$region])) {
@@ -441,9 +441,13 @@ function openoutreach_prepare($form, &$form_state) {
 function openoutreach_prepare_submit($form, &$form_state) {
   openoutreach_install_permissions();
 
+  // Try to allocate enough time to rebuild features.
+  drupal_set_time_limit(240);
+
   // Flush all caches to ensure that any full bootstraps during the installer
   // do not leave stale cached data, and that any content types or other items
-  // registered by the install profile are registered correctly.
+  // registered by the install profile are registered correctly. Flushing also
+  // triggers features component rebuilding.
   drupal_flush_all_caches();
 
   // Remember the profile which was used.
@@ -478,7 +482,7 @@ function openoutreach_finished($form, &$form_state) {
   $form['openingtext'] = array(
     '#markup' => '<h2>' . t('Congratulations, you just installed Open Outreach!') . '</h2>',
   );
-  
+
   $form['openoutreach_logo'] = array(
     '#markup' => theme('image', array('path' => drupal_get_path('profile', 'openoutreach') . '/images/openoutreach_logo.png')),
   );
@@ -499,7 +503,7 @@ function openoutreach_finished_submit($form, &$form_state) {
   drupal_flush_all_caches();
 
   unset($_SESSION['openoutreach_features']);
-  
+
   // And away we go.
   // $form_state['redirect'] won't work here since we are still in the
   // installer, so use drupal_goto() (for interactive installs only) instead.

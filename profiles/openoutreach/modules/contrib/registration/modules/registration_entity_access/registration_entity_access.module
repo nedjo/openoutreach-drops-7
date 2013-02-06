@@ -24,14 +24,20 @@ function registration_entity_access_registration_entity_settings($settings) {
 /**
  * Implements hook_registration_access().
  */
-function registration_entity_access_registration_access($op, $registration = NULL, $account = NULL, $entity_type) {
+function registration_entity_access_registration_access($op, $entity_type, $registration = NULL, $account = NULL) {
   if ($op == 'create' && ($registration->entity_type && $registration->entity_id) && $account) {
     $settings = registration_entity_settings($registration->entity_type, $registration->entity_id);
-    if (isset($settings['settings']['registration_entity_access_roles'])) {
-      foreach ($settings['settings']['registration_entity_access_roles'] as $role_id) {
-        if ($role_id && isset($account->roles[$role_id])) {
-          return TRUE;
+    $entity_access_roles = & $settings['settings']['registration_entity_access_roles'];
+    if (isset($entity_access_roles) && is_array($entity_access_roles)) {
+      // if at least one role is configured, deny access to all roles except the enabled roles
+      $allowed_roles = array_filter($entity_access_roles);
+      if ($allowed_roles) {
+        foreach ($allowed_roles as $role_id) {
+          if (isset($account->roles[$role_id])) {
+            return TRUE;
+          }
         }
+        return FALSE;
       }
     }
   }

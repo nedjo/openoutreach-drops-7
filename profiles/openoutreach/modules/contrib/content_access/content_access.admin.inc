@@ -112,7 +112,7 @@ function content_access_page_reset($form, &$form_state) {
 /**
  * Per content type settings form.
  */
-function content_access_admin_settings($form, $form_state, $content_type) {
+function content_access_admin_settings($form, &$form_state, $content_type) {
   $type = $content_type->type;
 
   $form_state['type'] = $type;

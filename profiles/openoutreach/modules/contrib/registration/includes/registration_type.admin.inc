@@ -68,5 +68,5 @@ function registration_type_form_submit(&$form, &$form_state) {
  * Form API submit callback for the delete button.
  */
 function registration_type_form_submit_delete(&$form, &$form_state) {
-  $form_state['redirect'] = 'admin/structure/registration/registration_types/manage/' . $form_state['registration_type']->type . '/delete';
+  $form_state['redirect'] = 'admin/structure/registration/registration_types/manage/' . $form_state['registration_type']->name . '/delete';
 }

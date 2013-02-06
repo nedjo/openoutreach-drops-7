@@ -206,16 +206,18 @@ function geofield_validate_geom($item) {
   if (is_string($item)) {
     try {
       $values = geofield_compute_values($item);
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       return $e;
     }
   }
   else {
     try {
-     $values = geofield_compute_values($item['geom'], $item['input_format']);
+      $input_format = !empty($item['input_format']) ? $item['input_format'] : NULL;
+      $values = geofield_compute_values($item['geom'], $input_format);
     }
     catch (Exception $e) {
-     return $e;
+      return $e;
     }
   }
   return NULL;
@@ -229,27 +231,32 @@ function geofield_validate_geom($item) {
  *  If empty, return TRUE
  */
 function geofield_geom_is_empty($item) {
-  switch ($item['input_format']) {
-    case 'wkt':
-      if (!$item['geom']) {
-        return TRUE;
-      }
-      break;
-    case 'lat/lon':
-      if (empty($item['geom']['lat']) || empty($item['geom']['lon'])) {
-        return TRUE;
-      }
-      break;
-    case 'bounds':
-      if (empty($item['geom']['top']) || empty($item['geom']['right']) || empty($item['geom']['bottom']) || empty($item['geom']['left'])) {
-        return TRUE;
-      }
-      break;
-    case 'json':
-      if (empty($item['geom'])) {
-        return TRUE;
-      }
-      break;
+  if (!empty($item['input_format'])) {
+    switch ($item['input_format']) {
+      case 'wkt':
+        if (empty($item['geom'])) {
+          return TRUE;
+        }
+        break;
+      case 'lat/lon':
+        if (empty($item['geom']['lat']) || empty($item['geom']['lon'])) {
+          return TRUE;
+        }
+        break;
+      case 'bounds':
+        if (empty($item['geom']['top']) || empty($item['geom']['right']) || empty($item['geom']['bottom']) || empty($item['geom']['left'])) {
+          return TRUE;
+        }
+        break;
+      case 'json':
+        if (empty($item['geom'])) {
+          return TRUE;
+        }
+        break;
+    }
+  }
+  else {
+    return empty($item['geom']);
   }
 }
 
@@ -258,6 +265,22 @@ function geofield_geom_is_empty($item) {
  */
 function geofield_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
   if ($field['type'] === 'geofield') {
+    /**
+     * Edge case. Currently, Drupal will set a field value to the default value if the current value
+     * is empty, even if it's set by the user. This bypasses our validation, and currently non-valid WKB
+     * data in geom causes catastrophic failures in entity_load. To compensate, we add the default value
+     * in early. When the core issue is fixed, we should drop this code.
+     *
+     * Geofield Issue: http://drupal.org/node/1886852
+     * Core Issue: http://drupal.org/node/1253820
+     */
+    if ($instance['required'] == 0 && empty($items)) {
+      $entity_ids = entity_extract_ids($entity_type, $entity);
+      if (empty($entity_ids[0])) {
+        $items = $instance['default_value'];
+      }
+    }
+
     ctools_include('plugins');
     
     $backend = ctools_get_plugins('geofield', 'geofield_backend', $field['settings']['backend']);
@@ -266,7 +289,9 @@ function geofield_field_presave($entity_type, $entity, $field, $instance, $langc
     // We then pass the geometry object (now stored in the geom column) to the backend to prepare it for insertion into the database
     foreach ($items as $delta => $item) {
       $items[$delta] = geofield_compute_values($item);
-      $items[$delta]['geom'] = $save_callback($items[$delta]['geom']);
+      if ($items[$delta]['geom']) {
+        $items[$delta]['geom'] = $save_callback($items[$delta]['geom']);
+      }
     }
   }
 }
