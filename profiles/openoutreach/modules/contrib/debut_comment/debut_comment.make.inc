@@ -13,9 +13,7 @@ projects[comment_notify][patch][http://drupal.org/files/1434718_dont_mess_with_b
 projects[context][subdir] = contrib
 projects[context][version] = 3.0-beta4
 projects[ctools][subdir] = contrib
-projects[ctools][version] = 1.
-projects[debut_comment][subdir] = contrib
-projects[debut_comment][version] = 1.0-rc2
+projects[ctools][version] = 1.2
 projects[features][subdir] = contrib
 projects[features][version] = 1.0
 projects[logintoboggan][subdir] = contrib

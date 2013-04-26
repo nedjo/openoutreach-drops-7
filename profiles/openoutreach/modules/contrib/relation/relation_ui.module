@@ -106,10 +106,17 @@ function relation_ui_menu() {
   // Relations listing.
   $items['admin/content/relation'] = array(
     'title' => 'Relations',
+    'file' => 'relation_ui.module',
     'page callback' => 'relation_ui_admin_content',
     'access arguments' => array('administer relations'),
     'description' => 'View, edit and delete all the available relations on your site.',
     'type' => MENU_LOCAL_TASK,
+  );
+  $items['relation/endpoints_type/autocomplete'] = array(
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('administer relations'),
+    'file' => 'relation_ui.module',
+    'page callback' => 'relation_ui_endpoints_type_autocomplete',
   );
   return $items;
 }
@@ -256,11 +263,6 @@ function relation_ui_type_form($form, &$form_state, $relation_type = array(), $o
     '#options' => $options,
     '#description' => t('Minimum number of entities joined by relations of this type (e.g. three siblings in one relation). <em>In nearly all cases you will want to leave this set to 2</em>.'),
     '#default_value' => $relation_type->min_arity ? $relation_type->min_arity : 2,
-    '#states' => array(
-      'disabled' => array(   // action to take.
-        ':input[name="directional"]' => array('checked' => TRUE),
-      ),
-    ),
   );
 
   $options = array('2' => '2', '3' => '3', '4' => '4', '5' => '5', '6' => '6', '7' => '7', '8' => '8', '0' => t('Infinite'));
@@ -270,11 +272,6 @@ function relation_ui_type_form($form, &$form_state, $relation_type = array(), $o
     '#options' => $options,
     '#description' => t('Maximum number of entities joined by relations of this type. <em>In nearly all cases you will want to leave this set to 2</em>.'),
     '#default_value' => isset($relation_type->max_arity) ? $relation_type->max_arity : 2,
-    '#states' => array(
-      'disabled' => array(   // action to take.
-        ':input[name="directional"]' => array('checked' => TRUE),
-      ),
-    ),
   );
   $counter = 0;
   foreach (entity_get_info() as $entity_type => $entity) {
@@ -330,8 +327,8 @@ function relation_ui_type_form($form, &$form_state, $relation_type = array(), $o
  */
 function relation_ui_type_form_submit($form, &$form_state) {
   $relation_type = $form_state['values']['relation_type'];
-  $min_arity = $form_state['values']['directional'] ? 2 : $form_state['values']['advanced']['min_arity'];
-  $max_arity = $form_state['values']['directional'] ? 2 : $form_state['values']['advanced']['max_arity'];
+  $min_arity = $form_state['values']['advanced']['min_arity'];
+  $max_arity = $form_state['values']['advanced']['max_arity'];
   $record = array(
     'relation_type'   => $relation_type,
     'min_arity'   => $min_arity,
@@ -443,6 +440,101 @@ function relation_ui_generate_form_submit($form, &$form_state) {
 }
 
 /**
+ * Filter form for relation administration list.
+ */
+function relation_ui_filter_form($form, $form_state) {
+  if (isset($_SESSION['relation_filters'])) {
+    foreach($_SESSION['relation_filters'] as $filter => $values) {
+      $$filter = $values;
+    }
+  }
+  $types = relation_get_types();
+  foreach ($types as $name => $relation) {
+    $bundles[$name] = $relation->label;
+  }
+  $form['filters'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Show only items where'),
+    '#theme' => 'exposed_filters__relation',
+  );
+  $form['filters']['bundle'] = array(
+    '#title' => t('relation type'),
+    '#type' => 'select',
+    '#default_value' => isset($bundle) ? array_keys($bundle) : NULL,
+    '#multiple' => TRUE,
+    '#options' => $bundles,
+    '#size' => (count($bundles) < 10) ? count($bundles) : 10,
+  );
+  $form['filters']['endpoints_entity_type'] = array(
+    '#title' => t('endpoint type'),
+    '#type' => 'textfield',
+    '#default_value' => isset($endpoints_entity_type) ? $endpoints_entity_type : NULL,
+    '#autocomplete_path' => 'relation/endpoints_type/autocomplete'
+  );
+  $form['filters']['endpoints_entity_id'] = array(
+    '#title' => t('endpoint ID'),
+    '#type' => 'textfield',
+    '#default_value' => isset($endpoints_entity_id) ? $endpoints_entity_id : NULL,
+  );
+  $form['filters']['actions'] = array(
+    '#type' => 'actions',
+    '#attributes' => array('class' => array('container-inline')),
+  );
+  $form['filters']['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Filter'),
+  );
+  $form['filters']['actions']['reset'] = array(
+    '#type' => 'submit',
+    '#value' => t('Reset'),
+  );
+  $form['#submit'] = array('relation_ui_filter_form_submit');
+  return $form;
+}
+
+/**
+ * Submit handler for filter form
+ */
+function relation_ui_filter_form_submit($form, $form_state) {
+  form_state_values_clean($form_state);
+  if ($form_state['triggering_element']['#value'] == t('Reset')) {
+    unset($_SESSION['relation_filters']);
+  }
+  else {
+    $_SESSION['relation_filters'] = $form_state['values'];
+  }
+}
+
+/**
+ * Apply filters for relation administration filters based on session.
+ *
+ * @param $query
+ *   A SelectQuery to which the filters should be applied.
+ */
+function relation_ui_build_filter_query(SelectQueryInterface $query) {
+  if (!empty($_SESSION['relation_filters'])) {
+    $query->join('field_data_endpoints', 'e', 'e.entity_id = r.rid');
+    $query->distinct();
+    foreach ($_SESSION['relation_filters'] as $filter => $values) {
+      if (empty($values)) {
+        continue;
+      }
+      switch ($filter) {
+        case 'bundle':
+          $query->condition('r.relation_type', array_keys($values), 'IN');
+          break;
+        case 'endpoints_entity_type':
+          $query->condition('e.endpoints_entity_type', $values);
+          break;
+        case 'endpoints_entity_id':
+          $query->condition('e.endpoints_entity_id', $values);
+          break;
+      }
+    }
+  }
+}
+
+/**
  * Menu callback for admin/content/relation. Displays all relations on the site.
  */
 function relation_ui_admin_content() {
@@ -456,12 +548,16 @@ function relation_ui_admin_content() {
 
   // Grab all relations.
   $query = db_select('relation', 'r')->extend('PagerDefault')->extend('TableSort');
-  $query->fields('r', array('rid', 'relation_type'))
-    ->limit(50)
-    ->orderByHeader($header);
+  $query->fields('r', array('rid', 'relation_type'));
+  relation_ui_build_filter_query($query);
+  $query->limit(50)
+  ->orderByHeader($header);
   $relations = $query->execute();
 
-  return theme('relation_ui_admin_content', array('relations' => $relations, 'header' => $header));
+  $form = drupal_get_form('relation_ui_filter_form');
+  $filter_form = drupal_render($form);
+
+  return $filter_form . theme('relation_ui_admin_content', array('relations' => $relations, 'header' => $header));
 }
 
 /**
@@ -487,8 +583,6 @@ function theme_relation_ui_admin_content($variables) {
       $r = relation_load($relation->rid);
       // Get the endpoints for this relation.
       $endpoints = field_get_items('relation', $r, 'endpoints');
-      // Get the type for this relation
-      $type = $types[$r->relation_type];
 
       $relation_entities = array();
       if (!empty($endpoints)) {
@@ -518,12 +612,29 @@ function theme_relation_ui_admin_content($variables) {
 
       // Build the rows to pass to the table theme function.
       // Directional is implemented, not sure how well it works.
+
+      $destination = drupal_get_destination();
+      $options = array(
+       'attributes' => array(),
+       'query' => array(
+          'destination' => $destination['destination'],
+        ),
+      );
+
+      $endpoint_separator = ', ';
+      $type_label = '';
+      // Get the type for this relation
+      if (isset($types[$r->relation_type])) {
+        $type = $types[$r->relation_type];
+        $endpoint_separator = $type->directional ? " → " : " ↔ ";
+        $type_label = $relation->relation_type;
+      }
       $rows[] = array(
         l(t('Relation') . ' ' . $relation->rid, 'relation/' . $relation->rid),
-        $relation->relation_type,
-        implode(($type->directional) ? " -> " : " -- ", $relation_column),
-        user_access('edit relations') ? l(t('Edit'), 'relation/' . $relation->rid . '/edit') : '',
-        user_access('delete relations') ? l(t('Delete'), 'relation/' . $relation->rid . '/delete') : '',
+        $type_label,
+        implode($endpoint_separator, $relation_column),
+        user_access('edit relations') ? l(t('Edit'), 'relation/' . $relation->rid . '/edit', $options) : '',
+        user_access('delete relations') ? l(t('Delete'), 'relation/' . $relation->rid . '/delete', $options) : '',
       );
     }
   }
@@ -600,4 +711,16 @@ function relation_ui_theme() {
     ),
   );
   return $theme;
+}
+
+/**
+ * Autocomplete function for endpoint type filter.
+ */
+function relation_ui_endpoints_type_autocomplete($string = '') {
+  $result = db_query("SELECT distinct endpoints_entity_type FROM {field_data_endpoints} WHERE endpoints_entity_type LIKE :string", array(":string" => db_like($string) . '%'));
+  $matches = array();
+  while ($res = $result->fetchObject()) {
+    $matches[$res->endpoints_entity_type] = $res->endpoints_entity_type;
+  }
+  drupal_json_output($matches);
 }

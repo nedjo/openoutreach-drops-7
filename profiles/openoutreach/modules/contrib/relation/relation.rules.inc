@@ -14,11 +14,19 @@ function relation_rules_event_info() {
       'label' => t('After saving a new relation'),
       'group' => t('Relation'),
       'variables' => array(
-        'relation' => array('type' => 'relation', 'label' => t('relation')),
+        'relation' => array('type' => 'relation', 'label' => t('relation'), 'description' => t('The relation.')),
       ),
     ),
     'relation_update' => array(
       'label' => t('After updating a relation'),
+      'group' => t('Relation'),
+      'variables' => array(
+        'relation' => array('type' => 'relation', 'label' => t('relation'), 'description' => t('The relation.')),
+        'relation_unchanged' => array('type' => 'relation', 'label' => t('unchanged relation'), 'description' => t('The unchanged relation.'), 'handler' => 'rules_events_entity_unchanged'),
+      ),
+    ),
+    'relation_delete' => array(
+      'label' => t('After deleting a relation'),
       'group' => t('Relation'),
       'variables' => array(
         'relation' => array('type' => 'relation', 'label' => t('relation')),
@@ -109,9 +117,10 @@ function relation_rules_access($op, $entity = NULL, $account = NULL) {
  */
 function relation_rules_get_endpoints($relation, array $options, $property_name, $entity_type) {
   $array = array();
-  foreach ($relation->endpoints[LANGUAGE_NONE] as $endpoint) {
-    $entity = reset(entity_load($endpoint['entity_type'], array($endpoint['entity_id'])));
-    $array[] = entity_metadata_wrapper($endpoint['entity_type'], $entity);
+  foreach (relation_get_endpoints($relation) as $entity_type => $entities) {
+    foreach ($entities as $entity) {
+      $array[] = entity_metadata_wrapper($entity_type, $entity);
+    }
   }
   return $array;
 }
@@ -134,8 +143,8 @@ function relation_rules_get_specific_endpoints($relation, array $options, $prope
 
   $array = array();
   foreach ($endpoints as $endpoint) {
-    $entity = reset(entity_load($endpoint['entity_type'], array($endpoint['entity_id'])));
-    $entity_id = entity_extract_ids($endpoint['entity_type'], $entity);
+    $entities = entity_load($endpoint['entity_type'], array($endpoint['entity_id']));
+    $entity_id = entity_extract_ids($endpoint['entity_type'], reset($entities));
     $array[] = $entity_id[0];
   }
   return $array;
@@ -182,7 +191,11 @@ function relation_rules_get_related_entities($entity, array $options, $name, $ty
   $source_entity = entity_metadata_wrapper($type, $entity);
   $source_entity_type = $source_entity->type();
   $source_entity_id = $source_entity->getIdentifier();
-  $rids = array_keys(relation_query($source_entity_type, $source_entity_id)->entityCondition('bundle', $info['relation_type'])->execute());
+  $results = relation_query($source_entity_type, $source_entity_id)
+    ->entityCondition('bundle', $info['relation_type'])
+    ->range(0, 50)
+    ->execute();
+  $rids = array_keys($results);
   $entities_ids = array();
   if (!$rids) {
     return $entities_ids;

@@ -23,7 +23,6 @@ class RelationQuery extends EntityFieldQuery {
       $this->related($entity_type, $entity_id, $r_index);
     }
     $this->entityCondition('entity_type', 'relation');
-    $this->range(0, 50);
   }
 
   /**
@@ -50,6 +49,9 @@ class RelationQuery extends EntityFieldQuery {
 
   function execute() {
     $results = parent::execute();
+    if ($this->count) {
+      return $results;
+    }
     return isset($results['relation']) ? $results['relation'] : array();
   }
 }

@@ -199,5 +199,4 @@ function redhen_membership_membership_delete_form_submit($form, &$form_state) {
   watchdog('redhen_membership', 'Deleted membership %label.', array('%label' => $membership->label()), WATCHDOG_NOTICE);
 
   drupal_goto();
-
 }

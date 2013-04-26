@@ -61,6 +61,19 @@ function relation_endpoint_field_validate($entity_type, $entity, $field, $instan
       'message' => t("Relation has too many end points (:relation_type max arity :max_arity)", array(':relation_type' => $entity->relation_type, ':max_arity' => $relation_type->max_arity)),
     );
   }
+
+  // Load all entities referenced in $items via multiple load.
+  $items_to_load = array();
+  $loaded_items = array();
+  foreach ($items as $delta => $item) {
+    if (!isset($item['entity_bundle'])) {
+      $items_to_load[$item['entity_type']][] = $item['entity_id'];
+    }
+  }
+  foreach ($items_to_load as $entity_type => $ids) {
+    $loaded_items[$entity_type] = entity_load($entity_type, $ids);
+  }
+
   // Check that each entity is has acceptable bundle type and index.
   foreach ($items as $delta => $item) {
     $acceptable = FALSE;
@@ -69,8 +82,7 @@ function relation_endpoint_field_validate($entity_type, $entity, $field, $instan
     $end_bundles = $endpoint . '_bundles';
     foreach ($relation_type->$end_bundles as $relation_bundle) {
       if (!isset($item['entity_bundle'])) {
-        $endpoint_entities = entity_load($item['entity_type'], array($item['entity_id']));
-        $endpoint_entity = reset($endpoint_entities);
+        $endpoint_entity = $loaded_items[$item['entity_type']][$item['entity_id']];
         list(, , $item['entity_bundle']) = entity_extract_ids($item['entity_type'], $endpoint_entity);
       }
       $relation_bundle_array = explode(':', $relation_bundle, 2);
@@ -141,7 +153,12 @@ function _relation_endpoint_field_create_html_table($endpoints) {
     $entity = reset($entities);
     $label = entity_label($endpoint['entity_type'], $entity);
     $uri = entity_uri($endpoint['entity_type'], $entity);
-    $list_items[$delta] = array(l($label, $uri['path'], $uri['options']), $entity_info[$endpoint['entity_type']]['label']);
+    if ($uri) {
+      $list_items[$delta] = array(l($label, $uri['path'], $uri['options']), $entity_info[$endpoint['entity_type']]['label']);
+    }
+    else {
+      $list_items[$delta] = array($label, $entity_info[$endpoint['entity_type']]['label']);
+    }
   }
   $headers = array(
     t('Entity'),

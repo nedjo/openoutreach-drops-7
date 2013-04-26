@@ -122,10 +122,21 @@ function relation_entity_collector($form, &$form_state) {
   );
   $types = relation_get_types();
   if (empty($types)) {
-    $form['explanation']['#markup'] = t('Before you can create relations, you need to create one or more !link. Once you\'ve done that, visit any page that loads one or more entities, and use this block to add entities to a new relation. Picked entities stay in the entity_collector until cleared or a relation is created so it is possible to collect the entities from several pages.', array('!link' => l(t('relation types'), 'admin/structure/relation')));
+    $form['explanation']['#markup'] = t('Before you can create relations, you need to create one or more !link. Once you\'ve done that, visit any page that loads one or more entities, and use this block to add entities to a new relation. Picked entities stay in the entity_collector until cleared or a relation is created so it is possible to collect the entities from several pages.', array(
+      '!link' => module_exists('relation_ui') ? l(t('relation types'), 'admin/structure/relation') : t('relation types')
+    ));
     return $form;
   }
+  $relation_types = array();
+  foreach ($types as $type) {
+    $relation_types[$type->relation_type] = $type->label;
+  }
   $relation_type = isset($_SESSION['relation_type']) ? $_SESSION['relation_type'] : '';
+  // forget the selected relation type if it's no longer available
+  if (!isset($relation_types[$relation_type])) {
+    unset($_SESSION['relation_type']);
+    $relation_type = '';
+  }
   if ($relation_entities = drupal_static('relation_entities', array())) {
     $options = array();
     foreach ($relation_entities as $entity_type => $entities) {
@@ -157,10 +168,6 @@ function relation_entity_collector($form, &$form_state) {
   if (empty($form_state['relation_entities_options'])) {
     $form['explanation']['#markup'] = t('This block shows all loaded entities on a page and allows adding them to a relation. Please navigate to a page where entities are loaded. Entities picked stay in the entity_collector until cleared or a relation is created so it is possible to collect the entities from several pages.');
     return $form;
-  }
-  $relation_types = array();
-  foreach ($types as $type) {
-    $relation_types[$type->relation_type] = $type->label;
   }
   $form['relation_type'] = array(
     '#type'          => 'select',
@@ -397,7 +404,7 @@ function relation_entity_collector_save($form, $form_state) {
     array_multisort($form_state['values']['table']['weight'], SORT_ASC, $relation->endpoints[LANGUAGE_NONE]);
     $rid = relation_save($relation);
     if ($rid) {
-      $link = l($_SESSION['relation_type'], "relation/$rid");
+      $link = l(relation_get_type_label($relation), "relation/$rid");
       $list = _relation_stored_entity_keys_list();
       $rendered_list = drupal_render($list);
       $t_arguments = array('!link' => $link, '!list' => $rendered_list);
@@ -439,6 +446,7 @@ function relation_entity_collector_views_post_execute($view) {
           'entity_type' => $entity_type,
         );
       }
+      $collect = array();
       foreach ($view->query->fields as $alias => $field) {
         if (isset($field['table'])) {
           $table_name = $view->query->table_queue[$field['table']]['table'];
@@ -450,7 +458,11 @@ function relation_entity_collector_views_post_execute($view) {
       $ids = array();
       foreach ($view->result as $row) {
         foreach ($collect as $entity_type => $alias) {
-          $ids[$entity_type][] = $row->$alias;
+          // Skip empty values, which may happen for entities that are obtained
+          // via a non-required relationship in the view.
+          if (!empty($row->$alias)) {
+            $ids[$entity_type][] = $row->$alias;
+          }
         }
       }
       foreach ($ids as $entity_type => $entity_ids) {

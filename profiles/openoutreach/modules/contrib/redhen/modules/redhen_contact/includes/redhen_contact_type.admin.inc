@@ -27,7 +27,7 @@ function redhen_contact_type_form($form, &$form_state, $redhen_contact_type, $op
     '#type' => 'machine_name',
     '#default_value' => isset($redhen_contact_type->name) ? $redhen_contact_type->name : '',
     '#maxlength' => 32,
-    '#disabled' => $redhen_contact_type->locked && $op != 'clone',
+    '#disabled' => $redhen_contact_type->locked || $op == 'edit',
     '#machine_name' => array(
       'exists' => 'redhen_contact_get_types',
       'source' => array('label'),
@@ -42,13 +42,13 @@ function redhen_contact_type_form($form, &$form_state, $redhen_contact_type, $op
     '#weight' => 40,
   );
 
-  if (!$redhen_contact_type->locked && $op != 'add') {
+  if (!$redhen_contact_type->locked && $op == 'edit') {
     $form['actions']['delete'] = array(
       '#type' => 'submit',
       '#value' => t('Delete contact type'),
       '#weight' => 45,
       '#limit_validation_errors' => array(),
-      '#submit' => array('redhen_contact_type_form_submit_delete')
+      '#submit' => array('redhen_contact_type_form_submit_delete'),
     );
   }
 
@@ -61,6 +61,7 @@ function redhen_contact_type_form($form, &$form_state, $redhen_contact_type, $op
 function redhen_contact_type_form_submit(&$form, &$form_state) {
   $redhen_contact_type = entity_ui_form_submit_build_entity($form, $form_state);
   $redhen_contact_type->save();
+  menu_rebuild();
   $form_state['redirect'] = 'admin/structure/redhen/contact_types';
 }
 

@@ -2,17 +2,36 @@
 div.view-highlighted div.view-content div,
 div.view-highlighted div.view-content img {
   max-width: 100%;
+  height: auto;
 }
 
 div.view-highlighted .views-slideshow-overlay {
+  left: 0px;
+  right: 0px;
+  width: auto;
+  height: auto;
   position: absolute;
-  bottom: 4px;
+  bottom: 6px;
   padding: 15px;
   /* Fallback for web browsers that doesn't support RGBa */
   background: rgb(0, 0, 0);
   /* RGBa with 0.30 opacity */
   background: rgba(0, 0, 0, 0.30);
   color: #fff;
+}
+
+@media only screen and (max-width: 480px) {
+  div.view-highlighted .views-slideshow-overlay {
+    position: inherit;
+    clear: both;
+    bottom: inherit;
+  }
+  div.view-highlighted .views-slideshow-overlay h2 {
+    font-size: 100%;
+  }
+  div.view-highlighted .views-slideshow-overlay h4 {
+    display: none;
+  }
 }
 
 div.view-highlighted .views-slideshow-overlay h2,
@@ -22,12 +41,6 @@ div.view-highlighted .views-slideshow-overlay h4 {
 
 .view-highlighted .skin-default {
   position: relative;
-}
-
-div.view-highlighted .views-slideshow-overlay {
-  left: 0px;
-  width: auto;
-  height: auto;
 }
 
 div.view-highlighted .views-slideshow-overlay a,

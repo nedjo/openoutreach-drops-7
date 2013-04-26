@@ -6,21 +6,20 @@ core = 7.x
 dependencies[] = redhen
 dependencies[] = redhen_fields
 
-files[] = includes/redhen_contact_type.admin.inc
-files[] = includes/redhen_contact.pages.inc
-files[] = includes/redhen_contact.forms.inc
-
 ; Classes
-files[] = includes/redhen_contact.entity.inc
-files[] = includes/redhen_contact.controller.inc
-files[] = includes/redhen_contact_type.entity.inc
+files[] = lib/redhen_contact.controller.inc
+files[] = lib/redhen_contact.entity.inc
+files[] = lib/redhen_contact.metadata.inc
+files[] = lib/redhen_contact.views.inc
+files[] = lib/redhen_contact_type.entity.inc
+files[] = lib/redhen_contact_type.ui_controller.inc
 
 ; Tests
 ;files[] = tests/redhen_contact.test
 
-; Information added by drupal.org packaging script on 2012-10-17
-version = "7.x-1.0-beta3"
+; Information added by drupal.org packaging script on 2013-04-22
+version = "7.x-1.2"
 core = "7.x"
 project = "redhen"
-datestamp = "1350517313"
+datestamp = "1366668912"
 

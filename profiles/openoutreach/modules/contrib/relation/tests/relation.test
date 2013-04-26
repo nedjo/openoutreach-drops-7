@@ -59,6 +59,7 @@ class RelationTestCase extends DrupalWebTestCase {
     $this->node3 = $this->drupalCreateNode(array('type' => 'page', 'promote' => 1, 'title' => 'Parent'));
     $this->node4 = $this->drupalCreateNode(array('type' => 'page', 'promote' => 0, 'title' => 'Child'));
     $this->node5 = $this->drupalCreateNode(array('type' => 'page', 'promote' => 0));
+    $this->node6 = $this->drupalCreateNode(array('type' => 'page', 'promote' => 0, 'title' => 'Unrelated'));
   }
 
   function createRelationUsers() {
@@ -298,6 +299,16 @@ class RelationAPITestCase extends RelationTestCase {
       ->propertyOrderBy('created', 'DESC')
       ->execute();
     $this->assertEqual(array_keys($relations), array($this->rid_octopus, $this->rid_directional, $this->rid_symmetric));
+    
+    // Create 10 more symmetric relations and verify that the count works with
+    // double digit counts as well.
+    for($i = 0; $i < 10; $i++) {
+      $this->createRelationSymmetric();
+    }
+    $count = relation_query('node', $this->node4->nid)
+      ->count()
+      ->execute();
+    $this->assertEqual($count, 16);        
   }
 
   /**
@@ -363,5 +374,42 @@ class RelationAPITestCase extends RelationTestCase {
           ->fetchAllAssoc('rid');
       $this->assertTrue(array_key_exists($rid, $revision), 'Relation revision created.');
     }
+  }
+
+  /**
+   * Tests relation delete.
+   */
+  function testRelationDelete() {
+    // Invalid relations are deleted when any endpoint entity is deleted. 
+    // Octopus relation is valid with 3 endpoints, currently it has 4.
+    node_delete($this->node1->nid);
+    $this->assertTrue(relation_load($this->rid_octopus, NULL, TRUE), 'Relation is not deleted.');
+    node_delete($this->node2->nid);
+    $this->assertFalse(relation_load($this->rid_octopus, NULL, TRUE), 'Relation is deleted.');
+  }
+
+  /**
+   * Tests relation revisions.
+   */
+  function testRelationRevision() {
+    $first_user = $this->drupalCreateUser(array('edit relations'));
+    $second_user = $this->drupalCreateUser(array('edit relations'));
+
+    $this->drupalLogin($first_user);
+    $relation = relation_create($this->relation_type_octopus, $this->endpoints_4, $first_user);
+    $rid = relation_save($relation, $first_user);
+    $this->assertEqual($relation->uid, $first_user->uid);
+    $vid = $relation->vid;
+
+    // Relation should still be owned by the first user
+    $this->drupalLogin($second_user);
+    $relation = relation_load($rid);
+    relation_save($relation, $second_user);
+    $this->assertEqual($relation->uid, $first_user->uid);
+
+    // Relation revision authors should not be identical though.
+    $first_revision = relation_load($rid, $vid);
+    $second_revision = relation_load($rid, $relation->vid);
+    $this->assertNotIdentical($first_revision->revision_uid, $second_revision->revision_uid, 'Each revision has a distinct user.');
   }
 }

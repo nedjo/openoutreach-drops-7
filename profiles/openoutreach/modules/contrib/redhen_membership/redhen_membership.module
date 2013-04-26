@@ -281,16 +281,20 @@ function redhen_membership_permission() {
  * @return bool
  */
 function redhen_membership_access($op, $entity = NULL) {
-  // If this is a view/edit/delete op on a specific membership, load the entity the membership references first
-  if ($entity->entityType() == 'redhen_membership') {
-    $entity = entity_load_single($entity->entity_type, $entity->entity_id);
-  }
+  if ($entity) {
+    $entity_type = $entity->entityType();
 
-  $entity_type = $entity->entityType();
+    // If this is a view/edit/delete op on a specific membership, load the entity
+    // the membership references first.
+    if ($entity_type == 'redhen_membership') {
+      $wrapper = entity_metadata_wrapper('redhen_membership', $entity);
+      $entity = $wrapper->entity->value();
+    }
 
-  $type = $entity_type == 'redhen_contact' ? 'contact' : 'org';
-  if (entity_access($op, $entity_type, $entity) && user_access("$op redhen $type memberships")) {
-    return TRUE;
+    $type = $entity_type == 'redhen_contact' ? 'contact' : 'org';
+    if (entity_access($op, $entity_type, $entity) && user_access("$op redhen $type memberships")) {
+      return TRUE;
+    }
   }
 
   return FALSE;
@@ -335,7 +339,7 @@ function redhen_membership_load_multiple($membership_ids = array(), $conditions 
  * Saves a membership to the db.
  */
 function redhen_membership_save(RedhenMembership $membership) {
-  entity_save('redhen_membership', $membership);
+  return entity_save('redhen_membership', $membership);
 }
 
 /**
@@ -943,4 +947,14 @@ function redhen_membership_state_options() {
     REDHEN_MEMBERSHIP_INACTIVE => t('Inactive'),
     REDHEN_MEMBERSHIP_EXPIRED => t('Expired'),
   );
+}
+
+/**
+ * Callback to get $membership->entity.
+ *
+ * @see redhen_membership_entity_property_info().
+ */
+function redhen_membership_property_host_get(RedhenMembership $membership, array $options, $property_name, $entity_type) {
+  $entity = entity_load_single($membership->entity_type, $membership->entity_id);
+  return ($entity) ? entity_metadata_wrapper($membership->entity_type, $entity): NULL;
 }

@@ -31,31 +31,10 @@ function debut_redhen_admin_paths() {
 /**
  * Implements hook_form_FORM_ID_alter().
  *
- * Fix up taxonomy term selects on the RedHen filter form.
+ * Remove broken address field from the RedHen filter form.
  *
- * @todo: remove once either http://drupal.org/node/1801436 or
- *   http://drupal.org/node/1801390 is applied.
+ * @todo: remove once http://drupal.org/node/1929448 is applied.
  */
 function debut_redhen_form_redhen_filter_form_alter(&$form, &$form_state) {
-
-  foreach (array('contact_type', 'org_type') as $name) {
-
-    if (isset($form['filter_fieldset']['filters']['fields']['field_' . $name])) {
-      $vocabulary = taxonomy_vocabulary_machine_name_load($name);
-      $tree = taxonomy_get_tree($vocabulary->vid);
-
-      $options = array('' => '-- ' . t('Any') . ' --');
-      foreach ($tree as $term) {
-        $options[$term->tid] = $term->name;
-      }
-
-      $form['filter_fieldset']['filters']['fields']['field_' . $name]['tid'] = array(
-        '#type' => 'select',
-        '#title' => check_plain($vocabulary->name),
-        '#options' => $options,
-        '#default_value' => isset($_GET['fields']['field_' . $name]) ? $_GET['fields']['field_' . $name] : NULL,
-      );
-    }
-  }
-
+  unset($form['filter_fieldset']['filters']['fields']['field_address']);
 }

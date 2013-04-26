@@ -46,3 +46,8 @@
 .field-type-redhen-email .form-type-select label {
   display: inline;
 }
+
+/* Hide the email address label in the table view */
+.field-type-redhen-email .form-type-textfield label {
+  display: none;
+}

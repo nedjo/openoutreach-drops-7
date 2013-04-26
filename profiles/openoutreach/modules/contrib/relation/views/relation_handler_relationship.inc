@@ -23,11 +23,17 @@ class relation_handler_relationship extends views_handler_relationship {
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
-    $options = $this->options_form_summary_options();
+    // Check if this relation is entity-to-entity or entity-to-relation / relation-to-entity.
+    $endpoints_twice = isset($this->definition['entity_type_left']) && isset($this->definition['entity_type_right']);
+
     if ($this->definition['directional']) {
       $form['r_index'] = array(
         '#type' => 'select',
-        '#options' => $options,
+        '#options' => array(
+          -1 => t('Any'),
+          0 => t('Source'),
+          1 => t('Target'),
+        ),
         '#title' => t('Position of the relationship base'),
         '#default_value' => $this->options['r_index'],
         // check_plain()'d in the definition.
@@ -38,23 +44,14 @@ class relation_handler_relationship extends views_handler_relationship {
       if (isset($this->definition['entity_type_' . $key])) {
         $form['entity_deduplication_' . $key] = array(
           '#type' => 'checkbox',
-          '#title' => t('Avoid @type duplication', array('@type' => $this->definition['entity_type_' . $key])),
+          '#title' => $endpoints_twice ?
+            t('Avoid @direction @type duplication', array('@direction' => t($key), '@type' => $this->definition['entity_type_' . $key])) :
+            t('Avoid @type duplication', array('@type' => $this->definition['entity_type_' . $key])),
           '#default_value' => $this->options['entity_deduplication_' . $key],
           '#description' => t('When creating a chain of Views relationships for example from node to relation and then from relation to node (both via the same relation type) then each node will display on both ends. Check this option to avoid this kind of duplication.'),
         );
       }
     }
-  }
-
-  /**
-   * Return the main options, which are shown in the summary title.
-   */
-  function options_form_summary_options() {
-    return $this->definition['directional'] ? array(
-      -1 => t('Any'),
-      0 => t('Source'),
-      1 => t('Target'),
-    ) : array();
   }
 
   function query() {
@@ -82,7 +79,7 @@ class relation_handler_relationship extends views_handler_relationship {
       ),
     );
     if (isset($this->definition['entity_type_left'])) {
-      // The other table is an entity we are relating to.
+      // The left table is an entity, not a relation.
       $join->definition['field'] = $entity_id_field_name;
       $this->ensure_no_duplicate_entities($join->definition['extra'], $this->options['entity_deduplication_left'], $this->definition['relation_type'], $this->definition['entity_type_left'], $this->table_alias, $this->real_field);
       $join->definition['extra'][] = array(
@@ -91,7 +88,7 @@ class relation_handler_relationship extends views_handler_relationship {
       );
     }
     else {
-      // The other table is relation.
+      // The left table is relation.
       $join->definition['field'] = 'entity_id';
     }
     if ($this->definition['directional'] && $this->options['r_index'] > -1) {
@@ -120,6 +117,16 @@ class relation_handler_relationship extends views_handler_relationship {
           ),
         ),
       );
+
+      if ($this->definition['entity_type_left'] == $this->definition['entity_type_right']) {
+        $join->definition['extra'][] = array(
+          // This definition is a bit funny but there's no other way to tell
+          // Views to use an expression in join extra as it is.
+          'field' => $r_index_field_name . ' !=  ' . $l . '.' . $r_index_field_name . ' AND 1',
+          'value' => 1,
+        );
+      }
+
       $join->construct();
       $join->adjusted = TRUE;
       $r = $this->query->add_table($relation_data_table_name, $this->relationship, $join);
@@ -134,18 +141,6 @@ class relation_handler_relationship extends views_handler_relationship {
       'field'      => $this->definition['base field'],
       'type'       => $join_type,
     );
-    // There is no query where these conditions could be added earlier:
-    // $r might be just $l. But even if it's not there's no point in adding
-    // condition if the entity types already restrict them apart.
-    if ($endpoints_twice && $this->definition['entity_type_left'] == $this->definition['entity_type_right']) {
-      $join->definition['extra'][] = array(
-        // This definition is a bit funny but there's no other way to tell
-        // Views to use an expression in join extra as it is.
-        'table' => NULL,
-        'field' => "$r.$r_index_field_name != $l.$r_index_field_name AND 1",
-        'value' => 1,
-      );
-    }
     if (isset($this->definition['entity_type_right'])) {
       // We are finishing on an entity table.
       $join->definition['left_field'] = $entity_id_field_name;

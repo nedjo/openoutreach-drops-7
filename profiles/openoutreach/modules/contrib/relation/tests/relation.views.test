@@ -18,19 +18,19 @@ class RelationViewsTestCase extends RelationTestCase {
   }
 
   function setUp() {
-    parent::setUp('relation');
+    parent::setUp('relation', 'relation_entity_collector');
     // While setUp fails for non-existing modules, module_enable() doesn't.
     module_enable(array('views'));
   }
 
   /**
-   * Tests relations in Views.
+   * Tests views with relations as a base table.
    */
-  function testRelationViews() {
+  function testRelationsAsBaseTable() {
     if (!module_exists('views')) {
       return;
     }
-    // Relations as a base table.
+
     foreach (array('symmetric', 'directional', 'octopus') as $relation_type) {
       $view = new view;
       $view->base_table = 'relation';
@@ -84,9 +84,17 @@ class RelationViewsTestCase extends RelationTestCase {
           break;
       }
     }
+  }
 
-    // Symmetric.
-    foreach (array(2, 1) as $required => $count) {
+  /**
+   * Tests views with symmetric relations.
+   */
+  function testSymmetricRelations() {
+    if (!module_exists('views')) {
+      return;
+    }
+
+    foreach (array(FALSE, TRUE) as $required) {
       $view = new view;
       $handler = $view->new_display('default');
       $handler->display->display_options['relationships']['relation_symmetric_node']['id'] = 'relation_symmetric_node';
@@ -97,73 +105,130 @@ class RelationViewsTestCase extends RelationTestCase {
       $handler->display->display_options['fields']['nid']['table'] = 'node';
       $handler->display->display_options['fields']['nid']['field'] = 'nid';
       $handler->display->display_options['fields']['nid']['relationship'] = 'relation_symmetric_node';
+      $handler->display->display_options['fields']['nid2']['id'] = 'nid2';
+      $handler->display->display_options['fields']['nid2']['table'] = 'node';
+      $handler->display->display_options['fields']['nid2']['field'] = 'nid';
       $handler->display->display_options['arguments']['nid']['id'] = 'nid';
       $handler->display->display_options['arguments']['nid']['table'] = 'node';
       $handler->display->display_options['arguments']['nid']['field'] = 'nid';
+
+      // The result should be the same for required and non-required for
+      // argument node 1: Relation from 1 to 4.
       $view->set_arguments(array($this->node1->nid));
       $view->execute();
 
-      // For non-required, we expect NULL and 4 as results.
-      // For required, we expect just 4.
-      $match_count = 0;
-      $null_count  = 0;
-      foreach ($view->result as $result) {
-        if (isset($result->node_node_nid)) {
-          $match_count++;
-          $this->assertEqual($result->node_node_nid, $this->node4->nid);
-        }
-        else {
-          $null_count++;
-        }
-      }
-      $this->assertEqual(count($view->result), $count);
-      $this->assertEqual($match_count, 1);
-      $this->assertEqual($null_count, $count - 1);
-    }
+      $this->assertEqual(count($view->result), 1);
+      $result = array_pop($view->result);
+      $this->assertEqual($result->nid, $this->node1->nid);
+      $this->assertEqual($result->node_node_nid, $this->node4->nid);
 
-    // Directional to source, to target and to both.
-    for ($r_index = -1; $r_index < 2; $r_index++) {
-      $view = new view;
-      $handler = $view->new_display('default');
-      $handler->display->display_options['relationships']['relation_directional_node']['id'] = 'relation_directional_node';
-      $handler->display->display_options['relationships']['relation_directional_node']['table'] = 'node';
-      $handler->display->display_options['relationships']['relation_directional_node']['field'] = 'relation_directional_node';
-      $handler->display->display_options['relationships']['relation_directional_node']['required'] = 1;
-      $handler->display->display_options['relationships']['relation_directional_node']['r_index'] = $r_index;
-      $handler->display->display_options['fields']['nid']['id'] = 'nid';
-      $handler->display->display_options['fields']['nid']['table'] = 'node';
-      $handler->display->display_options['fields']['nid']['field'] = 'nid';
-      $handler->display->display_options['fields']['nid']['relationship'] = 'relation_directional_node';
-      $handler->display->display_options['arguments']['nid']['id'] = 'nid';
-      $handler->display->display_options['arguments']['nid']['table'] = 'node';
-      $handler->display->display_options['arguments']['nid']['field'] = 'nid';
-      $view->set_arguments(array($this->node3->nid));
+      $view = $view->clone_view();
+
+      // The result should be different for required and non-required for
+      // argument node 6: for required, there should be no results. For
+      // non-required, node 6 may be returned.
+      $view->set_arguments(array($this->node6->nid));
       $view->execute();
 
-      switch ($r_index) {
-        case -1:
-          // Directional, both ways.
-          $this->assertEqual(count($view->result), 2);
-          $matches = array($this->node1->nid => TRUE, $this->node4->nid => TRUE);
-          foreach ($view->result as $result) {
-            unset($matches[$result->node_node_nid]);
-          }
-          $this->assertFalse($matches);
-          break;
-        case 0:
-          // Source. This finds the 3->4 relation.
-          $this->assertEqual(count($view->result), 1);
-          $this->assertEqual($view->result[0]->node_node_nid, $this->node4->nid);
-          break;
-        case 1:
-          // Target. This finds the 1->3 relation.
-          $this->assertEqual(count($view->result), 1);
-          $this->assertEqual($view->result[0]->node_node_nid, $this->node1->nid);
-          break;
+      if ($required) {
+        $this->assertEqual(count($view->result), 0);
+      }
+      else {
+        $this->assertEqual(count($view->result), 1);
+        $result = array_pop($view->result);
+        $this->assertEqual($result->nid, $this->node6->nid);
+        $this->assertEqual($result->node_node_nid, NULL);
       }
     }
+  }
 
-    // Forward directional to source, to target and to both with the same entities types.
+  /**
+   * Tests views with directional relations to source, to target and to both.
+   */
+  function testDirectionalRelations() {
+    if (!module_exists('views')) {
+      return;
+    }
+
+    foreach (array(FALSE, TRUE) as $required) {
+      for ($r_index = -1; $r_index < 2; $r_index++) {
+        $view = new view;
+        $handler = $view->new_display('default');
+        $handler->display->display_options['relationships']['relation_directional_node']['id'] = 'relation_directional_node';
+        $handler->display->display_options['relationships']['relation_directional_node']['table'] = 'node';
+        $handler->display->display_options['relationships']['relation_directional_node']['field'] = 'relation_directional_node';
+        $handler->display->display_options['relationships']['relation_directional_node']['required'] = $required;
+        $handler->display->display_options['relationships']['relation_directional_node']['r_index'] = $r_index;
+        $handler->display->display_options['fields']['nid_source']['id'] = 'nid';
+        $handler->display->display_options['fields']['nid_source']['table'] = 'node';
+        $handler->display->display_options['fields']['nid_source']['field'] = 'nid';
+        $handler->display->display_options['fields']['nid_target']['id'] = 'nid';
+        $handler->display->display_options['fields']['nid_target']['table'] = 'node';
+        $handler->display->display_options['fields']['nid_target']['field'] = 'nid';
+        $handler->display->display_options['fields']['nid_target']['relationship'] = 'relation_directional_node';
+        $handler->display->display_options['arguments']['nid']['id'] = 'nid';
+        $handler->display->display_options['arguments']['nid']['table'] = 'node';
+        $handler->display->display_options['arguments']['nid']['field'] = 'nid';
+
+        // First test: node that has relations. The results should be the same
+        // for required and non-required relations.
+        $view->set_arguments(array($this->node3->nid));
+        $view->execute();
+
+        switch ($r_index) {
+          case -1:
+            // Directional, both ways.
+            $this->assertEqual(count($view->result), 2);
+            $targetmatches = array($this->node1->nid => TRUE, $this->node4->nid => TRUE);
+            foreach ($view->result as $result) {
+              $this->assertEqual($result->nid, $this->node3->nid);
+              unset($targetmatches[$result->node_node_nid]);
+            }
+            $this->assertFalse($targetmatches);
+            break;
+          case 0:
+            // Source. This finds the 3->4 relation.
+            $this->assertEqual(count($view->result), 1);
+            $this->assertEqual($view->result[0]->nid, $this->node3->nid);
+            $this->assertEqual($view->result[0]->node_node_nid, $this->node4->nid);
+            break;
+          case 1:
+            // Target. This finds the 1->3 relation.
+            $this->assertEqual(count($view->result), 1);
+            $this->assertEqual($view->result[0]->nid, $this->node3->nid);
+            $this->assertEqual($view->result[0]->node_node_nid, $this->node1->nid);
+            break;
+        }
+
+        // Second test: node that has no relations. The results should be that
+        // no results are found for the required relation, and 6 / NULL
+        // for the optional relation.
+        $view = $view->clone_view(); 
+        $view->set_arguments(array($this->node6->nid));
+        $view->execute();
+
+        if ($required) {
+          $this->assertEqual(count($view->result), 0);
+        }
+        else {
+          $this->assertEqual(count($view->result), 1);
+          $result = array_pop($view->result);
+          $this->assertEqual($result->nid, $this->node6->nid);
+          $this->assertEqual($result->node_node_nid, NULL);
+        }
+      }
+    }
+  }
+
+  /**
+   * Tests views with forward directional relations to source, to target and to
+   * both with the same entities types.
+   */
+  function testForwardDirectionalSameEntityRelations() {
+    if (!module_exists('views')) {
+      return;
+    }
+
     for ($r_index = -1; $r_index < 2; $r_index++) {
       $view = new view;
       $view->base_table = 'node';
@@ -213,8 +278,13 @@ class RelationViewsTestCase extends RelationTestCase {
           break;
       }
     }
+  }
 
-    // Reverse directional to source, to target and to both with the same entities types.
+  /**
+   * Tests views with reverse directional relations to source, to target and to
+   * both with the same entities types.
+   */
+  function testReverseDirectionalSameEntityRelations() {
     for ($r_index = -1; $r_index < 2; $r_index++) {
       $view = new view;
       $view->base_table = 'node';
@@ -264,8 +334,13 @@ class RelationViewsTestCase extends RelationTestCase {
           break;
       }
     }
+  }
 
-    // Forward directional to source, to target and to both with different entities types.
+  /**
+   * Tests views with forward directional relations to source, to target and to
+   * both with different entities types.
+   */
+  function testForwardDirectionalDifferentEntityRelations() {
     for ($r_index = -1; $r_index < 2; $r_index++) {
       $view = new view;
       $view->base_table = 'users';
@@ -315,8 +390,13 @@ class RelationViewsTestCase extends RelationTestCase {
           break;
       }
     }
+  }
 
-    // Reverse directional to source, to target and to both with different entities types.
+  /**
+   * Tests views with reverse directional relations to source, to target and to
+   * both with different entities types.
+   */
+  function testReverseDirectionalDifferentEntityRelations() {
     for ($r_index = -1; $r_index < 2; $r_index++) {
       $view = new view;
       $view->base_table = 'node';
@@ -366,6 +446,12 @@ class RelationViewsTestCase extends RelationTestCase {
           break;
       }
     }
+  }
+
+  /**
+   * Tests views deduplication.
+   */
+  function testDeduplication() {
     for ($i = 0; $i < 2; $i++) {
       $view = new view;
       $view->base_table = 'node';

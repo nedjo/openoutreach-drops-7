@@ -17,13 +17,20 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
   $form_state['build_info']['files']['form'] = drupal_get_path('module', 'redhen_contact') . '/includes/redhen_contact.forms.inc';
 
   // Add the default field elements.
-  $form['name'] = array();
+  $form['name'] = array('#type' => 'container');
   $form['name']['first_name'] = array(
     '#type' => 'textfield',
     '#title' => t('First name'),
     '#default_value' => $contact->first_name,
     '#maxlength' => 255,
     '#required' => TRUE,
+    '#weight' => -6,
+  );
+  $form['name']['middle_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Middle name'),
+    '#default_value' => $contact->middle_name,
+    '#maxlength' => 255,
     '#weight' => -6,
   );
   $form['name']['last_name'] = array(
@@ -74,6 +81,25 @@ function redhen_contact_contact_form_validate($form, &$form_state) {
 
   // Notify field widgets to validate their data.
   field_attach_form_validate('redhen_contact', $contact, $form, $form_state);
+
+  // If mirroring a connected and contact email's, ensure the email is not used
+  // by anther Drupal user.
+  if (variable_get('redhen_contact_mirror_email', FALSE) && $contact->uid) {
+    foreach ($form_state['values'][REDHEN_CONTACT_EMAIL_FIELD][LANGUAGE_NONE] as $email) {
+      if (!empty($email['value']) && $email['options']['default']) {
+        $user = user_load_by_mail($email['value']);
+        if ($user && ($user->uid != $contact->uid)) {
+          form_set_error(
+            REDHEN_CONTACT_EMAIL_FIELD,
+            t('This contact\'s primary email is configured to mirror the associated Drupal user and email address %email is already in use by another Drupal user.',
+              array('%email' => $email['value'])
+            )
+          );
+          break;
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -88,6 +114,7 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
 
   // Save default parameters back into the $contact object.
   $contact->first_name = $form_state['values']['first_name'];
+  $contact->middle_name = $form_state['values']['middle_name'];
   $contact->last_name = $form_state['values']['last_name'];
 
   // Notify field widgets.
@@ -293,7 +320,7 @@ function redhen_contact_contact_user_form($form, &$form_state, RedhenContact $co
           // Use the core user registration form, with some adjustments
           $form = user_register_form($form, $form_state);
           // default value for email field
-          $form['account']['mail']['#default_value'] = $contact->email;
+          $form['account']['mail']['#default_value'] = $contact->email();
           $form['account']['name']['#default_value'] = $contact->label();
           $form['#submit'][] = 'redhen_contact_contact_user_form_submit';
       }
