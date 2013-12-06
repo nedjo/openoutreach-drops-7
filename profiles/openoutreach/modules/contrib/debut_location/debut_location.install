@@ -20,3 +20,12 @@ function debut_location_enable() {
   _features_restore('enable', $items);
   _features_restore('rebuild', $items);
 }
+
+/**
+ * Enable the proj4js module, a new dependency of OpenLayers.
+ */
+function debut_location_update_7000() {
+  if (!module_exists('proj4js') && !module_enable(array('proj4js'))) {
+    throw new Exception('This version of Debut Location requires the Proj4js module but it could not be enabled.');
+  }
+}

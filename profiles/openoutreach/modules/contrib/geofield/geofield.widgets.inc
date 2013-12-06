@@ -33,7 +33,7 @@ define('GEOFIELD_INPUT_BOUNDS', 'bounds');
 // If we have the Openlayers module installed, include their widget code.
 
 if (module_exists('openlayers')) {
-  require_once(drupal_get_path('module', 'geofield') . '/geofield.widgets.openlayers.inc');
+  module_load_include('inc', 'geofield', 'geofield.widgets.openlayers');
 }
 
 /**
@@ -120,7 +120,7 @@ function geofield_field_widget_form(&$form, &$form_state, $field, $instance,
       $element['geom'] = array(
         '#type' => 'textarea',
         '#title' => check_plain($instance['label']),
-        '#description' => check_plain($instance['description']),
+        '#description' => t($instance['description']),
         '#default_value' => $default_value,
         '#required' => $instance['required'],
       );
@@ -138,7 +138,7 @@ function geofield_field_widget_form(&$form, &$form_state, $field, $instance,
       $element['geom'] = array(
         '#type' => 'textarea',
         '#title' => check_plain($instance['label']),
-        '#description' => check_plain($instance['description']),
+        '#description' => t($instance['description']),
         '#default_value' => $default_value,
         '#required' => $instance['required'],
       );
@@ -159,7 +159,7 @@ function geofield_field_widget_form(&$form, &$form_state, $field, $instance,
       $element['geom'] = array(
         '#type' => 'geofield_latlon',
         '#title' => check_plain($instance['label']),
-        '#description' => check_plain($instance['description']),
+        '#description' => t($instance['description']),
         '#default_value' => $latlon_value,
         '#required' => $instance['required'],
         '#geolocation' => (!empty($instance['widget']['settings']['html5_geolocation'])) ? $instance['widget']['settings']['html5_geolocation'] : FALSE,
@@ -189,7 +189,7 @@ function geofield_field_widget_form(&$form, &$form_state, $field, $instance,
       $element['geom'] = array(
         '#type' => 'geofield_bounds',
         '#title' => check_plain($instance['label']),
-        '#description' => check_plain($instance['description']),
+        '#description' => t($instance['description']),
         '#default_value' => $bounds_value,
         '#required' => $instance['required'],
       );

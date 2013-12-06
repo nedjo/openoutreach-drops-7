@@ -1,0 +1,15 @@
+name = Open Outreach Migrate
+description = Provide migration support for Open Outreach content.
+core = 7.x
+
+dependencies[] = migrate
+
+files[] = openoutreach_migrate.migrate.inc
+files[] = plugins/destinations/fields.inc
+
+; Information added by  packaging script on 2013-11-28
+version = "7.x-1.3"
+core = "7.x"
+project = "openoutreach"
+datestamp = "1385674406"
+

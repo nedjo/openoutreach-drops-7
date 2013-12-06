@@ -7,7 +7,7 @@
 
 // Include only when in install mode. MAINTENANCE_MODE is defined in
 // install.php and in drush_core_site_install().
-if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install') {
+if (drupal_installation_attempted()) {
   include_once('openoutreach.install.inc');
 }
 
@@ -39,7 +39,7 @@ function openoutreach_block_view() {
 
   // If this is an admin role, show documentation links.
   if (isset($user->roles[$admin_rid])) {
-    $content .= ' ' . t('Get started with <a href="!docs">user documentation</a> and <a href="!screencasts">screencasts</a>.', array('!docs' => 'http://openoutreach.org/section/using-open-outreach', '!screencasts' => 'http://openoutreach.org/screencasts'));
+    $content .= ' ' . t('Get started with <a href="!docs">user documentation</a>.', array('!docs' => 'http://openoutreach.org/section/using-open-outreach'));
   }
   $content .= '</span>';
   $block['content'] = $content;
@@ -52,7 +52,7 @@ function openoutreach_block_view() {
  * Unset distracting messages at install time.
  */
 function openoutreach_modules_enabled($modules) {
-  if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install' && array_intersect($modules, array('captcha', 'date_api'))) {
+  if (drupal_installation_attempted() && array_intersect($modules, array('captcha', 'date_api', 'superfish'))) {
     drupal_get_messages('status');
     drupal_get_messages('warning');
   }
@@ -109,26 +109,6 @@ function openoutreach_admin_menu_output_build(&$content) {
 }
 
 /**
- * Implements hook_apps_servers_info().
- */
-function openoutreach_apps_servers_info() {
-  $profile = variable_get('install_profile', 'standard');
-  $info =  drupal_parse_info_file(drupal_get_path('profile', $profile) . '/' . $profile . '.info');
-  
-  $return = array(
-    'debut' => array(
-      'title' => t('Debut'),
-      'description' => t('Debut apps'),
-      'manifest' => 'http://appserver.openoutreach.org/app/query',
-      'profile' => $profile,
-      'profile_version' => isset($info['version']) ? $info['version'] : '7.x-1.x',
-    ),
-  );
-
-  return $return;
-}
-
-/**
  * Implements hook_form_FORM_ID_alter().
  */
 function openoutreach_form_update_settings_alter(&$form, &$form_state) {
@@ -148,10 +128,12 @@ function openoutreach_update_projects_alter(&$projects) {
   if (!variable_get('openoutreach_update_show_distro_projects', FALSE)) {
     // Enable update status for the Open Outreach profile.
     $modules = system_rebuild_module_data();
-    // The module object is shared in the request, so we need to clone it here.
-    $openoutreach = clone $modules['openoutreach'];
-    $openoutreach->info['hidden'] = FALSE;
-    _update_process_info_list($projects, array('openoutreach' => $openoutreach), 'module', TRUE);
+    if (isset($modules['openoutreach'])) {
+      // The module object is shared in the request, so we need to clone it here.
+      $openoutreach = clone $modules['openoutreach'];
+      $openoutreach->info['hidden'] = FALSE;
+      _update_process_info_list($projects, array('openoutreach' => $openoutreach), 'module', TRUE);
+    }
   }
 }
 
@@ -201,7 +183,7 @@ function openoutreach_update_status_alter(&$projects) {
       }
       // Hide projects shipped with Open Outreach if they haven't been manually
       // updated.
-      elseif (isset($make_info['projects'][$project_name])) {
+      elseif (isset($make_info['projects'][$project_name]['version'])) {
         $version = $make_info['projects'][$project_name]['version'];
         if (strpos($version, 'dev') !== FALSE || (DRUPAL_CORE_COMPATIBILITY . '-' . $version == $project_info['info']['version'])) {
           unset($projects[$project_name]);
@@ -210,4 +192,3 @@ function openoutreach_update_status_alter(&$projects) {
     }
   }
 }
-

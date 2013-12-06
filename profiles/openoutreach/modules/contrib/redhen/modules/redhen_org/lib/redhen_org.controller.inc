@@ -8,7 +8,7 @@
  * The controller class for orgs contains methods for the org CRUD
  * operations. The load method is inherited from the default controller.
  */
-class RedhenOrgEntityController extends EntityAPIController {
+class RedhenOrgEntityController extends EntityAPIControllerExportable {
 
   /**
    * Saves an org.
@@ -16,46 +16,41 @@ class RedhenOrgEntityController extends EntityAPIController {
    * @param RedhenOrg $org
    *   The full org object to save.
    *
-   * @return
+   * @return RedhenOrg
    *   The saved org object.
    */
   public function save($org) {
-    $transaction = db_transaction();
-    try {
-      $org->updated = REQUEST_TIME;
+    $org->updated = REQUEST_TIME;
 
-      // New org, set created prop.
-      if (isset($org->is_new) && $org->is_new) {
-        $org->created = REQUEST_TIME;
+    // New org, set created prop.
+    if (isset($org->is_new) && $org->is_new) {
+      $org->created = REQUEST_TIME;
+    }
+    // Set revision flags. By default, save a new revision and set it as
+    // default.
+    else {
+      if (!isset($org->is_new_revision)) {
+        $org->is_new_revision = TRUE;
       }
-      // Set revision flags. By default, save a new revision and set it as
-      // default.
-      else {
-        if (!isset($org->is_new_revision)) {
-          $org->is_new_revision = TRUE;
-        }
-        if (!isset($contact->default_revision)) {
-          $org->default_revision = TRUE;
-        }
+      if (!isset($org->default_revision)) {
+        $org->default_revision = TRUE;
       }
-      parent::save($org, $transaction);
+    }
+    if (!isset($org->name) && isset($org->label)) {
+      $org->name = redhen_org_machine_name($org->label);
+    }
+    parent::save($org);
 
-      return $org;
-    }
-    catch (Exception $e) {
-      $transaction->rollback();
-      watchdog_exception($this->entityType, $e);
-      throw $e;
-    }
+    return $org;
   }
 
   /**
    * Deletes multiple orgs by id.
    *
-   * @param $org_ids
+   * @param array $org_ids
    *   An array of org IDs to delete.
    *
-   * @return
+   * @return bool
    *   TRUE on success, FALSE otherwise.
    */
   public function delete($org_ids, DatabaseTransaction $transaction = NULL) {

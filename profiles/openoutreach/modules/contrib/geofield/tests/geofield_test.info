@@ -7,10 +7,9 @@ package = Testing
 dependencies[] = geocoder
 dependencies[] = geofield
 
-
-; Information added by drush on 2013-04-26
-version = "7.x-2.0-alpha2+6-dev"
+; Information added by  packaging script on 2013-11-17
+version = "7.x-2.1"
 core = "7.x"
 project = "geofield"
-datestamp = "1367001376"
+datestamp = "1384708107"
 

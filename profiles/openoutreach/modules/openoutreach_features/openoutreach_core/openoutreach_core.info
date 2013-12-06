@@ -16,6 +16,8 @@ features[context][] = shortcut
 features[ctools][] = context:context:3
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:1
+features[filter][] = filtered_html
+features[filter][] = full_html
 features[user_permission][] = access administration pages
 features[user_permission][] = access content
 features[user_permission][] = access content overview
@@ -33,16 +35,18 @@ features[variable][] = date_format_medium
 features[variable][] = date_format_short
 features[variable][] = menu_main_links_source
 features[variable][] = menu_secondary_links_source
+features[variable][] = superfish_arrow_superfish_1
+features[variable][] = superfish_shadow_superfish_1
+features[variable][] = theme_outreach_settings
 features[variable][] = user_picture_dimensions
 features[variable][] = user_picture_file_size
 features[variable][] = user_picture_style
 features[variable][] = user_pictures
 features[variable][] = user_register
 
-
-; Information added by drupal.org packaging script on 2013-04-26
-version = "7.x-1.0-rc11"
+; Information added by  packaging script on 2013-11-28
+version = "7.x-1.3"
 core = "7.x"
 project = "openoutreach"
-datestamp = "1367001317"
+datestamp = "1385674406"
 

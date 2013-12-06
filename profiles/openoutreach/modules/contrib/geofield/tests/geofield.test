@@ -218,11 +218,6 @@ class GeofieldWidgetTestCase extends GeofieldBaseTestCase {
     $left = $lon - $lon_diff;
     $right = $lon + $lon_diff;
 
-    $this->assertFieldByName($this->field_name . '[und][0][geom][top]', $top, 'Top field widget set correctly');
-    $this->assertFieldByName($this->field_name . '[und][0][geom][bottom]', $bottom, 'Bottom field widget set correctly');
-    $this->assertFieldByName($this->field_name . '[und][0][geom][left]', $left, 'Left field widget set correctly');
-    $this->assertFieldByName($this->field_name . '[und][0][geom][right]', $right, 'Right field widget set correctly');
-
     $wkt = 'POLYGON ((' . $right . ' ' . $bottom . ', ' . $left . ' ' . $bottom . ', ' . $left . ' ' . $top . ', ' . $right . ' ' . $top . ', ' . $right . ' ' . $bottom . '))';
     $geometry = geoPHP::load($wkt, 'wkt');
     $this->_testWKTFormatter($id, $geometry, 'wkt');

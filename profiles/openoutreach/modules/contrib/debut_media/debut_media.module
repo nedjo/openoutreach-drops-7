@@ -40,6 +40,23 @@ function debut_media_entity_info_alter(&$entity_info) {
 }
 
 /**
+ * Implements hook_image_styles_alter().
+ *
+ * Restore previous dimensions of media_thumbnail (was small_thumbnail).
+ */
+function debut_media_image_styles_alter(&$styles) {
+  // Check that we only affect a default style.
+  if (isset($styles['media_thumbnail']['storage']) && $styles['media_thumbnail']['storage'] == IMAGE_STORAGE_DEFAULT) {
+    $styles['media_thumbnail']['label'] = t('Media thumbnail (180x180)');
+    foreach($styles['media_thumbnail']['effects'] as $key => $effect) {
+      if ($effect['name'] == 'image_scale_and_crop') {
+        $styles['media_thumbnail']['effects'][$key]['data'] = array('width' => 180, 'height' => 180);
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_module_implements_alter().
  */
 function debut_media_module_implements_alter(&$implementations, $hook) {
@@ -334,13 +351,14 @@ function debut_media_media_field() {
 /**
  * Implements hook_file_default_displays_alter().
  *
- * Clone settings for 'media_large' to new 'full' view mode. Add a generic file
- * fallback for each view mode + file type combo.
+ * Clone settings for 'media_large' to new 'full' view mode and fix weighting
+ * of video preview images.
  *
  * @todo: remove 'media_large' to 'full' cloning once media provider modules
  * catch up. See http://drupal.org/node/1291428.
  */
 function debut_media_file_default_displays_alter(&$items) {
+  // Clone settings for 'media_large' to new 'full' view mode.
   $info = entity_get_info('file');
   $bundles = array_keys($info['bundles']);
   $view_modes = array_keys($info['view modes']);
@@ -355,18 +373,10 @@ function debut_media_file_default_displays_alter(&$items) {
       }
     }
   }
-  foreach ($bundles as $file_type) {
-    foreach ($view_modes as $view_mode) {
-      $display_name = implode('__', array($file_type, $view_mode, 'file_field_file_default'));
-      if (!isset($items[$display_name])) {
-        $items[$display_name] = (object) array(
-          'api_version' => 1,
-          'name' => $display_name,
-          'status' => 1,
-          'weight' => 35,
-          'settings' => array(),
-        );
-      }
+  // Fix weighting of video preview images.
+  foreach (array('video__preview__media_vimeo_image', 'video__preview__media_youtube_image') as $key) {
+    if (isset($items[$key])) {
+      $items[$key]->weight = -10;
     }
   }
 }

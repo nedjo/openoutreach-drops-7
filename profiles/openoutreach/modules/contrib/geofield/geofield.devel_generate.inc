@@ -24,7 +24,8 @@ function _geofield_devel_generate($object, $field, $instance, $bundle) {
   // Depending on the widget, we should assume limits on what kind of data to generate.
   switch ($instance['widget']['type']) {
     case 'geofield_latlon':
-      list($input['lon'], $input['lat']) = $generator->random_point();
+      $input['geom'] = array();
+      list($input['geom']['lon'], $input['geom']['lat']) = $generator->random_point();
       $input['input_format'] = GEOFIELD_INPUT_LAT_LON;
       break;
     case 'geofield_bounds':

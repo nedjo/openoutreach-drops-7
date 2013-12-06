@@ -9,6 +9,7 @@
  */
 class RedhenContact extends Entity {
 
+  // @codingStandardsIgnoreStart
   public
     $first_name = '',
     $middle_name = '',
@@ -20,6 +21,7 @@ class RedhenContact extends Entity {
     $type = '',
     $created = '',
     $updated = '';
+  // @codingStandardsIgnoreEnd
 
   /**
    * Override parent constructor with entity type.
@@ -41,7 +43,7 @@ class RedhenContact extends Entity {
     $name = $wrapper->full_name->value();
 
     $content['redhen_state'] = array(
-      '#theme' => 'redhen_pr  operty_field',
+      '#theme' => 'redhen_property_field',
       '#label' => t('State'),
       '#items' => array(
         array(
@@ -88,10 +90,8 @@ class RedhenContact extends Entity {
    * Specifies the default label, which is picked up by label() by default.
    */
   protected function defaultLabel() {
-    $type = redhen_contact_get_types($this->type);
     $wrapper = entity_metadata_wrapper('redhen_contact', $this);
-    $name = $wrapper->full_name->value();
-    return $name . ' (' . $type->label . ')';
+    return $wrapper->full_name->value();
   }
 
   /**
@@ -204,6 +204,38 @@ class RedhenContact extends Entity {
     module_invoke_all('redhen_contact_set_state', $this->redhen_state, $state);
     $this->redhen_state = $state;
     return entity_get_controller($this->entityType)->save($this);
+  }
+
+  /**
+   * Override parent::save() to manage user association.
+   */
+  public function save() {
+    $wrapper = entity_metadata_wrapper('redhen_contact', $this);
+    $user = $wrapper->user->value();
+
+    if (variable_get('redhen_contact_connect_users', FALSE) && !$user) {
+      $emails = $this->allEmail();
+      foreach ($emails as $email) {
+        if ($user = user_load_by_mail($email['value'])) {
+          $wrapper->user->set($user);
+          break;
+        }
+      }
+    }
+
+    $ret = parent::save();
+
+    if ($ret && variable_get('redhen_contact_mirror_email', FALSE)) {
+      $email = $wrapper->email->value();
+
+      // If we have a linked user and primary email, but they don't match, set
+      // the user email.
+      if ($user && !empty($email) && ($email !== $user->mail)) {
+        user_save($user, array('mail' => $email));
+      }
+    }
+
+    return $ret;
   }
 
 }

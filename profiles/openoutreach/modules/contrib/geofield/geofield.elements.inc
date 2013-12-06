@@ -296,7 +296,7 @@ function geofield_proximity_element_process($element, &$form_state, $form) {
   $element['origin'] = array(
     '#type' => (!empty($element['#origin_element'])) ? $element['#origin_element'] : 'textfield',
     '#title' => t('Origin'),
-    '#prefix' => '<span class="geofield-proximity-origin-from">from</span>',
+    '#prefix' => '<span class="geofield-proximity-origin-from">' . t('from') . '</span>',
     '#title_display' => 'invisible',
     '#required' => !empty($element['#required']) ? $element['#required'] : FALSE,
     '#default_value' => !empty($element['#default_value']['origin']) ? $element['#default_value']['origin'] : FALSE,

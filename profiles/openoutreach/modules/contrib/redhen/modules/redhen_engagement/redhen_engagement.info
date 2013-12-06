@@ -1,5 +1,5 @@
 name = RedHen Engagement
-description = Provides Redhen contact engagement scoring.
+description = Provides RedHen contact engagement scoring.
 package = RedHen
 core = 7.x
 
@@ -10,9 +10,9 @@ files[] = lib/redhen_engagement.metadata.inc
 files[] = lib/redhen_engagement_score.entity.inc
 files[] = lib/redhen_engagement_score.ui_controller.inc
 
-; Information added by drupal.org packaging script on 2013-04-22
-version = "7.x-1.2"
+; Information added by drupal.org packaging script on 2013-10-24
+version = "7.x-1.6"
 core = "7.x"
 project = "redhen"
-datestamp = "1366668912"
+datestamp = "1382644828"
 

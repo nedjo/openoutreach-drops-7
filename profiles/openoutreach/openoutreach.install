@@ -208,3 +208,12 @@ function openoutreach_update_7000() {
 
   return t('Open Outreach now uses the Apps module to install its features. Click the Apps link on your toolbar to see available and installed apps.');
 }
+
+/**
+ * Remove Apps, no longer used.
+ */
+function openoutreach_update_7001() {
+  $module_list = array('apps');
+  module_disable($module_list);
+}
+

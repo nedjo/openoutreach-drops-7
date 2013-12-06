@@ -72,7 +72,7 @@ function geofield_field_formatter_info() {
     'settings' => array('data' => '', 'address' => 0),
   );
   $formatters['geofield_description'] = array(
-    'label' => t('Decriptive Text (Accessibility)'),
+    'label' => t('Descriptive Text (Accessibility)'),
     'field types' => array('geofield'),
     'settings' => array('data' => '', 'address' => 0),
   );
@@ -397,7 +397,7 @@ function _geofield_openlayers_formatter($map_name, $items) {
     }
     $features[] = array(
       'wkt' => $geometry->out('wkt'),
-      'projection' => '4326',
+      'projection' => 'EPSG:4326',
     );
   }
 
@@ -464,7 +464,7 @@ function _geofield_def_list_formatter_dl($info) {
 function _geofield_description_formatter($item, $settings) {
   geophp_load();
   $geometry = geoPHP::load($item['geom']);
-  
+
   if (!$geometry) return '';
 
   // Single types

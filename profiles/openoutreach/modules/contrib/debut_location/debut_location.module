@@ -90,8 +90,8 @@ function debut_location_form_views_exposed_form_alter(&$form, $form_state) {
     $view->execute();
     foreach ($view->result as $row) {
       if (!empty($row->file_managed_field_data_field_location_icon_uri)) {
-        $row->file_managed_field_data_field_location_icon_uri = file_create_url($row->file_managed_field_data_field_location_icon_uri);
-        $css[] = "#views-exposed-form-location-map-page label[for=edit-term-node-tid-depth-{$row->tid}]{padding-left: 35px; background-image: url({$row->file_managed_field_data_field_location_icon_uri});}";
+        $path = image_style_url('icon_small', $row->file_managed_field_data_field_location_icon_uri);
+        $css[] = "#views-exposed-form-location-map-page label[for=edit-term-node-tid-depth-{$row->tid}]{padding-left: 35px; background-image: url({$path});}";
       }
     }
     $form['#attached']['css'][implode('', $css)] = array('type' => 'inline');

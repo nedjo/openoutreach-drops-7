@@ -13,10 +13,10 @@
 class MediaYouTubeStreamWrapper extends MediaReadOnlyStreamWrapper {
 
   // Overrides $base_url defined in MediaReadOnlyStreamWrapper.
-  protected $base_url = 'http://youtube.com/watch';
+  protected $base_url = 'http://www.youtube.com/watch';
 
   /**
-   * Returns a url in the format "http://youtube.com/watch?v=qsPQN4MiTeE".
+   * Returns a url in the format "http://www.youtube.com/watch?v=qsPQN4MiTeE".
    *
    * Overrides interpolateUrl() defined in MediaReadOnlyStreamWrapper.
    * This is an exact copy of the function in MediaReadOnlyStreamWrapper,

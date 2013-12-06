@@ -27,7 +27,7 @@ function debut_media_views_api() {
 function debut_media_image_default_styles() {
   $styles = array();
 
-  // Exported image style: medium_large
+  // Exported image style: medium_large.
   $styles['medium_large'] = array(
     'name' => 'medium_large',
     'effects' => array(
@@ -48,9 +48,10 @@ function debut_media_image_default_styles() {
         'weight' => '1',
       ),
     ),
+    'label' => 'Medium large',
   );
 
-  // Exported image style: small_square_thumbnail
+  // Exported image style: small_square_thumbnail.
   $styles['small_square_thumbnail'] = array(
     'name' => 'small_square_thumbnail',
     'effects' => array(
@@ -70,6 +71,7 @@ function debut_media_image_default_styles() {
         'weight' => '1',
       ),
     ),
+    'label' => 'Small square thumbnail',
   );
 
   return $styles;

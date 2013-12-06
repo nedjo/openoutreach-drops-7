@@ -6,78 +6,14 @@
  */
 
 /**
- * Generate an install task to install apps.
- *
- * Adapted from panopoly_install_tasks().
+ * Generate install tasks.
  */
 function openoutreach_install_tasks($install_state) {
-
-  // Kick off the tasks.
   $tasks = array();
 
-  // Summon the power of the Apps module.
-  require_once(drupal_get_path('module', 'apps') . '/apps.profile.inc');
-
-  if ($install_state['interactive']) {
-    $default_apps = array(
-      'debut_article',
-      'debut_bio',
-      'debut_blog',
-      'debut_comment',
-      'debut_highlighted',
-      'debut_link',
-      'debut_media',
-      'debut_section',
-      'debut_seo',
-      'debut_social',
-      'debut_wysiwyg',
-    );
-  }
-  // When installing automatically, there is no opportunity to select which
-  // apps to install. Therefore, don't enable any and let a site admin choose
-  // post-install.
-  else {
-    $default_apps = array();
-  }
-
-  // Set up the openoutreach Apps install task.
-  $debut_server = array(
-    'machine name' => 'debut',
-    'default apps' => $default_apps,
-    'required apps' => array(),
-  );
-
-  // Insert the apps support verification test after the apps select form so
-  // that it shows only if needed.
-  $apps_tasks = apps_profile_install_tasks($install_state, $debut_server);
-  $select_task_name = 'apps_profile_apps_select_form_debut';
-  $verify_task_name = 'apps_install_verify';
-  if (isset($apps_tasks[$select_task_name]) && isset($apps_tasks[$verify_task_name])) {
-    $apps_select_form_task = $apps_tasks[$select_task_name];
-    $apps_verify_form_task = $apps_tasks[$verify_task_name];
-    unset($apps_tasks[$select_task_name]);
-    unset($apps_tasks[$verify_task_name]);
-    $tasks[$select_task_name] = $apps_select_form_task;
-    $apps_verify_form_task['run'] = (!empty($_SESSION['apps_downloads'])) ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP;
-    $tasks[$verify_task_name] = $apps_verify_form_task;
-  }
-
-  $tasks = $tasks + $apps_tasks;
-
-  // Rename one of the default apps tasks. In the case of a non-interactive
-  // installation, apps_profile_install_tasks() never defines this task, so we
-  // need to make sure we don't accidentally create it when it doesn't exist.
-  if (isset($tasks['apps_profile_apps_select_form_debut'])) {
-    $tasks['apps_profile_apps_select_form_debut']['display_name'] = t('Install apps for Open Outreach');
-  }
-
-  // Enable any selected Open Outreach features.
-  $tasks['openoutreach_enable_features'] = array(
-    'display' => FALSE,
-    'type' => 'batch',
-    'run' => (isset($_SESSION['openoutreach_features'])) ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
-    'function' => 'openoutreach_enable_features',
-  );
+  // Add Subprofiles tasks.
+  require_once(drupal_get_path('module', 'subprofiles') . '/subprofiles.install.inc');
+  $tasks = $tasks + _subprofiles_install_tasks($install_state);
 
   // Set up the theme selection task.
   $tasks['openoutreach_theme_form'] = array(
@@ -108,6 +44,23 @@ function openoutreach_install_tasks_alter(&$tasks, $install_state) {
  * Implements hook_install_configure_form_alter().
  */
 function openoutreach_form_install_configure_form_alter(&$form, &$form_state) {
+  $form['site_elements'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Site elements'),
+    '#weight' => -20,
+  );
+  $form['site_elements']['migrate'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Install sample content'),
+    '#default_value' => TRUE,
+    '#description' => t('Select this box to get some initial content created on your site. Without sample content, the site may look empty before you start adding to it. Sample content also provides cues as to how to use and structure your site. You can later modify or delete the sample content.'),
+  );
+  $form['site_elements']['contact'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable a contact form and accompanying menu item'),
+    '#default_value' => TRUE,
+  );
+
   // Set some reasonable defaults for site configuration form.
   $form['site_information']['site_name']['#default_value'] = 'Open Outreach';
   $form['admin_account']['account']['name']['#default_value'] = 'admin';
@@ -119,104 +72,19 @@ function openoutreach_form_install_configure_form_alter(&$form, &$form_state) {
   }
   // Hide update notifications.
   $form['update_notifications']['#access'] = FALSE;
+  $form['#submit'][] = 'openoutreach_install_configure_form_submit';
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- *
- * Adapted from panopoly_apps_profile_apps_select_form_alter().
- *
- * @todo: restore hidden content fieldset when Debut apps support it.
+ * Submit handler for install_configure_form. Conditionally enable sample
+ * content module.
  */
-function openoutreach_form_apps_profile_apps_select_form_alter(&$form, $form_state) {
-  // For some things there are no need.
-  $form['apps_message']['#access'] = FALSE;
-  $form['apps_fieldset']['apps']['#title'] = NULL;
-
-  // Debut doesn't yet support default content.
-  $form['default_content_fieldset']['#access'] = FALSE;
-
-  // Improve style of apps selection form.
-  if (isset($form['apps_fieldset'])) {
-    $options = array();
-    foreach($_SESSION['apps_manifest'] as $name => $app) {
-      if ($name != '#theme') {
-        $options[$name] = '<strong>' . $app['name'] . '</strong><p><div class="admin-options"><div class="form-item">' . theme('image', array('path' => $app['logo']['path'], 'height' => '32', 'width' => '32')) . '</div>' . $app['description'] . '</div></p>';
-      }
-    }
-    ksort($options);
-    $form['apps_fieldset']['apps']['#options'] = $options;
-    // Remove the deprecated Debut app.
-    unset($form['apps_fieldset']['apps']['#options']['debut']);
+function openoutreach_install_configure_form_submit($form, &$form_state) {
+  if (!empty($form_state['values']['migrate'])) {
+    module_enable(array('openoutreach_migrate'));
   }
-
-  // Enable installation of Open Outreach features.
-  // Extract features checkboxes from the features admin form.
-  module_load_include('inc', 'features', 'features.admin');
-  $features_admin_form = features_admin_form(array(), array());
-  $features = $features_admin_form['features']['status'];
-  // Core will be enabled already.
-  unset($features['openoutreach_core']);
-  // Only show openoutreach features.
-  foreach (array_keys($features) as $name) {
-    if (strpos($name, 'openoutreach_') !== 0) {
-      unset($features[$name]);
-    }
-    else {
-      // Remove links to the feature, since they won't work here.
-      $features[$name]['#title'] = strip_tags($features[$name]['#title']);
-      // Default to enabled.
-      $features[$name]['#default_value'] = TRUE;
-    }
-  }
-  $form['openoutreach_features'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Select Open Outreach features'),
-    '#description' => t('Select the features you wish to enable. You will also have a chance to enable or disable features after installing.'),
-    '#weight' => -1,
-    '#tree' => TRUE,
-  ) + $features;
-
-  $form['#submit'][] = 'openoutreach_apps_profile_apps_select_form_submit';
-}
-
-/**
- * Submit handler for install_configure_form. Set a variable specifying the
- * features to be installed.
- */
-function openoutreach_apps_profile_apps_select_form_submit($form, &$form_state) {
-  if (isset($form_state['values']['op']) && ($form_state['values']['op'] == t('Install Apps'))) {
-    $features = array_keys(array_filter($form_state['values']['openoutreach_features']));
-    if (!empty($features)) {
-      $_SESSION['openoutreach_features'] = $features;
-    }
-  }
-}
-
-/**
- * Install selected Open Outreach features.
- */
-function openoutreach_enable_features(&$install_state) {
-  $features = $_SESSION['openoutreach_features'];
-
-  if (!empty($features)) {
-    $operations = array();
-    foreach ($features as $module) {
-      $module_info = system_get_info('module', $module);
-      $module_name = isset($module_info['name']) ? $module_info['name'] : $module;
-      $operations[] = array('app_profile_enable_module', array($module, $module_name));
-    }
-    if (!empty($operations)) {
-      $batch = array(
-        'title' => t('Enable Open Outreach features'),
-        'init_message' => t('Enabling features...'),
-        'progress_message' => t('Enabling @current out of @total features.'),
-        'operations' => $operations,
-        'error_message' => t('Feature enabling encountered an error.'),
-        'file' => drupal_get_path('module', 'apps') . '/apps.profile.inc',
-      );
-    }
-    return $batch;
+  if (!empty($form_state['values']['contact'])) {
+    module_enable(array('contact'));
   }
 }
 
@@ -305,19 +173,43 @@ function openoutreach_install_permissions() {
   features_include();
   module_load_include('inc', 'features', 'features.export');
   user_permission_features_rebuild('openoutreach_install');
+  
+  // Conditionally create a Contact link in the main menu.
+  // Do so here rather than immediately after enabling the contact module to
+  // ensure the menu item is valid.
+  if (module_exists('contact')) {
+    // Create a Contact link in the main menu.
+    $item = array(
+      'link_title' => st('Contact'),
+      'link_path' => 'contact',
+      'menu_name' => 'main-menu',
+      'options' => array(
+        'attributes' => array(
+          'title' => st('Send us an email.'),
+        ),
+      ),
+      'weight' => '20',
+    );
+    menu_link_save($item);
+
+    // Update the menu router information.
+    menu_rebuild();
+  }
 }
 
 /**
  * Form to choose the starting theme from list of available options.
  */
 function openoutreach_theme_form($form, &$form_state) {
+  drupal_set_title(st('Choose a theme'));
 
   // Declare a white list of themes offered for selection along with data used
   // to determine what modules should be enabled and what blocks configured.
   $form_state['theme dependencies'] = array(
     'outreach' => array('superfish'),
     'sky' => array('superfish'),
-    'bartik' => array(),
+    'mix_and_match' => array('superfish'),
+    'at_commerce' => array('superfish'),
   );
 
   // Create list of theme options.
@@ -327,10 +219,10 @@ function openoutreach_theme_form($form, &$form_state) {
     $themes[$theme->name] = theme('image', array('path' => $theme->info['screenshot'])) . '<strong>' . $theme->info['name'] . '</strong><br><p><em>' . strip_tags($theme->info['description']) . '</em></p><p class="clearfix"></p>';
   }
 
-  // Move Bartik to last.
-  $bartik = $themes['bartik'];
-  unset($themes['bartik']);
-  $themes['bartik'] = $bartik;
+  // Move Outreach to first.
+  $outreach = $themes['outreach'];
+  unset($themes['outreach']);
+  $themes = array('outreach' => $outreach) + $themes;
 
   $form['theme'] = array(
     '#title' => t('Starting Theme'),
@@ -365,6 +257,24 @@ function openoutreach_theme_form_submit($form, &$form_state) {
   if (!empty($dependencies[$theme])) {
     module_enable($dependencies[$theme]);
   }
+
+  // Copy over the 'outreach' settings if the selected theme is a different
+  // adaptivetheme subtheme.
+  if ($theme != 'outreach') {
+    global $conf;
+    cache_clear_all('variables', 'cache_bootstrap');
+    $conf['theme_' . $theme . '_settings'] = $conf['theme_outreach_settings'];
+  }
+
+  // AdaptiveTheme requires that the system theme settings form
+  // be submitted in order for its themes' settings to be properly set
+  // and the resulting css files generated.
+  // For more background, see http://drupal.org/node/1776730.
+  module_load_include('inc', 'system', 'system.admin');
+  $form_state = form_state_defaults();
+  $form_state['build_info']['args'][0] = $theme;
+  $form_state['values'] = array();
+  drupal_form_submit('system_theme_settings', $form_state);
 
   // Assign regions for the theme.
   $regions = system_region_list($theme);
@@ -417,6 +327,8 @@ function openoutreach_theme_form_submit($form, &$form_state) {
  * Form to talk about preparing the site for prime time.
  */
 function openoutreach_prepare($form, &$form_state) {
+  drupal_set_title(st('Configure site'));
+
   $form = array();
 
   $form['opening'] = array(
@@ -501,8 +413,6 @@ function openoutreach_finished($form, &$form_state) {
 function openoutreach_finished_submit($form, &$form_state) {
   // Once more for good measure.
   drupal_flush_all_caches();
-
-  unset($_SESSION['openoutreach_features']);
 
   // And away we go.
   // $form_state['redirect'] won't work here since we are still in the

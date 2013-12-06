@@ -23,7 +23,7 @@ class geofieldProximityManual extends geofieldProximityBase implements geofieldP
       '#proximity_plugin_value_element' => TRUE,
       '#states' => array(
         'visible' => array(
-          ':input[name="options[source]"]' => array('value' => 'manual'),
+          ':input[name*="options[source]"]' => array('value' => 'manual'),
         ),
       ),
     );

@@ -58,6 +58,8 @@ function media_field_formatter_view($entity_type, $entity, $field, $instance, $l
   $element = array();
 
   if ($display['type'] == 'media_large_icon') {
+    // Use the media_thumbnail image style so that the output in media browser
+    // is consistent.
     foreach ($items as $delta => $item) {
       $element[$delta] = array(
         '#theme' => 'media_formatter_large_icon',
@@ -142,7 +144,9 @@ function media_field_widget_form(&$form, &$form_state, $field, $instance, $langc
   }
 
   $element += array(
-    '#type' => 'media', // Would like to make this a fieldset, but throws some weird warning about element_children... not sure what it is about yet.
+    // @todo This should be a fieldset, but throws a warning about
+    // element_children.
+    '#type' => 'media',
     '#collapsed' => TRUE,
     '#default_value' => $current_value,
     '#required' => $instance['required'],
@@ -152,12 +156,17 @@ function media_field_widget_form(&$form, &$form_state, $field, $instance, $langc
         'enabledPlugins' => array_filter($instance['widget']['settings']['browser_plugins']),
         'schemes' => $widget_settings['allowed_schemes'],
         'file_directory' => isset($field_settings['file_directory']) ? $field_settings['file_directory'] : '',
-        'file_extensions' => isset($field_settings['file_extensions']) ? $field_settings['file_extensions'] : media_variable_get('file_extensions'),
+        'file_extensions' => isset($field_settings['file_extensions']) ? $field_settings['file_extensions'] : variable_get('file_entity_default_allowed_extensions', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm'),
         'max_filesize' => isset($field_settings['max_filesize']) ? $field_settings['max_filesize'] : 0,
         'uri_scheme' => !empty($field['settings']['uri_scheme']) ? $field['settings']['uri_scheme'] : file_default_scheme(),
       ),
     ),
   );
+
+  if ($field['cardinality'] != 1) {
+    $element['#title'] = check_plain($instance['label']);
+    $element['#title_display'] = 'invisible';
+  }
 
   if ($field['type'] == 'file') {
     $element['display'] = array(
@@ -178,6 +187,8 @@ function media_field_widget_form(&$form, &$form_state, $field, $instance, $langc
 }
 
 /**
+ * Widget value.
+ *
  * @todo Is this function ever called? If not, remove it. The Field API now
  *   supports automatic serialization / unserialization, so this should no
  *   longer be needed. After verifying with a module that uses the 'data'

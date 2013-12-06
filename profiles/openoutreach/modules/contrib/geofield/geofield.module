@@ -1,13 +1,13 @@
 <?php
 
-require_once('geofield.elements.inc');
-require_once('geofield.widgets.inc');
-require_once('geofield.formatters.inc');
-require_once('geofield.openlayers.inc');
-require_once('geofield.feeds.inc');
-require_once('geofield.apachesolr.inc');
-require_once('geofield.schemaorg.inc');
-require_once('geofield.microdata.inc');
+module_load_include('inc', 'geofield', 'geofield.elements');
+module_load_include('inc', 'geofield', 'geofield.widgets');
+module_load_include('inc', 'geofield', 'geofield.formatters');
+module_load_include('inc', 'geofield', 'geofield.openlayers');
+module_load_include('inc', 'geofield', 'geofield.feeds');
+module_load_include('inc', 'geofield', 'geofield.apachesolr');
+module_load_include('inc', 'geofield', 'geofield.schemaorg');
+module_load_include('inc', 'geofield', 'geofield.microdata');
 
 /* *
  * Max length of geohashes (imposed by database column length).
@@ -64,9 +64,10 @@ function geofield_field_update_field($field, $prior_field, $has_data) {
  */
 
 function geofield_field_update_instance($instance, $prior_instance) {
-  if ($instance['widget']['type'] != $prior_instance['widget']['type']) {
+  if (!empty($instance['widget']['type']) && !empty($prior_instance['widget']['type']) && $instance['widget']['type'] != $prior_instance['widget']['type']) {
     $instance['default_value'] = array();
-    field_update_instance($instance);
+    _field_write_instance($instance, TRUE);
+    field_cache_clear();
   }
 }
 
@@ -277,19 +278,19 @@ function geofield_field_presave($entity_type, $entity, $field, $instance, $langc
     if ($instance['required'] == 0 && empty($items)) {
       $entity_ids = entity_extract_ids($entity_type, $entity);
       if (empty($entity_ids[0])) {
-        $items = $instance['default_value'];
+        $items = isset($instance['default_value']) ? array($instance['default_value']) : array();
       }
     }
 
     ctools_include('plugins');
-    
+
     $backend = ctools_get_plugins('geofield', 'geofield_backend', $field['settings']['backend']);
     $save_callback = $backend['save'];
     // For each delta, we compute all the auxiliary columns and transform the geom column into a geometry object
     // We then pass the geometry object (now stored in the geom column) to the backend to prepare it for insertion into the database
     foreach ($items as $delta => $item) {
       $items[$delta] = geofield_compute_values($item);
-      if ($items[$delta]['geom']) {
+      if (isset($items[$delta]['geom']) && $items[$delta]['geom']) {
         $items[$delta]['geom'] = $save_callback($items[$delta]['geom']);
       }
     }

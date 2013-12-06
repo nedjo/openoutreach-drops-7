@@ -32,7 +32,7 @@ class geofield_handler_sort extends views_handler_sort {
     // Data sources and info needed.
     $options['source'] = array('default' => 'manual');
     
-    $proximityHandlers = geofield_proximity_views_handlers();
+    $proximityHandlers = module_invoke_all('proximity_views_handlers');
     foreach ($proximityHandlers as $key => $handler) {
       $proximityPlugin = new $handler['class']();
       $proximityPlugin->option_definition($options, $this);
@@ -49,10 +49,15 @@ class geofield_handler_sort extends views_handler_sort {
       '#title' => t('Source of Origin Point'),
       '#description' => t('How do you want to enter your origin point?'),
       '#options' => array(),
+      '#attached' => array(
+        'js' => array(
+          drupal_get_path('module', 'geofield') . '/js/viewsProximityValue.js',
+        ),
+      ),
       '#default_value' => $this->options['source'],
     );
 
-    $proximityHandlers = geofield_proximity_views_handlers();
+    $proximityHandlers = module_invoke_all('proximity_views_handlers');
     foreach ($proximityHandlers as $key => $handler) {
       $form['source']['#options'][$key] = $handler['name'];
 
