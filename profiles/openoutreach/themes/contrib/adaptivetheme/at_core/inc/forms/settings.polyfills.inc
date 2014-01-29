@@ -26,12 +26,20 @@ function at_core_polyfills_form(&$form, $theme_name) {
     '#default_value' => at_get_setting('load_html5js'),
   );
 
+  // matchMedia polyfill: https://github.com/paulirish/matchMedia.js
+  $form['at-settings']['polyfills']['fills']['load_matchmediajs'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('matchMedia.js Polyfill'),
+    '#description' => t('Backport matchMedia support to unsupporting browsers - see <a href="!matchmedia_link" target="_blank">github.com/paulirish/matchMedia</a>. If using the Menu Toggle extension you need this if supporting Android 2.3 or earlier is important. Do not enable this if you are using respond.js (see <em>Media query support for IE6-8</em>, below) or Modernizr. A number of other libraries load this polyfill also - it\'s worth checking, although its also a very small polyfill.', array('!matchmedia_link' => '//github.com/paulirish/matchMedia.js')),
+    '#default_value' => at_get_setting('load_matchmediajs'),
+  );
+
   // OnMediaQuery.js
   $script_filepath = '/' . $theme_name . '/scripts/media_queries.js';
   $form['at-settings']['polyfills']['fills']['load_onmediaqueryjs'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Responsive JavaScript <sup>beta</sup>'),
-    '#description' => t('Load the <a href="!onmediaquery_link" target="_blank">JS Media Queries</a> plugin to enable responsive JavaScript. See <code>@script_filepath</code> for instructions on how to use. This is an alternative to using matchMedia and hard coding breakpoints in JavaScript. This is bleeding edge and must be considered beta, but its wickedly cool, and useful.', array('!onmediaquery_link' => '//github.com/JoshBarr/js-media-queries', '@script_filepath' => $script_filepath)),
+    '#title' => t('Responsive JavaScript <sup>(deprecated)</sup>'),
+    '#description' => t('This is deprecated because AT Core now loads it\'s media queries into Drupals JS settings - see <code>menu-toggle.js</code> in the core theme for an example of how this can be used with matchMedia. This legacy feature loads the <a href="!onmediaquery_link" target="_blank">JS Media Queries</a> plugin to enable responsive JavaScript. See <code>@script_filepath</code> for instructions on how to use. This is an alternative to using matchMedia.', array('!onmediaquery_link' => '//github.com/JoshBarr/js-media-queries', '@script_filepath' => $script_filepath)),
     '#default_value' => at_get_setting('load_onmediaqueryjs'),
   );
 
@@ -46,7 +54,7 @@ function at_core_polyfills_form(&$form, $theme_name) {
   // Respond.js
   $form['at-settings']['polyfills']['fills']['load_respondjs'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Media query support for IE6-8'),
+    '#title' => t('Media query support for IE6-8 (respond.js)'),
     '#description' => t('By checking this setting IE6, 7 and 8 will rely on <a href="!respondjs_link" target="_blank">respond.js</a> to set the layout.', array('!respondjs_link' => '//github.com/scottjehl/Respond')),
     '#default_value' => at_get_setting('load_respondjs'),
     '#states' => array(
@@ -58,7 +66,7 @@ function at_core_polyfills_form(&$form, $theme_name) {
   $form['at-settings']['polyfills']['fills']['load_scalefixjs'] = array(
     '#type' => 'checkbox',
     '#title' => t('Scalefix for iOS'),
-    '#description' => t('Fixes the iOS Orientationchange zoom bug.'),
+    '#description' => t('Fixes the iOS Orientationchange zoom bug. See <a href="!scalefix_link" target="_blank">github.com/scottjehl/iOS-Orientationchange-Fix</a>.', array('!scalefix_link' => 'https://github.com/scottjehl/iOS-Orientationchange-Fix')),
     '#default_value' => at_get_setting('load_scalefixjs'),
     '#states' => array(
       'invisible' => array('input[name="disable_responsive_styles"]' => array('checked' => TRUE)),

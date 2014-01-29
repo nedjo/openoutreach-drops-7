@@ -11,6 +11,7 @@ files[] = geofield.widgets.inc
 files[] = geofield.formatters.inc
 files[] = geofield.openlayers.inc
 files[] = geofield.feeds.inc
+files[] = geofield.migrate.inc
 files[] = tests/geofield.test
 files[] = views/geofield.views.inc
 files[] = views/handlers/geofield_handler_sort.inc

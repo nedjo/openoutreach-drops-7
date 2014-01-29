@@ -31,9 +31,15 @@ function openoutreach_migrate_map() {
     'OpenOutreachMigrationNodeBlog' => 'debut_blog',
     'OpenOutreachMigrationNodeEvent' => 'debut_event',
     'OpenOutreachMigrationNodeHighlighted' => 'debut_highlighted',
+    'OpenOutreachMigrationNodeLocation' => 'debut_location',
+    'OpenOutreachMigrationTermLocationType' => 'debut_location',
+    'OpenOutreachMigrationTermLocationRegion' => 'debut_location',
     'OpenOutreachMigrationMenuLinksSection' => 'debut_section',
     'OpenOutreachMigrationNodeSection' => 'debut_section',
   );
+  // Allow other modules to alter the migrations to, for example, use
+  // a custom class.
+  drupal_alter('openoutreach_migrate_map', $map);
   return array_filter($map, 'module_exists');
 }
 

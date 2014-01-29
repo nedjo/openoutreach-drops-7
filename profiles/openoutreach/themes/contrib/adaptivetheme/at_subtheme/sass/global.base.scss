@@ -612,7 +612,9 @@ video {
 #getlocations_map_canvas img,
 #locationmap_map img,
 .geofieldMap img,
-.views_horizontal_slider img {
+.views_horizontal_slider img,
+.geolocation-map img,
+.geolocation-views-map img {
   max-width: none !important;
 }
 

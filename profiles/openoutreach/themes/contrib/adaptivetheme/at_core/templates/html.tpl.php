@@ -48,6 +48,10 @@
  * - $classes String of classes that can be used to style contextually through
  *   CSS.
  *
+ * Notes:
+ * - Skip link "nocontent" class is for exluding the element from inclusion in
+ *   a Google Custom Search index - http://www.google.com/cse
+ *
  * @see template_preprocess()
  * @see template_preprocess_html()
  * @see template_process()
@@ -55,11 +59,10 @@
  * @see adaptivetheme_process_html()
  */
 ?><!DOCTYPE html>
-<!--[if lt IE 7]><html class="ie ie6 lt-ie10 lt-ie9 lt-ie8"<?php print $html_attributes; ?>><![endif]-->
-<!--[if IE 7]><html class="ie ie7 lt-ie10 lt-ie9 lt-ie8"<?php print $html_attributes; ?>><![endif]-->
-<!--[if IE 8]><html class="ie ie8 lt-ie10 lt-ie9"<?php print $html_attributes; ?>><![endif]-->
-<!--[if IE 9]><html class="ie ie9 lt-ie10"<?php print $html_attributes; ?>><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--><html<?php print $html_attributes . $rdf_namespaces; ?>><!--<![endif]-->
+<!--[if lt IE 7]><html class="lt-ie9 lt-ie8 lt-ie7"<?php print $html_attributes; ?>><![endif]-->
+<!--[if IE 7]><html class="lt-ie9 lt-ie8"<?php print $html_attributes; ?>><![endif]-->
+<!--[if IE 8]><html class="lt-ie9"<?php print $html_attributes; ?>><![endif]-->
+<!--[if gt IE 8]><!--><html<?php print $html_attributes . $rdf_namespaces; ?>><!--<![endif]-->
 <head>
 <?php print $head; ?>
 <title><?php print $head_title; ?></title>

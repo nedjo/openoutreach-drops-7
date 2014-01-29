@@ -19,12 +19,55 @@ function at_core_submit_menu_toggle($values, $theme_name, $path) {
   }
 
   $menu_toggle_css = array();
-  $menu_toggle_css_active = '.at-mt .at-menu-toggle h2{position:static;top:0}.at-mt #menu-toggle{display:none}.at-mt #menu-toggle ul li,.at-mt #menu-toggle ul li a{display:block;float:none}';
-  $menu_toggle_css_inactive = '.at-mt .at-menu-toggle h2{position:absolute;top:-999999em}.at-mt #menu-toggle{display:block !important}';
+  $menu_toggle_css_active = '
+  .at-mt .at-menu-toggle-button {
+    position: static;
+    top: 0;
+  }
+  .at-mt .menu-toggle {
+    display: none;
+  }
+  .at-mt .menu-toggle ul li,
+  .at-mt .menu-toggle ul li a {
+    display: block;
+    float:none;
+  }';
 
-  // We need extra overrides for superfish if the module is active
+  $menu_toggle_css_inactive = '
+  .at-mt .at-menu-toggle-button {
+    position: absolute;
+    top: -99999em;
+  }
+  .at-mt .menu-toggle {
+    display:block !important;
+  }';
+
+  // We need extra overrides for superfish if the module is active, pre Superfish module 1.9
   if (module_exists('superfish')) {
-    $menu_toggle_superfish_css = '.at-mt #menu-toggle .sf-menu{float:none;margin:0;height:auto}.at-mt #menu-toggle .sf-menu ul,.at-mt #menu-toggle .sf-menu li {margin:0;position:relative;top:0;display:block;float:none;clear:both;width:100%!important;left:0!important}';
+  $menu_toggle_superfish_css = '
+  .at-mt .menu-toggle .sf-menu {
+    float: none;
+    margin: 0;
+    height: auto;
+  }
+  .at-mt .menu-toggle .sf-menu ul,
+  .at-mt .menu-toggle .sf-menu li {
+    margin: 0;
+    position: relative;
+    top: 0;
+    display: block;
+    float: none;
+    clear: both;
+    width: 100% !important;
+    left: 0 !important;
+  }
+  .at-mt .menu-toggle .sf-menu ul {
+    left: 0;
+    position: static;
+  }
+  .at-mt .menu-toggle .sf-hidden {
+    display: none !important;
+  }';
   }
   else {
     $menu_toggle_superfish_css = '';

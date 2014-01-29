@@ -27,6 +27,8 @@ features[user_permission][] = cancel account
 features[user_permission][] = change own username
 features[user_permission][] = delete revisions
 features[user_permission][] = revert revisions
+features[user_permission][] = use text format filtered_html
+features[user_permission][] = use text format full_html
 features[user_permission][] = view own unpublished content
 features[user_permission][] = view revisions
 features[user_permission][] = view the administration theme
@@ -44,9 +46,9 @@ features[variable][] = user_picture_style
 features[variable][] = user_pictures
 features[variable][] = user_register
 
-; Information added by  packaging script on 2013-11-28
-version = "7.x-1.3"
+; Information added by Drupal.org packaging script on 2014-01-28
+version = "7.x-1.4"
 core = "7.x"
 project = "openoutreach"
-datestamp = "1385674406"
+datestamp = "1390948409"
 

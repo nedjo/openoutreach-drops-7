@@ -59,7 +59,7 @@ function file_admin_entity_presave($entity, $type) {
     $entity->created = REQUEST_TIME;
     $file_options = variable_get('file_admin_file_options_' . $entity->type, array('published'));
     foreach (array('published', 'promote', 'sticky') as $key) {
-      $entity->$key = (int) in_array($key, $file_options);
+      $entity->$key = (int) (isset($file_options[$key]) && $file_options[$key]);
     }
   }
 }
@@ -90,7 +90,7 @@ function file_admin_file_entity_access($op, $file, $account) {
 function file_admin_form_file_entity_admin_file_alter(&$form, &$form_state) {
   // Only act if we're in a list display mode.
   // TODO: find a less awkward way to determine the mode.
-  if (is_null(arg(3))) {
+  if (is_null(arg(3)) && !empty($form['admin']['files']['#options'])) {
     $header = &$form['admin']['files']['#header'];
     $operations_header = array_pop($header);
     $header['published'] = array('data' => t('Published'), 'field' => 'f.published');

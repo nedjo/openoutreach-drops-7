@@ -20,6 +20,12 @@ abstract class OpenOutreachMigration extends Migration {
   protected $baseImportDirectory;
 
   /**
+   * The relative path from the $baseImportDirectory to a directory with images
+   * for import.
+   */
+  protected $imageDirectory;
+
+  /**
    * The name of a CSV file to be imported.
    */
   protected $importFileName;
@@ -28,7 +34,7 @@ abstract class OpenOutreachMigration extends Migration {
    * The type of migration, used as a bundle value where appropriate and also
    * for the base filename of the import CSV file.
    */
-  protected $type;
+  protected $bundle;
 
   public function processImport(array $options = array()) {
     parent::processImport($options);
@@ -46,17 +52,36 @@ abstract class OpenOutreachMigration extends Migration {
     }
   }
 
-  protected function setProperties($type) {
+  protected function setProperties($bundle) {
     $path = drupal_get_path('module', 'openoutreach_migrate');
     $this->baseImportDirectory = (file_exists($path . '/local') ? $path . '/local' : $path . '/import');
-    $this->importFileName = $type . '.csv';
-    $this->type = $type;
+    $this->importFileName = $bundle . '.csv';
+    $this->bundle = $bundle;
+  }
+
+  protected function addImageCsvColumns(&$columns) {
+    $columns[] = array('image', 'Image');
+    $columns[] = array('image_title', 'Image title');
+    $columns[] = array('image_alt', 'Image alt');
   }
 
   protected function getImportFilePath() {
     return $this->baseImportDirectory . '/' . $this->importFileName;
   }
 
+  protected function getImageDirectoryPath() {
+    return $this->baseImportDirectory . '/' . $this->imageDirectory;
+  }
+
+  protected function addImageFieldMappings($field_name) {
+    $this->addFieldMapping($field_name, 'image');
+    $this->addFieldMapping($field_name . ':file_replace')
+      ->defaultValue(FILE_EXISTS_REPLACE);
+    $this->addFieldMapping($field_name . ':source_dir')
+      ->defaultValue($this->getImageDirectoryPath());
+    $this->addFieldMapping($field_name . ':alt', 'image_alt');
+    $this->addFieldMapping($field_name . ':title', 'image_title');
+  }
 }
 
 /**
@@ -69,12 +94,6 @@ abstract class OpenOutreachMigrationNode extends OpenOutreachMigration {
    * field.
    */
   protected $useTags = TRUE;
-
-  /**
-   * The relative path from the $baseImportDirectory to a directory with images
-   * for import.
-   */
-  protected $imageDirectory;
 
   public function __construct() {
     parent::__construct();
@@ -95,7 +114,7 @@ abstract class OpenOutreachMigrationNode extends OpenOutreachMigration {
     // Create a MigrateSource object.
     $this->source = new MigrateSourceCSV($this->getImportFilePath(), $this->csvcolumns(), array('header_rows' => 1));
 
-    $this->destination = new MigrateDestinationNode($this->type);
+    $this->destination = new MigrateDestinationNode($this->bundle);
 
     $this->addFieldMapping('uid')->defaultValue(1);
     $this->addFieldMapping('status')->defaultValue(1);
@@ -103,11 +122,7 @@ abstract class OpenOutreachMigrationNode extends OpenOutreachMigration {
     $this->addFieldMapping('language')->defaultValue(LANGUAGE_NONE);
     $this->addFieldMapping('title', 'title');
 
-    $this->addFieldMapping('field_content_image', 'image');
-    $this->addFieldMapping('field_content_image:file_replace')
-      ->defaultValue(FILE_EXISTS_REPLACE);
-    $this->addFieldMapping('field_content_image:source_dir')
-      ->defaultValue($this->getImageDirectoryPath());
+    $this->addImageFieldMappings('field_content_image');
 
     $this->addFieldMapping('body', 'body');
     $this->addFieldMapping('body:format')->defaultValue(module_exists('debut_wysiwyg') ? 'wysiwyg_editor' : 'filtered_html');
@@ -126,9 +141,7 @@ abstract class OpenOutreachMigrationNode extends OpenOutreachMigration {
     $columns[] = array('title', 'Title');
     $columns[] = array('promote', 'Promote');
     $columns[] = array('path', 'Path');
-    $columns[] = array('image', 'Image');
-    $columns[] = array('image_title', 'Image title');
-    $columns[] = array('image_alt', 'Image alt');
+    $this->addImageCsvColumns($columns);
     if ($this->useTags) {
       $columns[] = array('tags', 'Tags');
     }
@@ -136,14 +149,10 @@ abstract class OpenOutreachMigrationNode extends OpenOutreachMigration {
     return $columns;
   }
 
-  protected function getImageDirectoryPath() {
-    return $this->baseImportDirectory . '/' . $this->imageDirectory;
-  }
-
-  function setProperties($type) {
-    parent::setProperties($type);
-    $this->type = $type;
-    $this->imageDirectory = 'images/' . $type;
+  protected function setProperties($bundle) {
+    parent::setProperties($bundle);
+    $this->bundle = $bundle;
+    $this->imageDirectory = 'images/' . $bundle;
   }
 }
 
@@ -153,7 +162,7 @@ abstract class OpenOutreachMigrationNode extends OpenOutreachMigration {
 class OpenOutreachMigrationNodeArticle extends OpenOutreachMigrationNode {
 
   public function __construct() {
-    parent::setProperties('article');
+    $this->setProperties('article');
     parent::__construct();
     $this->description = t('Import article content.');
   }
@@ -166,7 +175,7 @@ class OpenOutreachMigrationNodeArticle extends OpenOutreachMigrationNode {
 class OpenOutreachMigrationNodeBlog extends OpenOutreachMigrationNode {
 
   public function __construct() {
-    parent::setProperties('blog');
+    $this->setProperties('blog');
     parent::__construct();
     $this->description = t('Import blog content.');
   }
@@ -179,7 +188,7 @@ class OpenOutreachMigrationNodeBlog extends OpenOutreachMigrationNode {
 class OpenOutreachMigrationNodeEvent extends OpenOutreachMigrationNode {
 
   public function __construct() {
-    parent::setProperties('event');
+    $this->setProperties('event');
     parent::__construct();
     $this->description = t('Import event content.');
     $this->addFieldMapping('field_event_date', 'from');
@@ -233,7 +242,7 @@ class OpenOutreachMigrationNodeEvent extends OpenOutreachMigrationNode {
 class OpenOutreachMigrationNodeHighlighted extends OpenOutreachMigrationNode {
 
   public function __construct() {
-    parent::setProperties('highlighted');
+    $this->setProperties('highlighted');
     $this->useTags = FALSE;
     parent::__construct();
     $this->description = t('Import highlighted content.');
@@ -251,12 +260,60 @@ class OpenOutreachMigrationNodeHighlighted extends OpenOutreachMigrationNode {
 }
 
 /**
+ * Location migration for nodes in OpenOutreach.
+ */
+class OpenOutreachMigrationNodeLocation extends OpenOutreachMigrationNode {
+
+  public function __construct() {
+    $this->setProperties('location');
+    parent::__construct();
+    $this->description = t('Import location content.');
+    $this->addFieldMapping('field_address', 'address_country');
+    $this->addFieldMapping('field_address:thoroughfare', 'address_street');
+    $this->addFieldMapping('field_address:locality', 'address_city');
+    $this->addFieldMapping('field_address:administrative_area', 'address_province_state');
+    $this->addFieldMapping('field_geolocation', 'wkt');
+    $this->addFieldMapping('field_location_type', 'location_type')
+         ->separator(', ');
+    $this->addFieldMapping('field_location_region', 'location_region');
+    $this->dependencies[] = 'OpenOutreachMigrationTermLocationType';
+    $this->dependencies[] = 'OpenOutreachMigrationTermLocationRegion';
+  }
+
+  /**
+   * Accept longitude and latitude input.
+   */
+  public function prepareRow($current_row) {
+    static $from;
+
+    if (empty($current_row->wkt) && !empty($current_row->longitude) && !empty($current_row->latitude)) {
+      $current_row->wkt = 'POINT (' . $current_row->longitude . ' ' . $current_row->latitude. ')';
+    }
+  }
+
+  function csvcolumns() {
+    $columns = parent::csvcolumns();
+    $columns[] = array('address_country', 'Address country');
+    $columns[] = array('address_street', 'Address street');
+    $columns[] = array('address_city', 'Address city');
+    $columns[] = array('address_province_state', 'Address province/state');
+    $columns[] = array('longitude', 'Longitude');
+    $columns[] = array('latitude', 'Latitude');
+    $columns[] = array('wkt', 'WKT');
+    $columns[] = array('location_type', 'Location type');
+    $columns[] = array('location_region', 'Location region');
+    return $columns;
+  }
+
+}
+
+/**
  * Section migration for nodes in OpenOutreach.
  */
 class OpenOutreachMigrationNodeSection extends OpenOutreachMigrationNode {
 
   public function __construct() {
-    parent::setProperties('section');
+    $this->setProperties('section');
     parent::__construct();
     $this->description = t('Import section content.');
   }
@@ -328,6 +385,115 @@ class OpenOutreachMigrationNodeSection extends OpenOutreachMigrationNode {
   function csvcolumns() {
     $columns = parent::csvcolumns();
     $columns[] = array('parent', 'Parent');
+    return $columns;
+  }
+
+}
+
+/**
+ * Base migration for terms in OpenOutreach.
+ */
+abstract class OpenOutreachMigrationTerm extends OpenOutreachMigration {
+
+  public function __construct() {
+    parent::__construct();
+    $this->description = t('Import taxonomy terms.');
+
+    // Create a map object for tracking the relationships between source rows
+    $this->map = new MigrateSQLMap($this->machineName,
+      array(
+        'name' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+        ),
+      ),
+      MigrateDestinationTerm::getKeySchema()
+    );
+
+    // Create a MigrateSource object.
+    $this->source = new MigrateSourceCSV($this->getImportFilePath(), $this->csvcolumns(), array('header_rows' => 1));
+    $this->destination = new MigrateDestinationTerm($this->bundle);
+
+
+    $this->addFieldMapping('name', 'name');
+    $this->addFieldMapping('description', 'description');
+    $this->addFieldMapping('format', 'format')->defaultValue(module_exists('debut_wysiwyg') ? 'wysiwyg_editor' : 'filtered_html');
+    $this->addFieldMapping('weight', 'weight');
+    $this->addFieldMapping('parent_name', 'parent_name');
+  }
+
+  function csvcolumns() {
+    $columns[] = array('name', 'Name');
+    $columns[] = array('description', 'Description');
+    $columns[] = array('format', 'Format');
+    $columns[] = array('weight', 'Weight');
+    $columns[] = array('parent_name', 'Parent name');
+    return $columns;
+  }
+
+  protected function setProperties($bundle) {
+    parent::setProperties($bundle);
+    $this->imageDirectory = 'images/' . $bundle;
+  }
+}
+
+/**
+ * Location type migration for terms in OpenOutreach.
+ */
+class OpenOutreachMigrationTermLocationType extends OpenOutreachMigrationTerm {
+
+  public function __construct() {
+    $this->setProperties('location_type');
+    parent::__construct();
+    $this->description = t('Import location type terms.');
+    $this->addImageFieldMappings('field_location_icon');
+  }
+
+  function csvcolumns() {
+    $columns = parent::csvcolumns();
+    $this->addImageCsvColumns($columns);
+    return $columns;
+  }
+
+  protected function setProperties($bundle) {
+    parent::setProperties($bundle);
+    $this->imageDirectory = 'images/' . $bundle;
+  }
+
+}
+
+/**
+ * Location region migration for terms in OpenOutreach.
+ */
+class OpenOutreachMigrationTermLocationRegion extends OpenOutreachMigrationTerm {
+
+  public function __construct() {
+    $this->setProperties('location_region');
+    parent::__construct();
+    $this->description = t('Import location region terms.');
+    $this->addFieldMapping('field_extent', 'extent');
+  }
+
+  /**
+   * Accept longitude and latitude input.
+   */
+  public function prepareRow($current_row) {
+    static $from;
+
+    if (empty($current_row->wkt) && !empty($current_row->top) && !empty($current_row->bottom) && !empty($current_row->left) && !empty($current_row->right)) {
+      $current_row->wkt = 'POLYGON ((' . $current_row->top . ' ' . $current_row->left . ',' . $current_row->top . ' ' . $current_row->right . ',' . $current_row->bottom . ' ' . $current_row->right . ',' . $current_row->bottom . ' ' . $current_row->left . ',' . $current_row->top . ' ' . $current_row->left . '))';
+    }
+
+  }
+
+  function csvcolumns() {
+    $columns = parent::csvcolumns();
+    $columns[] = array('top', 'Top');
+    $columns[] = array('bottom', 'Bottom');
+    $columns[] = array('left', 'Left');
+    $columns[] = array('right', 'Right');
+    $columns[] = array('wkt', 'WKT');
     return $columns;
   }
 
@@ -437,7 +603,7 @@ abstract class OpenOutreachMigrationMenuLinks extends OpenOutreachMigration {
 class OpenOutreachMigrationMenuLinksSection extends OpenOutreachMigrationMenuLinks {
 
   public function __construct() {
-    parent::setProperties('section_menu');
+    $this->setProperties('section_menu');
     parent::__construct();
     // Require the nodes that are referenced.
     $this->dependencies[] = 'OpenOutreachMigrationNodeSection';

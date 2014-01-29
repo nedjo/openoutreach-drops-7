@@ -50,22 +50,24 @@ function at_core_metatags_form(&$form) {
     '#type' => 'textfield',
     '#title' => t('apple-mobile-web-app-capable'),
     '#default_value' => check_plain(at_get_setting('adaptivetheme_meta_apple_mobile_web_app_capable')),
+    '#description' => t('See <a target="_blank" href="!webkithelp">http://developer.apple.com...</a>', array('!webkithelp' => 'http://developer.apple.com/library/safari/#documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html')),
     '#states' => array(
       'invisible' => array('input[name="disable_responsive_styles"]' => array('checked' => TRUE)),
     ),
   );
 
-  // Chrome Edge
-  $form['at-settings']['meta']['mobile']['chrome_edge'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable Chrome Edge support for IE'),
-    '#default_value' => at_get_setting('chrome_edge'),
+  // IE Document mode
+  $form['at-settings']['meta']['mobile']['adaptivetheme_meta_ie_document_mode'] = array(
+    '#type' => 'textfield',
+    '#title' => t('IE Document Mode'),
+    '#default_value' => at_get_setting('adaptivetheme_meta_ie_document_mode'),
+    '#description' => t('Use to set legacy document mode - often used to set IE-Edge, for example "IE=edge, chrome=1". See <a target="_blank" href="!mshelp">http://msdn.microsoft.com...</a>', array('!mshelp' => 'http://msdn.microsoft.com/en-us/library/jj676915(v=vs.85).aspx')),
   );
 
   // Clear type
-  $form['at-settings']['meta']['mobile']['clear_type'] = array(
+  $form['at-settings']['meta']['mobile']['adaptivetheme_meta_clear_type'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable Cleartype in IE Mobile devices'),
-    '#default_value' => at_get_setting('clear_type'),
+    '#default_value' => at_get_setting('adaptivetheme_meta_clear_type'),
   );
 }

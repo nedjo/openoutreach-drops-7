@@ -985,6 +985,7 @@ div.resizable-textarea textarea {
   width: 98.5%;
   font-size: 1.231em;
 }
+a.button,
 input.form-submit,
 input.teaser-button {
   background-color: transparent;
@@ -1015,12 +1016,14 @@ input[value~=Update],
 input#edit-save.form-submit {
   background-image: url(images/green-button.png);
 }
+a.button-no,
 input[value~=Cancel],
 input#edit-delete.form-submit,
 #system-modules-uninstall input#edit-submit,
 #user-multiple-delete-confirm input#edit-submit {
   background-image: url(images/red-button.png);
 }
+a.button:hover,
 input[value~=Update]:hover,
 input[value~=Save]:hover,
 #system-theme-settings input#edit-submit:hover,
@@ -1033,6 +1036,7 @@ input#edit-delete.form-submit:hover,
 #user-multiple-delete-confirm input#edit-submit:hover {
   background-position: bottom;
   cursor: pointer;
+  text-decoration:none;
 }
 #edit-views-apply,
 #edit-views-reset {
