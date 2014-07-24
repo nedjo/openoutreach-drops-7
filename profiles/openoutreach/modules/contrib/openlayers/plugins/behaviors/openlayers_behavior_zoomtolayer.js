@@ -59,10 +59,27 @@ Drupal.openlayers.addBehavior('openlayers_behavior_zoomtolayer', function (data,
    */
   function accumulate_extent(layer){
     var layerextent = layer.getDataExtent();
-    if(fullExtent instanceof OpenLayers.Bounds){
-      fullExtent.extend(layerextent);
-    } else if(layerextent instanceof OpenLayers.Bounds) {
-      fullExtent = layerextent;
+    var featureCount = layer.features.length;
+    // If there is only one feature and it's a cluster, zoom into that cluster.
+    if (featureCount == 1 && layer.features[0].cluster) {
+       var cluster = layer.features[0].cluster;
+       // Accumulate the extent of the cluster points
+       for (var i = 0; i < cluster.length; i++) {
+        point = cluster[i];
+        if (fullExtent instanceof OpenLayers.Bounds) {
+          fullExtent.extend(point.geometry.getBounds());
+        } else {
+          fullExtent = point.geometry.getBounds();
+        }
+      }
+    }
+    // Otherwise zoom to the extent of the layer.
+    else {
+      if(fullExtent instanceof OpenLayers.Bounds){
+        fullExtent.extend(layerextent);
+      } else if(layerextent instanceof OpenLayers.Bounds) {
+        fullExtent = layerextent;
+      }
     }
   }
 

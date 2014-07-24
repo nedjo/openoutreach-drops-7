@@ -125,29 +125,41 @@ function _openlayers_styles_process($styles = array(),
   }
 
   // Add layer styles
-  foreach ($layer_styles as $style) {
+  foreach ($layer_styles as $key => $style) {
     if (!isset($processed[$style]) &&
         !empty($styles_info[$style]) &&
         $info = $styles_info[$style]->data) {
       $processed[$style] = $info;
+    }
+    if (empty($style)) {
+      // If a particular layer's style is 0, set it to the appropriate default.
+      $map['layer_styles'][$key] = 'default';
     }
   }
 
   // Add layer styles select
-  foreach ($layer_styles_select as $style) {
+  foreach ($layer_styles_select as $key => $style) {
     if (!isset($processed[$style]) &&
         !empty($styles_info[$style]) &&
         $info = $styles_info[$style]->data) {
       $processed[$style] = $info;
     }
+    if (empty($style)) {
+      // If a particular layer's style is 0, set it to the appropriate default.
+      $map['layer_styles_select'][$key] = 'select';
+    }
   }
 
   // Add layer styles temporary
-  foreach ($layer_styles_temporary as $style) {
+  foreach ($layer_styles_temporary as $key => $style) {
     if (!isset($processed[$style]) &&
       !empty($styles_info[$style]) &&
       $info = $styles_info[$style]->data) {
       $processed[$style] = $info;
+    }
+    if (empty($style)) {
+      // If a particular layer's style is 0, set it to the appropriate default.
+      $map['layer_styles_temporary'][$key] = 'temporary';
     }
   }
 

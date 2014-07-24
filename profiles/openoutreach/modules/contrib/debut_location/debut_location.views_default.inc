@@ -242,6 +242,12 @@ function debut_location_views_default_views() {
   $handler->display->display_options['fields']['uri']['table'] = 'file_managed';
   $handler->display->display_options['fields']['uri']['field'] = 'uri';
   $handler->display->display_options['fields']['uri']['relationship'] = 'taxonomy_term_to_file';
+  $handler->display->display_options['fields']['uri']['label'] = '';
+  $handler->display->display_options['fields']['uri']['element_type'] = '0';
+  $handler->display->display_options['fields']['uri']['element_label_type'] = '0';
+  $handler->display->display_options['fields']['uri']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['uri']['element_wrapper_type'] = '0';
+  $handler->display->display_options['fields']['uri']['element_default_classes'] = FALSE;
   $handler->display->display_options['fields']['uri']['file_download_path'] = TRUE;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';

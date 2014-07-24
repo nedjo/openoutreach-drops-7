@@ -24,6 +24,13 @@ function at_commerce_form_system_theme_settings_alter(&$form, &$form_state) {
 
   $enable_extensions = isset($form_state['values']['enable_extensions']);
   if (($enable_extensions && $form_state['values']['enable_extensions'] == 1) || (!$enable_extensions && $form['at-settings']['extend']['enable_extensions']['#default_value'] == 1)) {
+
+    // Remove option to use full width wrappers
+    $form['at']['modify-output']['design']['page_full_width_wrappers'] = array(
+      '#access' => FALSE,
+      '#default_value' => 0,
+    );
+
     $form['at']['content_display'] = array(
       '#type' => 'fieldset',
       '#title' => t('Content Displays'),

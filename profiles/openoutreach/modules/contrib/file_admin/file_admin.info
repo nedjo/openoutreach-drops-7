@@ -6,9 +6,9 @@ dependencies[] = file_entity
 
 files[] = includes/views_handler_filter_file_admin.inc
 
-; Information added by Drupal.org packaging script on 2014-01-27
-version = "7.x-1.0-beta6"
+; Information added by Drupal.org packaging script on 2014-04-30
+version = "7.x-1.0-beta7"
 core = "7.x"
 project = "file_admin"
-datestamp = "1390859995"
+datestamp = "1398900228"
 

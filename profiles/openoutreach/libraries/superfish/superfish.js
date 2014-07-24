@@ -27,9 +27,11 @@
         var $$ = $(this), menu = getMenu($$), o = sf.op;
         clearTimeout(menu.sfTimer);
         menu.sfTimer=setTimeout(function(){
-          o.retainPath=($.inArray($$[0],o.$path)>-1);
-          $$.hideSuperfishUl();
-          if (o.$path.length && $$.parents(['li.',o.hoverClass].join('')).length<1){over.call(o.$path);}
+          if ($$.children('.sf-clicked').length == 0){
+            o.retainPath=($.inArray($$[0],o.$path)>-1);
+            $$.hideSuperfishUl();
+            if (o.$path.length && $$.parents(['li.',o.hoverClass].join('')).length<1){over.call(o.$path);}
+          }
         },o.delay);
       },
       getMenu = function($menu){
@@ -63,8 +65,16 @@
       o.onInit.call(this);
 
     }).each(function() {
-      var menuClasses = [c.menuClass];
-      if (sf.op.dropShadows  && !($.browser.msie && $.browser.version < 7)) menuClasses.push(c.shadowClass);
+      var menuClasses = [c.menuClass],
+      addShadow = true;
+      if ($.browser !== undefined){
+        if ($.browser.msie && $.browser.version < 7){
+          addShadow = false;
+        }
+      }
+      if (sf.op.dropShadows && addShadow){
+        menuClasses.push(c.shadowClass);
+      }
       $(this).addClass(menuClasses.join(' '));
     });
   };
@@ -74,9 +84,12 @@
   sf.op = {};
   sf.IE7fix = function(){
     var o = sf.op;
-    if ($.browser.msie && $.browser.version > 6 && o.dropShadows && o.animation.opacity!=undefined)
-      this.toggleClass(sf.c.shadowClass+'-off');
-    };
+    if ($.browser !== undefined){
+      if ($.browser.msie && $.browser.version > 6 && o.dropShadows && o.animation.opacity != undefined) {
+        this.toggleClass(sf.c.shadowClass+'-off');
+      }
+    }
+  };
   sf.c = {
     bcClass: 'sf-breadcrumb',
     menuClass: 'sf-js-enabled',

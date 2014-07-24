@@ -26,7 +26,7 @@
 #views-exposed-form-location-map-page div.trigger.expanded {
   background-image: url(minus.png);
 }
-#views-exposed-form-location-map-page ul ul {
+#views-exposed-form-location-map-page ul ul ul {
   display: none;
   padding-left: 20px;
 }

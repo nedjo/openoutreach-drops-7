@@ -451,14 +451,14 @@ html.js #toggle-wrapper {
   line-height: 1;
   padding-top: 5px;
 }
-#branding.with-logo.site-name-hidden.with-site-slogan hgroup,
-#branding.with-logo.site-name-hidden.with-site-slogan hgroup #site-slogan {
+#branding.with-logo.site-name-hidden.with-site-slogan .h-group,
+#branding.with-logo.site-name-hidden.with-site-slogan .h-group #site-slogan {
   float: none;
   display: block;
   clear: both;
   padding: 0;
 }
-#branding.with-logo.site-name-hidden.with-site-slogan hgroup #site-slogan {
+#branding.with-logo.site-name-hidden.with-site-slogan .h-group #site-slogan {
   font-size: 1.231em;
   padding-top: 5px;
 }
@@ -518,6 +518,11 @@ html.js #toggle-wrapper {
 .nav .block-menu ul a:hover,
 .nav .block-menu ul a:active {
   outline: 0;
+}
+
+/* Superfish fixes */
+ul.sf-menu li {
+  margin: 0;
 }
 
 /* Wrapper white space */
@@ -718,8 +723,12 @@ article .comment-content {
 }
 #breadcrumb h2 {
   font-size: 1em;
+  padding-right: 10px;
   font-weight: 400;
   display: inline;
+}
+#breadcrumb h2:after {
+  content: ":"
 }
 ol#crumbs {
   list-style: none;

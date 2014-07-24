@@ -1,16 +1,21 @@
 (function ($) {
   Drupal.behaviors.ATmenuToggle = {
     attach: function (context, settings) {
+
       if ($.browser.msie && parseFloat($.browser.version) <= 8) {
         return;
       }
+
       var activeTheme = Drupal.settings["ajaxPageState"]["theme"];
       var themeSettings = Drupal.settings['adaptivetheme'];
+
       if (typeof themeSettings[activeTheme] == 'undefined') {
         return;
       }
+
       var mtsTP = themeSettings[activeTheme]['menu_toggle_settings']['tablet_portrait'];
       var mtsTL = themeSettings[activeTheme]['menu_toggle_settings']['tablet_landscape'];
+
       var breakpoints = {
         bp1: themeSettings[activeTheme]['media_query_settings']['smalltouch_portrait'],
         bp2: themeSettings[activeTheme]['media_query_settings']['smalltouch_landscape'],
@@ -40,11 +45,13 @@
           return false;
         });
 
+        /*
         // Close if clicked outside (inc another toggle menu)
-        $(".at-menu-toggle-button-link").bind('clickoutside', function(event) {
+        $(".at-menu-toggle-button-link", context).bind('clickoutside', function(event) {
           $(this).parent().siblings('.menu-toggle').slideUp(100, 'swing').removeClass('menu-toggle-open');
-          return false;
+          //return false;
         });
+        */
       }
 
       //console.log(themeSettings);

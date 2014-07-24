@@ -60,6 +60,36 @@ Drupal.openlayers.addBehavior('openlayers_behavior_popup', function (data, optio
   var popupSelect = new OpenLayers.Control.SelectFeature(layers,
     {
       onSelect: function(feature) {
+        // Check if we have any zoom settings set. If zoom to point is enabled,
+        // it will disable the popup behavior for points,
+        // and the same for clusters.
+        if (options.zoomToPoint || options.zoomToCluster) {
+          var fullExtent;
+          // If we have zoomToCluster enabled and the feature is a cluster,
+          // accumulate the fullExtent of all points in the cluster.
+          var isCluster = typeof feature.cluster != 'undefined' && feature.cluster.length > 1;
+          if (options.zoomToCluster && isCluster) {
+            for (var i = 0; i < feature.cluster.length; i++) {
+              point = feature.cluster[i];
+              if (fullExtent instanceof OpenLayers.Bounds) {
+                fullExtent.extend(point.geometry.getBounds());
+              } else {
+                fullExtent = point.geometry.getBounds();
+              }
+            }
+          }
+          // Otherwise, if zoomToPoint is enabled and it's not a cluster, set
+          // the fullExtent to the bounds of the point.
+          else if (options.zoomToPoint && !isCluster){
+            fullExtent = feature.geometry.getBounds();
+          }
+
+          if (fullExtent instanceof OpenLayers.Bounds) {
+            map.zoomToExtent(fullExtent);
+            // Don't attempt to popup when zooming.
+            return;
+          }
+        }
         // Create FramedCloud popup.
         popup = new OpenLayers.Popup.FramedCloud(
           'popup',
@@ -81,17 +111,23 @@ Drupal.openlayers.addBehavior('openlayers_behavior_popup', function (data, optio
         popup.keepInMap = options.keepInMap;
         selectedFeature = feature;
         feature.popup = popup;
+        map.addPopup(popup, true);
         Drupal.attachBehaviors();
-        map.addPopup(popup);
       },
       onUnselect: function(feature) {
-        map.removePopup(feature.popup);
-        feature.popup.destroy();
-        feature.popup = null;
+        // If the feature has a popup, remove it.
+        if (feature.popup) {
+          map.removePopup(feature.popup);
+          feature.popup.destroy();
+          feature.popup = null;
+        }
         this.unselectAll();
+        Drupal.attachBehaviors();
       }
     }
   );
+  popupSelect.handlers['feature'].stopDown = false;
+  popupSelect.handlers['feature'].stopUp = false;
 
   map.addControl(popupSelect);
   popupSelect.activate();

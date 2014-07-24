@@ -18,18 +18,18 @@
 /**
  * OpenLayers hosted default library.
  */
-define('OPENLAYERS_DEFAULT_LIBRARY', 'http://openlayers.org/api/2.12/OpenLayers.js');
+define('OPENLAYERS_DEFAULT_LIBRARY', 'http://openlayers.org/api/2.13/OpenLayers.js');
 
 /**
  * OpenLayers library compatible suggestion.
  */
-define('OPENLAYERS_SUGGESTED_LIBRARY', 2.12);
+define('OPENLAYERS_SUGGESTED_LIBRARY', 2.13);
 
 /**
  * OpenLayers hosted API version.  What version is used when going to
  * http://openlayers.org/api/OpenLayers.js
  */
-define('OPENLAYERS_HOSTED_API_LIBRARY', 2.12);
+define('OPENLAYERS_HOSTED_API_LIBRARY', 2.13);
 
 /**
  * Implements hook_help().
@@ -98,11 +98,19 @@ function openlayers_ctools_plugin_type() {
  * @ingroup openlayers_api
  */
 function openlayers_include() {
+  // Get the page language for string translation.
+  global $language;
+  $lang = $language->language;
 
   if ('internal' == variable_get('openlayers_source_type', 'external')) {
     $variant = variable_get('openlayers_source_internal_variant', NULL);
     if ($variant == 'original') $variant = NULL;
     libraries_load('openlayers', $variant);
+
+    if ($lang != 'en') {
+      drupal_add_js(libraries_get_path('openlayers') . '/lib/OpenLayers/Lang.js', 'file');
+      drupal_add_js(libraries_get_path('openlayers') . '/lib/OpenLayers/Lang/' . $lang . '.js', 'file');
+    }
   }
   else {
     // Use a static variable to prevent running URL check code repeatedly.
@@ -124,6 +132,10 @@ function openlayers_include() {
       }
       else {
         drupal_add_js($path);
+      }
+      if ($lang != 'en') {
+        drupal_add_js(libraries_get_path('openlayers') . '/lib/OpenLayers/Lang.js', 'file');
+        drupal_add_js(libraries_get_path('openlayers') . '/lib/OpenLayers/Lang/' . $lang . '.js', 'file');
       }
 
       drupal_add_css(drupal_get_path('module', 'openlayers') .
@@ -593,12 +605,25 @@ function openlayers_layer_types($reset = FALSE, $include_disabled = FALSE) {
   $layers = ctools_get_plugins('openlayers', 'layer_types');
 
   if (!$include_disabled) {
-    $layers = array_filter($layers, function($layer) {
-      return (!isset($layer->disabled) || !$layer->disabled);
-    });
+    $layers = array_filter($layers, 'openlayers_object_enabled');
   }
 
   return array_filter($layers, 'openlayers_layer_definition_check');
+}
+
+/**
+ * Confirm that an object is not disabled.
+ *
+ * @ingroup openlayers_api
+ *
+ * @param Object $object
+ *   An object -- a layer, behavior, style or map.
+ *
+ * @return Boolean
+ *   Returns TRUE if the object is not disabled.
+ */
+function openlayers_object_enabled($object) {
+  return (!isset($object->disabled) || !$object->disabled);
 }
 
 /**
@@ -642,9 +667,7 @@ function openlayers_behaviors($reset = FALSE, $include_disabled = FALSE) {
   $behaviors = ctools_get_plugins('openlayers', 'behaviors');
 
   if (!$include_disabled) {
-    $behaviors = array_filter($behaviors, function($behavior) {
-      return (!isset($behavior->disabled) || !$behavior->disabled);
-    });
+    $behaviors = array_filter($behaviors, 'openlayers_object_enabled');
   }
 
   return array_filter($behaviors, 'openlayers_behavior_definition_check');
@@ -670,9 +693,7 @@ function openlayers_styles($reset = FALSE, $include_disabled = FALSE) {
   $styles = ctools_export_load_object('openlayers_styles', 'all', array());
 
   if (!$include_disabled) {
-    $styles = array_filter($styles, function($style) {
-      return !(isset($style->disabled) && $style->disabled);
-    });
+    $styles = array_filter($styles, 'openlayers_object_enabled');
   }
 
   return $styles;
@@ -754,9 +775,7 @@ function openlayers_maps($reset = FALSE, $include_disabled = FALSE) {
   $maps = ctools_export_load_object('openlayers_maps', 'all', array());
 
   if (!$include_disabled) {
-    $maps = array_filter($maps, function($map) {
-      return !(isset($map->disabled) && $map->disabled);
-    });
+    $maps = array_filter($maps, 'openlayers_object_enabled');
   }
 
   return $maps;
@@ -1440,10 +1459,26 @@ function openlayers_boxes_plugins() {
         'parent' => 'boxes_box',
         'class' => 'openlayers_simple',
         'file' => 'openlayers_simple.inc',
-        'path' => drupal_get_path('module', 'openlayers') . '/includes/boxes'
+        'path' => drupal_get_path('module', 'openlayers') . '/plugins/boxes'
       )
     )
   );
+}
+
+/**
+ * Implements hook_quicktabs_contents().
+ */
+function openlayers_quicktabs_contents() {
+  $info = array();
+  $path = drupal_get_path('module', 'openlayers') . '/plugins/quicktabs';
+  $info['map'] = array(
+    'path' => $path,
+    'handler' => array(
+      'file' => 'QuickMap.inc',
+      'class' => 'QuickMap',
+    ),
+  );
+  return $info;
 }
 
 /**
@@ -1453,7 +1488,7 @@ function openlayers_libraries_info() {
   $libraries['openlayers'] = array(
     'name' => 'OpenLayers',
     'vendor url' => 'http://openlayers.org/',
-    'download url' => 'http://openlayers.org/download/OpenLayers-2.12.tar.gz',
+    'download url' => 'http://openlayers.org/download/OpenLayers-2.13.tar.gz',
     'version arguments' => array(
       'file' => 'lib/OpenLayers.js',
       'pattern' => '/OpenLayers.VERSION_NUMBER="Release (.*?)"/',

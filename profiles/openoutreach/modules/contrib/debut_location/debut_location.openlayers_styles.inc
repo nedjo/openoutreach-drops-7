@@ -17,7 +17,7 @@ function debut_location_openlayers_styles() {
   $openlayers_styles->title = 'Location type';
   $openlayers_styles->description = 'Location type icon based on taxonomy term.';
   $openlayers_styles->data = array(
-    'externalGraphic' => '${uri_rendered}',
+    'externalGraphic' => '${uri}',
     'pointRadius' => 12,
     'fillColor' => '#888888',
     'strokeColor' => '#222222',

@@ -34,7 +34,7 @@
 
               <?php if ($site_name || $site_slogan): ?>
                 <!-- start: Site name and Slogan hgroup -->
-                <hgroup id="name-and-slogan"<?php print $hgroup_attributes; ?>>
+                <div id="name-and-slogan"<?php print $hgroup_attributes; ?>>
 
                   <?php if ($site_name): ?>
                     <h1 id="site-name"<?php print $site_name_attributes; ?>><?php print $site_name; ?></h1>
@@ -44,7 +44,7 @@
                     <h2 id="site-slogan"<?php print $site_slogan_attributes; ?>><?php print $site_slogan; ?></h2>
                   <?php endif; ?>
 
-                </hgroup><!-- /end #name-and-slogan -->
+                </div><!-- /end #name-and-slogan -->
               <?php endif; ?>
 
 
@@ -235,11 +235,12 @@
         </div>
       <?php endif; ?>
 
-      <?php if ($page['footer']): ?>
+      <?php if ($page['footer'] || $attribution): ?>
         <div id="footer-wrapper">
           <div class="container clearfix">
             <footer class="clearfix">
               <?php print render($page['footer']); ?>
+              <?php print $attribution; ?>
             </footer>
          </div>
       </div>

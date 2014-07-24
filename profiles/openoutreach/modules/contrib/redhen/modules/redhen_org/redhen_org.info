@@ -12,10 +12,11 @@ files[] = lib/redhen_org.metadata.inc
 files[] = lib/redhen_org_type.controller.inc
 files[] = lib/redhen_org_type.entity.inc
 files[] = lib/redhen_org_type.ui_controller.inc
+files[] = lib/redhen_org.inline_entity_form.inc
 
-; Information added by drupal.org packaging script on 2013-10-24
-version = "7.x-1.6"
+; Information added by Drupal.org packaging script on 2014-02-19
+version = "7.x-1.7"
 core = "7.x"
 project = "redhen"
-datestamp = "1382644828"
+datestamp = "1392768507"
 

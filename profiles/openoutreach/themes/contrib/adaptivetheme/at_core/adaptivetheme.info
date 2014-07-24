@@ -373,10 +373,9 @@
 ;----------// Custom CSS
   settings[custom_css] = ''
 
-
-; Information added by drush on 2014-02-13
-version = "7.x-3.1+93-dev"
+; Information added by Drupal.org packaging script on 2014-03-23
+version = "7.x-3.2"
 core = "7.x"
 project = "adaptivetheme"
-datestamp = "1392328167"
+datestamp = "1395575059"
 

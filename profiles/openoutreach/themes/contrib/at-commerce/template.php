@@ -1,4 +1,5 @@
 <?php
+
 // AT commerce
 function at_commerce_preprocess(&$vars) {
   if (!array_key_exists('adaptivetheme', list_themes())) {
@@ -326,61 +327,6 @@ function at_commerce_css_alter(&$css) {
   if (isset($css[$tax_theme])) {
     $css[$tax_theme]['data'] = $path . '/css/commerce/commerce_tax.theme.css';
     $css[$tax_theme]['group'] = 1;
-  }
-}
-
-/**
- * Returns HTML for a breadcrumb trail.
- */
-function at_commerce_breadcrumb($vars) {
-
-  global $theme_key;
-  $theme_name = $theme_key;
-
-  $breadcrumb = $vars['breadcrumb'];
-
-  if (at_get_setting('breadcrumb_display', $theme_name) === 1) {
-
-    if (at_get_setting('breadcrumb_home', $theme_name) === 0) {
-      array_shift($breadcrumb);
-    }
-
-    // Remove the rather pointless breadcrumbs for reset password and user
-    // register pages, they link to the page you are on.
-    if (arg(0) === 'user' && (arg(1) === 'password' || arg(1) === 'register')) {
-      array_pop($breadcrumb);
-    }
-
-    if (!empty($breadcrumb)) {
-      $heading = '<h2>' . t('You are here') . '</h2>';
-      $separator = filter_xss_admin(at_get_setting('breadcrumb_separator', $theme_name));
-
-      $class = 'crumb';
-      end($breadcrumb);
-      $last = key($breadcrumb);
-
-      $output = '';
-      $output = '<div id="breadcrumb" class="clearfix"><nav class="breadcrumb-wrapper clearfix" role="navigation">';
-      $output .= $heading;
-      $output .= '<ol id="crumbs" class="clearfix">';
-      foreach ($breadcrumb as $key => $val) {
-        if ($key == $last && count($breadcrumb) != 1) {
-          $class = 'crumb crumb-last';
-        }
-        if ($key == 0) {
-          $output .= '<li class="' . $class . ' crumb-first">' . $val . '</li>';
-        }
-        else {
-          $output .= '<li class="' . $class . '"><span>' . $separator . '</span>' . $val . '</li>';
-        }
-      }
-      $output .= '</ol></nav></div>';
-
-      return $output;
-    }
-  }
-  else {
-    return;
   }
 }
 

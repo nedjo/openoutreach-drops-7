@@ -40,6 +40,10 @@ define('FILE_STICKY', 1);
  */
 function file_admin_permission() {
   $perms = array(
+    'view any unpublished files' => array(
+      'title' => t('View any unpublished file details'),
+      'description' => t('For viewing file details, not for downloading files.'),
+    ),
     'view own unpublished files' => array(
       'title' => t('View own unpublished file details'),
       'description' => t('For viewing file details, not for downloading files.'),
@@ -57,7 +61,7 @@ function file_admin_permission() {
 function file_admin_entity_presave($entity, $type) {
   if ($type == 'file' && !isset($entity->fid)) {
     $entity->created = REQUEST_TIME;
-    $file_options = variable_get('file_admin_file_options_' . $entity->type, array('published'));
+    $file_options = variable_get('file_admin_file_options_' . $entity->type, array('published' => 'published'));
     foreach (array('published', 'promote', 'sticky') as $key) {
       $entity->$key = (int) (isset($file_options[$key]) && $file_options[$key]);
     }
@@ -75,7 +79,7 @@ function file_admin_file_entity_access($op, $file, $account) {
   // the file.
   if ($op == 'view' &&
     $file->published == FILE_NOT_PUBLISHED &&
-    !user_access('bypass file access', $account) &&
+    !user_access('view any unpublished files', $account) &&
     !(user_access('view own unpublished files', $account) && $account->uid == $file->uid && $account->uid != 0)) {
     return FILE_ENTITY_ACCESS_DENY;
   }
@@ -140,7 +144,7 @@ function file_admin_form_file_entity_file_type_form_alter(&$form, &$form_state) 
   $form['workflow']['file_options'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Default options'),
-    '#default_value' => variable_get('file_admin_file_options_' . $file_type, array('published')),
+    '#default_value' => variable_get('file_admin_file_options_' . $file_type, array('published' => 'published')),
     '#options' => array(
       'published' => t('Published'),
       'promote' => t('Promoted'),

@@ -162,7 +162,6 @@ function adaptivetheme_status_messages($vars) {
       'error' => t('Error message'),
       'warning' => t('Warning message'),
     );
-    $output .= "<div id=\"messages\">";
     foreach ($display as $type => $messages) {
       $output .= "<div class=\"messages $type\">";
       if (!empty($status_heading[$type])) {
@@ -180,7 +179,9 @@ function adaptivetheme_status_messages($vars) {
       }
       $output .= "</div>";
     }
-    $output .= "</div>";
+    if ($output != ''){
+      $output = "<div id=\"messages\">" . $output . "</div>";
+    }
   }
 
   return $output;

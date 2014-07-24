@@ -73,9 +73,9 @@ features[views_view][] = location_map
 features[views_view][] = location_map_data
 features[views_view][] = location_region_data
 
-; Information added by drupal.org packaging script on 2013-06-13
-version = "7.x-1.0-beta2"
+; Information added by Drupal.org packaging script on 2014-05-01
+version = "7.x-1.0"
 core = "7.x"
 project = "debut_location"
-datestamp = "1371155750"
+datestamp = "1398905028"
 

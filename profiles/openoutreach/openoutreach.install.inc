@@ -414,6 +414,10 @@ function openoutreach_finished_submit($form, &$form_state) {
   // Once more for good measure.
   drupal_flush_all_caches();
 
+  // Explicitly set the 'done' install_state status.
+  // This really should be handled by Drupal core, but apparently sometimes it isn't....
+  variable_set('install_task', 'done');
+
   // And away we go.
   // $form_state['redirect'] won't work here since we are still in the
   // installer, so use drupal_goto() (for interactive installs only) instead.

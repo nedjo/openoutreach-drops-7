@@ -217,3 +217,11 @@ function openoutreach_update_7001() {
   module_disable($module_list);
 }
 
+/**
+ * Explicitly set the install_task state to address reported problems with cron.
+ *
+ * @see system_run_automated_cron().
+ */
+function openoutreach_update_7002() {
+  variable_set('install_task', 'done');
+}

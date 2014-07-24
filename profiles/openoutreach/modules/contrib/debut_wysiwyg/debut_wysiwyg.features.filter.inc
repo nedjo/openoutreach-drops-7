@@ -22,7 +22,7 @@ function debut_wysiwyg_filter_default_formats() {
         'weight' => '-10',
         'status' => '1',
         'settings' => array(
-          'allowed_html' => '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd> <p> <br> <u> <h2> <h3> <h4>',
+          'allowed_html' => '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd> <p> <br> <u> <h2> <h3> <h4> <img>',
           'filter_html_help' => 1,
           'filter_html_nofollow' => 0,
         ),
@@ -59,7 +59,7 @@ function debut_wysiwyg_filter_default_formats() {
         'weight' => '-10',
         'status' => '1',
         'settings' => array(
-          'allowed_html' => '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd> <p> <br> <u> <h2> <h3> <h4> <table> <thead> <tbody> <tr> <td>',
+          'allowed_html' => '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd> <p> <br> <u> <h2> <h3> <h4> <img> <table> <thead> <tbody> <th> <tr> <td>',
           'filter_html_help' => 1,
           'filter_html_nofollow' => 0,
         ),

@@ -7,12 +7,13 @@ dependencies[] = redhen_contact
 
 files[] = lib/redhen_engagement.entity.inc
 files[] = lib/redhen_engagement.metadata.inc
+files[] = lib/redhen_engagement.views.inc
 files[] = lib/redhen_engagement_score.entity.inc
 files[] = lib/redhen_engagement_score.ui_controller.inc
 
-; Information added by drupal.org packaging script on 2013-10-24
-version = "7.x-1.6"
+; Information added by Drupal.org packaging script on 2014-02-19
+version = "7.x-1.7"
 core = "7.x"
 project = "redhen"
-datestamp = "1382644828"
+datestamp = "1392768507"
 
