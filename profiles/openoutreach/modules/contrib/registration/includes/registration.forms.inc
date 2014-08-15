@@ -84,6 +84,8 @@ function registration_form($form, &$form_state, Registration $registration) {
   $settings = registration_entity_settings($registration->entity_type, $registration->entity_id);
   $capacity = $settings['capacity'];
   $limit = isset($settings['settings']['maximum_spaces']) ? $settings['settings']['maximum_spaces'] : 1;
+  // Just in case it was unset:
+  $settings['settings']['maximum_spaces'] = $limit;
   $remaining = $capacity - registration_event_count($registration->entity_type, $registration->entity_id);
   if ($capacity && $limit) {
     $description = t('The number of spaces you wish to reserve. @spaces_remaining spaces remaining. You may register up to @max spaces.',
@@ -143,7 +145,7 @@ function registration_form($form, &$form_state, Registration $registration) {
     );
   }
 
-  if ($host) {
+  if ($host && entity_access('view', $registration->entity_type, $host)) {
     $uri = entity_uri($registration->entity_type, $host);
     $form['actions']['cancel'] = array(
       '#type' => 'link',
@@ -235,9 +237,8 @@ function registration_form_submit($form, &$form_state) {
   }
   $registration->count = $form_state['values']['count'];
 
-  if (user_access('edit ' . $registration->type . ' registration state')) {
-    $registration->state = (!empty($form_state['values']['state']))
-      ? $form_state['values']['state'] : NULL;
+  if (!empty($form_state['values']['state'])) {
+    $registration->state = $form_state['values']['state'];
   }
 
   switch ($form_state['values']['who_is_registering']) {
@@ -260,7 +261,10 @@ function registration_form_submit($form, &$form_state) {
 
   // Save the registration and redirect.
   if (registration_save($registration)) {
-    drupal_set_message(t('Registration has been saved.'));
+    $reg_config = registration_entity_settings($registration->entity_type, $registration->entity_id);
+    if (!empty($reg_config['settings']['confirmation']) && strlen($reg_config['settings']['confirmation'])) {
+      drupal_set_message(t($reg_config['settings']['confirmation']));
+    }
     $wrapper = entity_metadata_wrapper('registration', $registration);
     $host = $wrapper->entity->value();
 
@@ -612,6 +616,16 @@ function registration_entity_settings_form($form, &$form_state, $settings, $enti
     '#description' => t('From email address to use for confirmations, reminders, and broadcast emails.'),
     '#required' => TRUE,
     '#default_value' => isset($settings['settings']['from_address']) ? $settings['settings']['from_address'] : variable_get('site_mail', ini_get('sendmail_from')),
+  );
+
+  $form['settings']['confirmation'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Confirmation Message'),
+    '#description' => t('The message to display when someone registers. Leave blank for none.'),
+    '#size' => 60,
+    '#maxlength' => 120,
+    '#required' => FALSE,
+    '#default_value' =>  isset($settings['settings']['confirmation']) ? $settings['settings']['confirmation'] : 'Registration has been saved.',
   );
 
   // Allow other modules to add their own custom settings:
@@ -974,7 +988,9 @@ function theme_registration_state_overview_form($variables) {
  * Validation helper function to confirm the spaces requested are within limits.
  */
 function _registration_validate_space_request($element, &$form_state, $form) {
-  if (isset($form_state['input']['count']) && $form_state['input']['count'] > $form['#registration_settings']['settings']['maximum_spaces']) {
+  if (isset($form_state['input']['count']) &&
+      $form['#registration_settings']['settings']['maximum_spaces'] &&
+      $form_state['input']['count'] > $form['#registration_settings']['settings']['maximum_spaces']) {
     form_error($element, t('You may not register for more than @count spaces.', array('@count' => $form['#registration_settings']['settings']['maximum_spaces'])));
   };
 }

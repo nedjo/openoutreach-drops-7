@@ -392,16 +392,17 @@ function registration_user_delete($account) {
 
     if ($result) {
       registration_delete_multiple(array_keys($result['registration']));
-
-      // Users associated with {registration}.user_uid do not own the
-      // registration. Simply disassociate the user with the registration.
-      db_update('registration')
-        ->fields(array(
-          'user_uid' => NULL,
-        ))
-        ->condition('user_uid', $account->uid)
-        ->execute();
     }
+    // Users associated with {registration}.user_uid do not own the
+    // registration. Simply disassociate the user with the registration.
+    db_update('registration')
+      ->fields(array(
+        'user_uid' => NULL,
+      ))
+      ->condition('user_uid', $account->uid)
+      ->execute();
+    // Delete entries in the cache as well.
+    cache_clear_all('*', 'cache_entity_registration', TRUE);
   }
 }
 
@@ -606,19 +607,17 @@ function registration_registrations_page($entity_type, $entity) {
     foreach ($registrations as $registration) {
       $wrapper = entity_metadata_wrapper('registration', $registration);
       $author = $wrapper->author->value();
+      $user = $wrapper->user->value();
       $state = $wrapper->state->value();
 
       $author_col = '';
       if ($registration->author_uid) {
-        $uri = entity_uri('user', $author);
-        $author_col = l($author->name, $uri['path']);
+        $author_col = theme('username', array('account' => $author));
       }
 
       $user_col = '';
       if ($registration->user_uid) {
-        $user = user_load($registration->user_uid);
-        $uri = entity_uri('user', $user);
-        $user_col = l($user->name, $uri['path']);
+        $user_col = theme('username', array('account' => $user));
       }
 
       $actions = array();
@@ -1099,11 +1098,6 @@ function registration_status($entity_type, $entity_id, $reset = FALSE, $spaces =
     return FALSE;
   }
 
-  // bypass further access checks if user can administer registration
-  if (user_access('administer registration') || user_access("administer $registration_type registration")) {
-    return TRUE;
-  }
-
   $settings = registration_entity_settings($entity_type, $entity_id, $reset);
   $status = $settings['status'];
   $open = isset($settings['open']) ? strtotime($settings['open']) : NULL;
@@ -1333,7 +1327,7 @@ function registration_access_people(Registration $registration, $account = NULL)
 
   // Me
   $settings = registration_entity_settings($registration->entity_type, $registration->entity_id);
-  $allow_multiple = !empty($settings['settings']['maximum_spaces']) && $settings['settings']['maximum_spaces'];
+  $allow_multiple = !empty($settings['settings']['multiple_registrations']) && $settings['settings']['multiple_registrations'];
   if ($account->uid && ($account->uid === $registration->user_uid || (!registration_is_registered($registration, NULL, $account->uid) || $allow_multiple))) {
     $people[REGISTRATION_REGISTRANT_TYPE_ME] = t('Myself');
   }

@@ -58,8 +58,6 @@ class Registration extends Entity {
     $host_label = entity_label($this->entity_type, $host_entity);
 
     $host_uri = $host_entity ? entity_uri($this->entity_type, $host_entity) : NULL;
-    $author_uri = $author ? entity_uri('user', $author) : NULL;
-    $account_uri = $user ? entity_uri('user', $user) : NULL;
 
     $build['mail'] = array(
       '#prefix' => '<div class="field registration-mail"><div class="field-label">' . t('Email Address') . '</div>',
@@ -95,13 +93,15 @@ class Registration extends Entity {
 
     $build['author'] = array(
       '#prefix' => '<div class="field registration-author"><div class="field-label">' . t('Author') . '</div>',
-      '#markup' => (isset($author_uri['path']) ? l($author->name, $author_uri['path']) : t('Anonymous')),
+      '#theme' => 'username',
+      '#account' => $author,
       '#suffix' => '</div>',
     );
 
     $build['user'] = array(
       '#prefix' => '<div class="field registration-user"><div class="field-label">' . t('User') . '</div>',
-      '#markup' => (isset($account_uri['path']) ? l($user->name, $account_uri['path']) : t('Anonymous')),
+      '#theme' => 'username',
+      '#account' => $user,
       '#suffix' => '</div>',
     );
 
