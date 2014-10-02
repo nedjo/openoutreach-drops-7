@@ -16,26 +16,26 @@ function redhen_contact_page() {
     'type' => array(
       'field' => 'type',
       'type' => 'property',
-      'data' => 'Type',
+      'data' => t('Type'),
       'specifier' => 'type',
     ),
     'first_name' => array(
       'field' => 'first_name',
       'type' => 'property',
-      'data' => 'First Name',
+      'data' => t('First name'),
       'specifier' => 'first_name',
     ),
     'last_name' => array(
       'field' => 'last_name',
       'type' => 'property',
-      'data' => 'Last Name',
+      'data' => t('Last name'),
       'specifier' => 'last_name',
     ),
     'email' => array('data' => t('Email')),
     'updated' => array(
       'field' => 'updated',
       'type' => 'property',
-      'data' => 'Updated',
+      'data' => t('Updated'),
       'sort' => 'desc',
       'specifier' => 'updated',
     ),
@@ -155,7 +155,7 @@ function redhen_contact_page() {
       '#contacts' => $contacts,
       '#header' => $header,
       '#rows' => $rows,
-    )
+    ),
   );
 }
 
@@ -180,12 +180,66 @@ function redhen_contact_types_list_page() {
 /**
  * Page callback for adding a contact.
  *
- * @param $type
+ * @param string $type
+ *   The redhen Contact Bundle name to create.
  *
- * @return array|mixed
+ * @return array
+ *   The contact creation form.
  */
 function redhen_contact_add_page($type) {
   $contact = redhen_contact_create(array('type' => $type));
   module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
   return drupal_get_form('redhen_contact_contact_form', $contact);
+}
+
+/**
+ * Page callback for listing contact revisions.
+ *
+ * @param Entity $contact
+ *   The contact entity.
+ *
+ * @return array
+ *   A renderable array.
+ */
+function redhen_contact_revision_list(Entity $contact) {
+  drupal_set_title(t('Revisions for %title', array('%title' => $contact->label())), PASS_THROUGH);
+
+  $header = array(t('Revision'), array('data' => t('Operations'), 'colspan' => 2));
+  // There is no way to list revisions using EFQ, thus use a direct SQL query.
+  $revision_ids = db_select('redhen_contact_revision', 'r')
+    ->fields('r', array('revision_id'))
+    ->condition('contact_id', $contact->contact_id)
+    ->orderBy('updated', 'DESC')
+    ->execute()
+    ->fetchCol();
+
+  $rows = array();
+  foreach ($revision_ids as $revision_id) {
+    $row = array();
+    $operations = array();
+    $revision = entity_revision_load('redhen_contact', $revision_id);
+
+    if ($revision->isDefaultRevision()) {
+      $row[] = array('data' => t('!date by !username', array('!date' => l(format_date($revision->updated, 'short'), "redhen/contact/$revision->contact_id"), '!username' => theme('username', array('account' => user_load($revision->author_uid))))),
+        'class' => array('revision-default'));
+      $operations[] = array('data' => drupal_placeholder(t('default revision')), 'class' => array('revision-default'), 'colspan' => 2);
+    }
+    else {
+      $row[] = t('!date by !username', array('!date' => l(format_date($revision->updated, 'short'), "redhen/contact/$revision->contact_id/revisions/$revision->revision_id/view"), '!username' => theme('username', array('account' => user_load($revision->author_uid)))));
+      if (redhen_contact_access('edit', $revision)) {
+        $operations[] = l(t('edit'), "redhen/contact/$revision->contact_id/revisions/$revision->revision_id/edit");
+      }
+      if (redhen_contact_access('delete', $revision)) {
+        $operations[] = l(t('delete'), "redhen/contact/$revision->contact_id/revisions/$revision->revision_id/delete");
+      }
+    }
+    $rows[] = array_merge($row, $operations);
+  }
+
+  $build['revisions_table'] = array(
+    '#theme' => 'table',
+    '#rows' => $rows,
+    '#header' => $header,
+  );
+  return $build;
 }

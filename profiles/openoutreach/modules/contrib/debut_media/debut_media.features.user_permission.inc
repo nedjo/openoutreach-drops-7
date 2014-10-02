@@ -284,17 +284,6 @@ function debut_media_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: import media.
-  $permissions['import media'] = array(
-    'name' => 'import media',
-    'roles' => array(
-      0 => 'administrator',
-      1 => 'contributor',
-      2 => 'editor',
-    ),
-    'module' => 'media',
-  );
-
   // Exported permission: view files.
   $permissions['view files'] = array(
     'name' => 'view files',

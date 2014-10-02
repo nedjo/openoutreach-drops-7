@@ -19,9 +19,9 @@ files[] = lib/redhen_contact_type.ui_controller.inc
 ; Tests
 ;files[] = tests/redhen_contact.test
 
-; Information added by Drupal.org packaging script on 2014-02-19
-version = "7.x-1.7"
+; Information added by Drupal.org packaging script on 2014-08-19
+version = "7.x-1.8"
 core = "7.x"
 project = "redhen"
-datestamp = "1392768507"
+datestamp = "1408492460"
 

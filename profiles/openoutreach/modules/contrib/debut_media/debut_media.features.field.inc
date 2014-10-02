@@ -114,6 +114,7 @@ function debut_media_field_default_fields() {
       'required' => FALSE,
       'settings' => array(
         'user_register_form' => FALSE,
+        'wysiwyg_override' => FALSE,
       ),
       'widget' => array(
         'module' => 'taxonomy',
@@ -362,6 +363,7 @@ function debut_media_field_default_fields() {
       'required' => FALSE,
       'settings' => array(
         'user_register_form' => FALSE,
+        'wysiwyg_override' => FALSE,
       ),
       'widget' => array(
         'module' => 'taxonomy',
@@ -610,6 +612,7 @@ function debut_media_field_default_fields() {
       'required' => FALSE,
       'settings' => array(
         'user_register_form' => FALSE,
+        'wysiwyg_override' => FALSE,
       ),
       'widget' => array(
         'module' => 'taxonomy',
@@ -858,6 +861,7 @@ function debut_media_field_default_fields() {
       'required' => FALSE,
       'settings' => array(
         'user_register_form' => FALSE,
+        'wysiwyg_override' => FALSE,
       ),
       'widget' => array(
         'module' => 'taxonomy',
@@ -1106,6 +1110,7 @@ function debut_media_field_default_fields() {
       'required' => FALSE,
       'settings' => array(
         'user_register_form' => FALSE,
+        'wysiwyg_override' => FALSE,
       ),
       'widget' => array(
         'module' => 'taxonomy',
@@ -1354,6 +1359,7 @@ function debut_media_field_default_fields() {
       'required' => FALSE,
       'settings' => array(
         'user_register_form' => FALSE,
+        'wysiwyg_override' => FALSE,
       ),
       'widget' => array(
         'module' => 'taxonomy',

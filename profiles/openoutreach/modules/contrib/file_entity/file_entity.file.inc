@@ -59,17 +59,15 @@ function file_entity_file_insert($file) {
 
   // Save file metadata.
   if (!empty($file->metadata)) {
+    $query = db_insert('file_metadata')->fields(array('fid', 'name', 'value'));
     foreach ($file->metadata as $name => $value) {
-      db_merge('file_metadata')
-        ->fields(array(
-          'value' => serialize($value),
-        ))
-        ->key(array(
-          'fid' => $file->fid,
-          'name' => $name,
-        ))
-        ->execute();
+      $query->values(array(
+        'fid' => $file->fid,
+        'name' => $name,
+        'value' => serialize($value),
+      ));
     }
+    $query->execute();
   }
 
   // Clear any related field caches.
@@ -84,37 +82,20 @@ function file_entity_file_update($file) {
   field_attach_update('file', $file);
 
   // Save file metadata.
+  db_delete('file_metadata')->condition('fid', $file->fid)->execute();
   if (!empty($file->metadata)) {
+    $query = db_insert('file_metadata')->fields(array('fid', 'name', 'value'));
     foreach ($file->metadata as $name => $value) {
-      db_merge('file_metadata')
-        ->fields(array(
-          'value' => serialize($value),
-        ))
-        ->key(array(
-          'fid' => $file->fid,
-          'name' => $name,
-        ))
-        ->execute();
+      $query->values(array(
+        'fid' => $file->fid,
+        'name' => $name,
+        'value' => serialize($value),
+      ));
     }
+    $query->execute();
   }
 
-  // Save file metadata.
-  db_delete('file_metadata')->condition('fid', $file->fid);
-  if (!empty($file->metadata)) {
-    foreach ($file->metadata as $name => $value) {
-      db_merge('file_metadata')
-        ->fields(array(
-          'value' => serialize($value),
-        ))
-        ->key(array(
-          'fid' => $file->fid,
-          'name' => $name,
-        ))
-        ->execute();
-    }
-  }
-
-  if (file_entity_file_get_mimetype_type($file) == 'image' && module_exists('image')) {
+  if (module_exists('image') && file_entity_file_get_mimetype_type($file) == 'image' && $file->filesize) {
     // If the image dimensions have changed, update any image field references
     // to this file and flush image style derivatives.
     if ($file->metadata['width'] != $file->metadata['width'] || $file->metadata['height'] != $file->metadata['height']) {
@@ -246,6 +227,12 @@ function file_entity_metadata_fetch_image_dimensions($file) {
  * @see http://drupal.org/node/1448124
  */
 function _file_entity_update_image_field_dimensions($file) {
+  // Prevent PHP notices when trying to read empty files.
+  // @see http://drupal.org/node/681042
+  if (!$file->filesize) {
+    return;
+  }
+
   // Do not bother proceeding if this file does not have an image mime type.
   if (file_entity_file_get_mimetype_type($file) != 'image') {
     return;

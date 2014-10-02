@@ -375,6 +375,8 @@ function file_entity_update_7104() {
             'permission' => 'view file',
             'module' => 'file_entity',
           ))
+          ->condition('rid', $rid)
+          ->condition('permission', 'view file')
           ->execute();
       }
     }
