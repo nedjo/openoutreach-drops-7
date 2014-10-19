@@ -158,16 +158,32 @@ function file_entity_add_upload_step_filetype($form, &$form_state, array $option
 function file_entity_add_upload_step_scheme($form, &$form_state, array $options = array()) {
   $file = file_load($form_state['storage']['upload']);
 
-  $options = array();
+  $schemes = array();
   foreach (file_get_stream_wrappers(STREAM_WRAPPERS_WRITE_VISIBLE) as $scheme => $info) {
-    $options[$scheme] = check_plain($info['description']);
+    $schemes[$scheme] = check_plain($info['description']);
+  }
+
+  // Remove any schemes not found in the instance settings.
+  if (!empty($options['schemes'])) {
+    $schemes = array_intersect_key($schemes, $options['schemes']);
+  }
+
+  // Determine which scheme to use as the default value.
+  if (isset($form_state['storage']['scheme'])) {
+    $fallback_scheme = $form_state['storage']['scheme'];
+  }
+  elseif (!empty($options['uri_scheme'])) {
+    $fallback_scheme = $options['uri_scheme'];
+  }
+  else {
+    $fallback_scheme = file_default_scheme();
   }
 
   $form['scheme'] = array(
     '#type' => 'radios',
     '#title' => t('Destination'),
-    '#options' => $options,
-    '#default_value' => isset($form_state['storage']['scheme']) ? $form_state['storage']['scheme'] : file_default_scheme(),
+    '#options' => $schemes,
+    '#default_value' => $fallback_scheme,
     '#required' => TRUE,
   );
 
@@ -232,7 +248,7 @@ function file_entity_usage_page($file) {
   foreach (file_usage_list($file) as $module => $usage) {
     $info = system_get_info('module', $module);
 
-    // There are cases, where actual entitiy doesen't exist.
+    // There are cases where the actual entity doesn't exist.
     // We have to handle this.
     foreach ($usage as $entity_type => $entity_ids) {
       $entity_info = entity_get_info($entity_type);
@@ -340,7 +356,7 @@ function file_entity_add_upload_submit($form, &$form_state) {
           $form['#step'] += ($trigger == 'edit-previous') ? -1 : 1;
           $form_state['storage']['type'] = reset($candidates_keys);
         }
-        elseif (variable_get('file_entity_file_upload_wizard_skip_file_type', FALSE)) {
+        elseif (!$candidates || variable_get('file_entity_file_upload_wizard_skip_file_type', FALSE)) {
           // Do not assign the file a file type.
           $form['#step'] += ($trigger == 'edit-previous') ? -1 : 1;
           $form_state['storage']['type'] = FILE_TYPE_NONE;
@@ -348,7 +364,14 @@ function file_entity_add_upload_submit($form, &$form_state) {
       }
       else {
         // Check if we can skip step 3.
+        $options = $form['#options'];
         $schemes = file_get_stream_wrappers(STREAM_WRAPPERS_WRITE_VISIBLE);
+
+        // Remove any schemes not found in the instance settings.
+        if (!empty($options['schemes'])) {
+          $schemes = array_intersect_key($schemes, $options['schemes']);
+        }
+
         if (!file_entity_file_is_writeable($file)) {
           // The file is read-only (remote) and must use its provided scheme.
           $form['#step'] += ($trigger == 'edit-previous') ? -1 : 1;
@@ -361,9 +384,16 @@ function file_entity_add_upload_submit($form, &$form_state) {
           $form_state['storage']['scheme'] = key($schemes);
         }
         elseif (variable_get('file_entity_file_upload_wizard_skip_scheme', FALSE)) {
-          // Assign the file the default scheme.
           $form['#step'] += ($trigger == 'edit-previous') ? -1 : 1;
-          $form_state['storage']['scheme'] = file_default_scheme();
+
+          // Fallback to the URI scheme specified in the field settings
+          // otherwise use the default file scheme.
+          if (!empty($options['uri_scheme'])) {
+            $form_state['storage']['scheme'] = $options['uri_scheme'];
+          }
+          else {
+            $form_state['storage']['scheme'] = file_default_scheme();
+          }
         }
       }
     }

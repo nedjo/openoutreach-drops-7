@@ -356,6 +356,13 @@ function media_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
     // Do not increase maxlength of file extensions for image fields, since
     // presumably they will not need a long list of extensions.
   }
+
+  // Add a validation function to any field instance which uses the media widget
+  // to ensure that the upload destination scheme is one of the allowed schemes.
+  if ($form['instance']['widget']['type']['#value'] == 'media_generic') {
+    $form['#validate'][] = 'media_field_instance_validate';
+  }
+
   if ($form['#instance']['entity_type'] == 'file') {
     $form['instance']['settings']['wysiwyg_override'] = array(
       '#type' => 'checkbox',
@@ -363,6 +370,19 @@ function media_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
       '#description' => t('If checked, then this field may be overridden in the WYSIWYG editor.'),
       '#default_value' => isset($form['#instance']['settings']['wysiwyg_override']) ? $form['#instance']['settings']['wysiwyg_override'] : TRUE,
     );
+  }
+}
+
+/**
+ * Validation handler; ensure that the upload destination scheme is one of the
+ * allowed schemes.
+ */
+function media_field_instance_validate($form, &$form_state) {
+  $allowed_schemes = $form_state['values']['instance']['widget']['settings']['allowed_schemes'];
+  $upload_destination = $form_state['values']['field']['settings']['uri_scheme'];
+
+  if (!in_array($upload_destination, array_filter($allowed_schemes))) {
+    form_set_error('allowed_schemes', t('The upload destination must be one of the allowed schemes.'));
   }
 }
 

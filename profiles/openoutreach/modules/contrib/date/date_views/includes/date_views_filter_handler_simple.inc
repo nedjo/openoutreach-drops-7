@@ -332,7 +332,7 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
    * @return
    *   The form date part element for this instance.
    */
-  function date_parts_form($form_state, $prefix, $source, $which, $operator_values, $identifier, $relative_id) {
+  function date_parts_form(&$form_state, $prefix, $source, $which, $operator_values, $identifier, $relative_id) {
     module_load_include('inc', 'date_api', 'date_api_elements');
     switch ($prefix) {
       case 'min':
@@ -379,7 +379,17 @@ class date_views_filter_handler_simple extends views_handler_filter_date {
         $form[$prefix]['#dependency'] = array($source => $operator_values);
       }
       if (!isset($form_state['input'][$identifier][$prefix])) {
-        $form_state['input'][$identifier][$prefix] = $this->value[$prefix];
+        // Use hard-coded date characters and default date creation method as long field format is currently omitted.
+        $formats = array('year' => 'Y', 'month' => 'n', 'day' => 'j', 'hour' => 'H', 'minute' => 'i', 'second' => 's');
+        $default = date_default_date($form[$prefix] + array(
+            '#date_flexible' => FALSE,
+            '#date_increment' => 1,
+            '#date_timezone' => NULL,
+          )
+        );
+        foreach ($granularity as $key) {
+          $form_state['input'][$identifier][$prefix][$key] = $default->format($formats[$key]);
+        }
       }
     }
     else {

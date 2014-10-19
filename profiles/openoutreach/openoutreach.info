@@ -86,9 +86,9 @@ subprofiles[membership][features][debut_seo] = TRUE
 subprofiles[membership][features][debut_social] = TRUE
 subprofiles[membership][features][debut_wysiwyg] = TRUE
 subprofiles[membership][features][openoutreach_front_page] = TRUE
-; Information added by Drupal.org packaging script on 2014-09-19
-version = "7.x-1.11"
+; Information added by Drupal.org packaging script on 2014-10-15
+version = "7.x-1.12"
 core = "7.x"
 project = "openoutreach"
-datestamp = "1411167356"
+datestamp = "1413411407"
 

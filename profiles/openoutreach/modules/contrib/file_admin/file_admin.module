@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Enhances file adminstration by adding published, promote, and sticky fields.
+ * Enhances file administration by adding published, promote, and sticky fields.
  */
 
 /**
@@ -89,7 +89,7 @@ function file_admin_file_entity_access($op, $file, $account) {
 /**
  * Implements hook_form_FORM_ID_alter() for file_entity_admin_file.
  *
- * Add a published field to the file adminstration form.
+ * Add a published field to the file administration form.
  */
 function file_admin_form_file_entity_admin_file_alter(&$form, &$form_state) {
   // Only act if we're in a list display mode.
@@ -152,6 +152,19 @@ function file_admin_form_file_entity_file_type_form_alter(&$form, &$form_state) 
     ),
     '#description' => t('Users with the <em>Administer files</em> permission will be able to override these options.'),
   );
+  $form['display'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Display settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'additional_settings',
+  );
+  $form['display']['file_submitted'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Display owner and date information.'),
+    '#default_value' => variable_get('file_submitted_' . $file_type, FALSE),
+    '#description' => t('Owner username and upload date will be displayed.'),
+  );
   $form['submit']['#weight'] = 10;
   $form['#submit'][] = 'file_admin_file_entity_file_type_form_submit';
 }
@@ -164,6 +177,8 @@ function file_admin_file_entity_file_type_form_submit($form, &$form_state) {
   foreach (array('help', 'file_options') as $variable) {
     variable_set('file_admin_' . $variable . '_' . $file_type, $form_state['values'][$variable]);
   }
+  $file_type = $form['#file_type']->type;
+  variable_set('file_submitted_' . $file_type, $form_state['values']['file_submitted']);
 }
 
 /**
@@ -177,13 +192,22 @@ function file_admin_views_api() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter() for form_file_entity_edit.
+ * Helper to build the Workflow fieldset.
+ *
+ * @see file_admin_form_file_entity_edit_alter()
+ * @see file_admin_form_file_entity_add_upload_alter()
+ * @see file_entity_edit()
  */
-function file_admin_form_file_entity_edit_alter(&$form, &$form_state) {
-  $file = file_load($form['fid']['#value']);
+function _file_admin_add_file_admin_fieldset(&$form, $form_state, $file) {
   $file->date = format_date($file->created, 'custom', 'Y-m-d H:i:s O');
-  if ($help = variable_get('file_admin_help_' . $form['#bundle'], '')) {
-    $form['#prefix'] = (isset($form['#prefix']) ? $form['#prefix'] : '') . '<p>' . filter_xss_admin($help) . '</p>';
+
+  if (!isset($form['additional_settings'])) {
+    $form['additional_settings'] = array(
+      '#type' => 'vertical_tabs',
+      '#attached' => array(
+        'js' => array(drupal_get_path('module', 'file_admin') . '/file_admin.js'),
+      ),
+    );
   }
 
   // Basic file information.
@@ -192,7 +216,41 @@ function file_admin_form_file_entity_edit_alter(&$form, &$form_state) {
     '#type' => 'value',
     '#value' => isset($file->created) ? $file->created : NULL,
   );
-
+  // In some cases this fieldset will be provided by file_entity.
+  // @see file_entity_edit().
+  if (!isset($form['user'])) {
+    // File user information for administrators.
+    $form['user'] = array(
+      '#type' => 'fieldset',
+      '#access' => user_access('administer files'),
+      '#title' => t('User information'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#group' => 'additional_settings',
+      '#attributes' => array(
+        'class' => array('file-form-user'),
+      ),
+      '#attached' => array(
+        'js' => array(
+          drupal_get_path('module', 'file_entity') . '/file_entity.js',
+          array(
+            'type' => 'setting',
+            'data' => array('anonymous' => variable_get('anonymous', t('Anonymous'))),
+          ),
+        ),
+      ),
+      '#weight' => 90,
+    );
+    $form['user']['name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Associated with'),
+      '#maxlength' => 60,
+      '#autocomplete_path' => 'user/autocomplete',
+      '#default_value' => !empty($file->uid) ? user_load($file->uid)->name : '',
+      '#weight' => -1,
+      '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
+    );
+  }
   $form['user']['date'] = array(
     '#type' => 'textfield',
     '#title' => t('Posted on'),
@@ -200,8 +258,7 @@ function file_admin_form_file_entity_edit_alter(&$form, &$form_state) {
     '#description' => t('Format: %time. The date format is YYYY-MM-DD and %timezone is the time zone offset from UTC. Leave blank to use the time of form submission.', array('%time' => !empty($file->date) ? date_format(date_create($file->date), 'Y-m-d H:i:s O') : format_date($file->created, 'custom', 'Y-m-d H:i:s O'), '%timezone' => !empty($file->date) ? date_format(date_create($file->date), 'O') : format_date($file->created, 'custom', 'O'))),
     '#default_value' => !empty($file->date) ? $file->date : '',
   );
-
-  // File options for administrators
+  // File options for administrators.
   $form['options'] = array(
     '#type' => 'fieldset',
     '#access' => user_access('administer files'),
@@ -232,7 +289,46 @@ function file_admin_form_file_entity_edit_alter(&$form, &$form_state) {
     '#title' => t('Sticky at the top of lists'),
     '#default_value' => $file->sticky,
   );
-  $form['#validate'][] = 'file_admin_file_entity_edit_validate';
+  if (isset($form['actions']['submit']['#validate'])) {
+    $form['actions']['submit']['#validate'][] = 'file_admin_file_entity_edit_validate';
+  }
+  else {
+    $form['#validate'][] = 'file_admin_file_entity_edit_validate';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @see file_entity_edit()
+ */
+function file_admin_form_file_entity_edit_alter(&$form, &$form_state) {
+  $file = file_load($form['fid']['#value']);
+  if ($help = variable_get('file_admin_help_' . $form['#bundle'], '')) {
+    $form['#prefix'] = (isset($form['#prefix']) ? $form['#prefix'] : '') . '<p>' . filter_xss_admin($help) . '</p>';
+  }
+
+  _file_admin_add_file_admin_fieldset($form, $form_state, $file);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @see file_entity_add_upload()
+ */
+function file_admin_form_file_entity_add_upload_alter(&$form, &$form_state, $form_id) {
+
+  if (isset($form['#step']) && $form['#step'] == 4) {
+    // Default to the settings for the 'image' file type.
+    $file_admin_image_options = variable_get('file_admin_file_options_image', array('published' => 'published'));
+    $file = new stdClass();
+    $file->created = time();
+    foreach (array('published', 'promote', 'sticky') as $property) {
+      $file->$property = !empty($file_admin_image_options[$property]);
+    }
+
+    _file_admin_add_file_admin_fieldset($form, $form_state, $file);
+  }
 }
 
 /**
@@ -381,4 +477,3 @@ function _file_mass_update_batch_finished($success, $results, $operations) {
     drupal_set_message($message);
   }
 }
-
