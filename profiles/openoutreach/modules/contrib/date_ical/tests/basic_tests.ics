@@ -43,11 +43,11 @@ DESCRIPTION:This is a standard 2-hour event in America/New_York.
 END:VEVENT
 
 BEGIN:VEVENT
-SUMMARY:Broken Event (Central Standard Time)
+SUMMARY:Central Standard Time Event
 DTSTART;TZID=Central Standard Time:20131009T190000
 DTEND;TZID=Central Standard Time:20131009T210000
 UID:date_ical_basic_test03
-DESCRIPTION:This event uses a deprecated TZID, Central Standard Time, and should be treated as UTC.
+DESCRIPTION:This event uses a Windows TZID, Central Standard Time, and will be parsed correctly only in Date iCal 3.1+.
 END:VEVENT
 
 BEGIN:VEVENT
@@ -122,6 +122,23 @@ DTSTART;TZID=America/New_York:20131009T190000
 DTEND;TZID=America/New_York:20131009T210000
 UID:date_ical_basic_test0C
 DESCRIPTION:This event has several escaped characters right here:\,\;\\\n\NThis text should be 2 lines down from the rest.
+END:VEVENT
+
+BEGIN:VEVENT
+SUMMARY:Bad TZID Event
+DTSTART;TZID=Fake TZID:20131009T190000
+DTEND;TZID=Fake TZID:20131009T210000
+UID:date_ical_basic_test0D
+DESCRIPTION:This event uses a fake TZID and should throw the "not a valid timezone" warning at import time, and be treated as UTC.
+END:VEVENT
+
+BEGIN:VEVENT
+SUMMARY:Event w/ GEO
+DTSTART;TZID=America/New_York:20131009T190000
+DTEND;TZID=America/New_York:20131009T210000
+UID:date_ical_basic_test0E
+DESCRIPTION:This is a standard event that has a GEO field.
+GEO:34.1378534;-118.1252851
 END:VEVENT
 
 END:VALENDAR

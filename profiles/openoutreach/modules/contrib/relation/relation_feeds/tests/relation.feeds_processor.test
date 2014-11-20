@@ -5,6 +5,10 @@
  * Tests for RelationFeedsProcessor.inc
  */
 
+if (!class_exists('FeedsWebTestCase')) {
+  return;
+}
+
 /**
  * Test aggregating a feed as data records.
  */

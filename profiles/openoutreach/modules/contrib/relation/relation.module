@@ -563,11 +563,8 @@ function relation_query_enforce_distinct_endpoints_alter(QueryAlterableInterface
   // Add r_index conditions between all endpoints
   for ($i = 0; $i < $arity; $i++) {
     for ($k = $i + 1; $k < $arity; $k++) {
-      // @see http://drupal.org/node/1859084
-      // For now each endpoint condition adds 2 joins to the query. Add
-      // conditions between even numbers.
-      $column_left = 'field_data_endpoints' . $i*2 . '.endpoints_r_index';
-      $column_right = 'field_data_endpoints' . $k*2 . '.endpoints_r_index';
+      $column_left = 'field_data_endpoints_delta_' . $i . '.endpoints_r_index';
+      $column_right = 'field_data_endpoints_delta_' . $k . '.endpoints_r_index';
       $query->where("$column_left != $column_right");
     }
   }

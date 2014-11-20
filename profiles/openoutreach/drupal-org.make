@@ -1,5 +1,5 @@
 api = 2
-core = 7.32
+core = 7.34
 
 ; Includes are now supported on drupal-org.make files.
 ; Todo: revert to using the includes, or else simply rename the .make
@@ -34,7 +34,7 @@ projects[apps_compatible][version] = 1.0-alpha3
 projects[at-commerce][subdir] = contrib
 projects[at-commerce][version] = 3.0
 projects[ctools][subdir] = contrib
-projects[ctools][version] = 1.4
+projects[ctools][version] = 1.5
 projects[migrate][subdir] = contrib
 projects[migrate][version] = 2.5
 projects[mix_and_match][subdir] = contrib
@@ -80,7 +80,7 @@ projects[context][version] = 3.3
 projects[date][subdir] = contrib
 projects[date][version] = 2.9-alpha2
 projects[date_ical][subdir] = contrib
-projects[date_ical][version] = 2.13
+projects[date_ical][version] = 3.3
 projects[debut_article][subdir] = contrib
 projects[debut_article][version] = 1.0
 projects[debut_bio][subdir] = contrib
@@ -144,7 +144,7 @@ projects[jcarousel][version] = 2.6
 projects[libraries][subdir] = contrib
 projects[libraries][version] = 2.2
 projects[link][subdir] = contrib
-projects[link][version] = 1.2
+projects[link][version] = 1.3
 projects[logintoboggan][subdir] = contrib
 projects[logintoboggan][version] = 1.4
 projects[media][subdir] = contrib
@@ -180,7 +180,7 @@ projects[redhen_membership][version] = 1.0
 projects[registration][subdir] = contrib
 projects[registration][version] = 1.3
 projects[relation][subdir] = contrib
-projects[relation][version] = 1.0-rc5
+projects[relation][version] = 1.0-rc6
 projects[remote_stream_wrapper][subdir] = contrib
 projects[remote_stream_wrapper][version] = 1.0-rc1
 projects[service_links][subdir] = contrib
