@@ -18,7 +18,20 @@ class MediaYouTubeStreamWrapper extends MediaReadOnlyStreamWrapper {
 
   function getOriginalThumbnailPath() {
     $parts = $this->get_parameters();
-    return 'http://img.youtube.com/vi/' . check_plain($parts['v']) . '/0.jpg';
+    $v = check_plain($parts['v']);
+    //  Attempt to pull a HD thumbnail from YouTube. If it exists pass it on
+    //  otherwise pass on the smaller one.
+    $thumbname = drupal_tempnam('temporary://', 'youtube');
+    $response = drupal_http_request('http://img.youtube.com/vi/' . $v . '/maxresdefault.jpg');
+    if (!isset($response->error)) {
+      file_unmanaged_save_data($response->data, $thumbname, $replace = FILE_EXISTS_REPLACE);
+    }
+    if ((filesize($thumbname)) == 0) {
+      return 'http://img.youtube.com/vi/' . $v . '/0.jpg';
+    }
+    else {
+      return 'http://img.youtube.com/vi/' . $v . '/maxresdefault.jpg';
+    }
   }
 
   function getLocalThumbnailPath() {

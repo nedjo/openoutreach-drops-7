@@ -20,9 +20,9 @@ features[variable][] = site_frontpage
 features[views_view][] = front_page_top_stories
 
 
-; Information added by Drupal.org packaging script on 2014-11-20
-version = "7.x-1.13"
+; Information added by Drupal.org packaging script on 2015-02-13
+version = "7.x-1.15"
 core = "7.x"
 project = "openoutreach"
-datestamp = "1416446295"
+datestamp = "1423852999"
 

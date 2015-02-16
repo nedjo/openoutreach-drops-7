@@ -7,6 +7,11 @@ function openoutreach_migrate_migrate_api() {
   $api = array(
     'api' => 2,
     'migrations' => array(),
+    'groups' => array(
+      'openoutreach' => array(
+        'title' => t('Open Outreach'),
+      ),
+    ),
     'field handlers' => array(
       'OpenOutreachMigrateTaxonomyTermReferenceFieldHandler',
     ),
@@ -14,9 +19,11 @@ function openoutreach_migrate_migrate_api() {
 
   $map = openoutreach_migrate_map();
 
-  // Only add a class if its corresponding module is enabled.
   foreach ($map as $class_name => $module_name) {
-    $api['migrations'][$class_name] = array('class_name' => $class_name);
+    $api['migrations'][$class_name] = array(
+      'class_name' => $class_name,
+      'group_name' => 'openoutreach',
+    );
   }
   return $api;
 }
@@ -40,6 +47,7 @@ function openoutreach_migrate_map() {
   // Allow other modules to alter the migrations to, for example, use
   // a custom class.
   drupal_alter('openoutreach_migrate_map', $map);
+  // Only add a class if its corresponding module is enabled.
   return array_filter($map, 'module_exists');
 }
 

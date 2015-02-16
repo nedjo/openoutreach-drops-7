@@ -6,6 +6,7 @@
  * When any module is enabled, process any corresponding migrations.
  */
 function openoutreach_migrate_modules_enabled($modules) {
+  migrate_static_registration();
   openoutreach_migrate_enable_migrate_support();
   openoutreach_process_imports($modules);
 }
@@ -16,6 +17,7 @@ function openoutreach_migrate_modules_enabled($modules) {
  * When this module is enabled, process all registered migrations.
  */
 function openoutreach_migrate_enable() {
+  migrate_static_registration();
   openoutreach_migrate_enable_migrate_support();
   openoutreach_process_imports();
 }

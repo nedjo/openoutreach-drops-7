@@ -32,15 +32,33 @@ function xmlsitemap_get_path_alias($path, $language) {
     $last_language = $language;
   }
 
+  // We need to pass our path through hook_url_outbound_alter(). This fixes
+  // clean URLs not working when they don't exist in the {url_alias} table and
+  // are created with something like subpathauto.
+  $normalized_path = $path;
+
+  // hook_url_outbound_alter() expects defaults in url() options.
+  $options = array(
+    'fragment' => '',
+    'query' => array(),
+    'absolute' => FALSE,
+    'alias' => FALSE,
+    'prefix' => '',
+    'external' => FALSE,
+  );
+
   if ($language != LANGUAGE_NONE && isset($aliases[$language][$path])) {
-    return $aliases[$language][$path];
+    $normalized_path = $aliases[$language][$path];
+    $options['alias'] = TRUE;
   }
   elseif (isset($aliases[LANGUAGE_NONE][$path])) {
-    return $aliases[LANGUAGE_NONE][$path];
+    $normalized_path = $aliases[LANGUAGE_NONE][$path];
+    $options['alias'] = TRUE;
   }
-  else {
-    return $path;
-  }
+
+  $original_path = $normalized_path;
+  drupal_alter('url_outbound', $normalized_path, $options, $original_path);
+  return $normalized_path;
 }
 
 /**
@@ -136,6 +154,7 @@ function xmlsitemap_generate_page(stdClass $sitemap, $page) {
 }
 
 function xmlsitemap_generate_chunk(stdClass $sitemap, XMLSitemapWriter $writer, $chunk) {
+  $output_elements = drupal_map_assoc(variable_get('xmlsitemap_output_elements', array('lastmod', 'changefreq', 'priority')));
   $lastmod_format = variable_get('xmlsitemap_lastmod_format', XMLSITEMAP_LASTMOD_MEDIUM);
 
   $url_options = $sitemap->uri['options'];
@@ -150,7 +169,7 @@ function xmlsitemap_generate_chunk(stdClass $sitemap, XMLSitemapWriter $writer, 
   $link_count = 0;
 
   $query = db_select('xmlsitemap', 'x');
-  $query->fields('x', array('loc', 'lastmod', 'changefreq', 'changecount', 'priority', 'language', 'access', 'status'));
+  $query->fields('x', array('id', 'type', 'subtype', 'loc', 'lastmod', 'changefreq', 'changecount', 'priority', 'language', 'access', 'status'));
   $query->condition('x.access', 1);
   $query->condition('x.status', 1);
   $query->orderBy('x.language', 'DESC');
@@ -191,22 +210,28 @@ function xmlsitemap_generate_chunk(stdClass $sitemap, XMLSitemapWriter $writer, 
     $element = array();
     $element['loc'] = $link_url;
     if ($link['lastmod']) {
-      $element['lastmod'] = gmdate($lastmod_format, $link['lastmod']);
+      if (!empty($output_elements['lastmod'])) {
+        $element['lastmod'] = gmdate($lastmod_format, $link['lastmod']);
+      }
       // If the link has a lastmod value, update the changefreq so that links
       // with a short changefreq but updated two years ago show decay.
       // We use abs() here just incase items were created on this same cron run
       // because lastmod would be greater than REQUEST_TIME.
       $link['changefreq'] = (abs(REQUEST_TIME - $link['lastmod']) + $link['changefreq']) / 2;
     }
-    if ($link['changefreq']) {
+    if (!empty($output_elements['changefreq']) && $link['changefreq']) {
       $element['changefreq'] = xmlsitemap_get_changefreq($link['changefreq']);
     }
-    if (isset($link['priority']) && $link['priority'] != 0.5) {
+    if (!empty($output_elements['priority']) && isset($link['priority']) && $link['priority'] != 0.5) {
       // Don't output the priority value for links that have 0.5 priority. This
       // is the default 'assumed' value if priority is not included as per the
       // sitemaps.org specification.
       $element['priority'] = number_format($link['priority'], 1);
     }
+
+    // @todo Should this be moved to XMLSitemapWritier::writeSitemapElement()?
+    drupal_alter('xmlsitemap_element', $element, $link, $sitemap);
+
     $writer->writeSitemapElement('url', $element);
   }
 
@@ -399,6 +424,9 @@ function xmlsitemap_batch_variable_set(array $variables) {
  */
 function xmlsitemap_rebuild_batch_clear(array $entities, $save_custom, &$context) {
   if (!empty($entities)) {
+    // Let other modules respond to the rebuild clearing.
+    module_invoke_all('xmlsitemap_rebuild_clear', $entities, $save_custom);
+
     $query = db_delete('xmlsitemap');
     $query->condition('type', $entities);
 
@@ -433,6 +461,13 @@ function xmlsitemap_rebuild_batch_fetch($entity, &$context) {
   $query->addTag('xmlsitemap_rebuild');
   $query->addMetaData('entity', $entity);
   $query->addMetaData('entity_info', $info);
+  if ($types = xmlsitemap_get_link_type_enabled_bundles($entity)) {
+    $query->entityCondition('bundle', $types, 'IN');
+  }
+  else {
+    // If no enabled bundle types, skip everything else.
+    return;
+  }
 
   if (!isset($context['sandbox']['max'])) {
     $count_query = clone $query;

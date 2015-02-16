@@ -286,8 +286,114 @@ function debut_location_views_default_views() {
   /* Display: OpenLayers Data Overlay */
   $handler = $view->new_display('openlayers', 'OpenLayers Data Overlay', 'openlayers_1');
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'openlayers_data';
+  $handler->display->display_options['style_options']['data_source'] = array(
+    'value' => 'wkt',
+    'other_lat' => 'field_geolocation',
+    'other_lon' => 'field_geolocation',
+    'wkt' => 'field_geolocation',
+    'other_top' => 'title',
+    'other_right' => 'title',
+    'other_bottom' => 'title',
+    'other_left' => 'title',
+    'name_field' => 'title',
+    'description_field' => 'nothing',
+    'style_field' => '',
+  );
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
   $handler->display->display_options['defaults']['row_plugin'] = FALSE;
   $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Location type */
+  $handler->display->display_options['fields']['field_location_type']['id'] = 'field_location_type';
+  $handler->display->display_options['fields']['field_location_type']['table'] = 'field_data_field_location_type';
+  $handler->display->display_options['fields']['field_location_type']['field'] = 'field_location_type';
+  $handler->display->display_options['fields']['field_location_type']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_location_type']['type'] = 'taxonomy_term_reference_plain';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* Field: Content: Geolocation */
+  $handler->display->display_options['fields']['field_geolocation']['id'] = 'field_geolocation';
+  $handler->display->display_options['fields']['field_geolocation']['table'] = 'field_data_field_geolocation';
+  $handler->display->display_options['fields']['field_geolocation']['field'] = 'field_geolocation';
+  $handler->display->display_options['fields']['field_geolocation']['label'] = '';
+  $handler->display->display_options['fields']['field_geolocation']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_geolocation']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_geolocation']['click_sort_column'] = 'geom';
+  $handler->display->display_options['fields']['field_geolocation']['settings'] = array(
+    'data' => 'full',
+  );
+  /* Field: Content: Image */
+  $handler->display->display_options['fields']['field_content_image']['id'] = 'field_content_image';
+  $handler->display->display_options['fields']['field_content_image']['table'] = 'field_data_field_content_image';
+  $handler->display->display_options['fields']['field_content_image']['field'] = 'field_content_image';
+  $handler->display->display_options['fields']['field_content_image']['label'] = '';
+  $handler->display->display_options['fields']['field_content_image']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_content_image']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_content_image']['settings'] = array(
+    'image_style' => 'small_square_thumbnail',
+    'image_link' => 'content',
+  );
+  /* Field: Content: Link */
+  $handler->display->display_options['fields']['view_node']['id'] = 'view_node';
+  $handler->display->display_options['fields']['view_node']['table'] = 'views_entity_node';
+  $handler->display->display_options['fields']['view_node']['field'] = 'view_node';
+  $handler->display->display_options['fields']['view_node']['label'] = '';
+  $handler->display->display_options['fields']['view_node']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['view_node']['text'] = 'Read more';
+  /* Field: File: Path */
+  $handler->display->display_options['fields']['uri']['id'] = 'uri';
+  $handler->display->display_options['fields']['uri']['table'] = 'file_managed';
+  $handler->display->display_options['fields']['uri']['field'] = 'uri';
+  $handler->display->display_options['fields']['uri']['relationship'] = 'taxonomy_term_to_file';
+  $handler->display->display_options['fields']['uri']['label'] = '';
+  $handler->display->display_options['fields']['uri']['element_type'] = '0';
+  $handler->display->display_options['fields']['uri']['element_label_type'] = '0';
+  $handler->display->display_options['fields']['uri']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['uri']['element_wrapper_type'] = '0';
+  $handler->display->display_options['fields']['uri']['element_default_classes'] = FALSE;
+  $handler->display->display_options['fields']['uri']['file_download_path'] = TRUE;
+  /* Field: Taxonomy term: Location icon */
+  $handler->display->display_options['fields']['field_location_icon']['id'] = 'field_location_icon';
+  $handler->display->display_options['fields']['field_location_icon']['table'] = 'field_data_field_location_icon';
+  $handler->display->display_options['fields']['field_location_icon']['field'] = 'field_location_icon';
+  $handler->display->display_options['fields']['field_location_icon']['relationship'] = 'field_location_type_tid';
+  $handler->display->display_options['fields']['field_location_icon']['label'] = '';
+  $handler->display->display_options['fields']['field_location_icon']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_location_icon']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_location_icon']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_location_icon']['settings'] = array(
+    'image_style' => 'icon_medium',
+    'image_link' => '',
+  );
+  /* Field: Content: Body */
+  $handler->display->display_options['fields']['body']['id'] = 'body';
+  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+  $handler->display->display_options['fields']['body']['field'] = 'body';
+  $handler->display->display_options['fields']['body']['label'] = '';
+  $handler->display->display_options['fields']['body']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['body']['alter']['max_length'] = '550';
+  $handler->display->display_options['fields']['body']['alter']['trim'] = TRUE;
+  $handler->display->display_options['fields']['body']['alter']['html'] = TRUE;
+  $handler->display->display_options['fields']['body']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['body']['type'] = 'text_summary_or_trimmed';
+  $handler->display->display_options['fields']['body']['settings'] = array(
+    'trim_length' => '500',
+  );
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '[field_content_image] Location type: <strong>[field_location_type]</strong>[field_location_icon][body]<div class="read-more-link">[view_node]</div>';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
   $export['location_map_data'] = $view;
 
   $view = new view();

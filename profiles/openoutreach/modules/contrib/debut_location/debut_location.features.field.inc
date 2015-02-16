@@ -45,7 +45,8 @@ function debut_location_field_default_fields() {
       'bundle' => 'location',
       'default_value' => NULL,
       'deleted' => '0',
-      'description' => '',
+      'description' => 'Please enter descriptive information about this location, for example the activities of an organization, the focus of a business or the attributes and features of a natural area in the body field above.
+To make the pop up that will display on the map more meaningful to users, please also use the summary field (select "Edit summary" above.) The summary should contain two to three sentences that best describe this location.',
       'display' => array(
         'default' => array(
           'label' => 'hidden',
@@ -53,6 +54,12 @@ function debut_location_field_default_fields() {
           'settings' => array(),
           'type' => 'text_default',
           'weight' => '0',
+        ),
+        'ical' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
         ),
         'teaser' => array(
           'label' => 'hidden',
@@ -67,16 +74,17 @@ function debut_location_field_default_fields() {
       'entity_type' => 'node',
       'field_name' => 'body',
       'label' => 'Body',
-      'required' => FALSE,
+      'required' => 0,
       'settings' => array(
-        'display_summary' => TRUE,
-        'text_processing' => 1,
+        'display_summary' => 1,
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
+        'active' => 1,
         'module' => 'text',
         'settings' => array(
-          'rows' => 20,
+          'rows' => '20',
           'summary_rows' => 5,
         ),
         'type' => 'text_textarea_with_summary',
@@ -120,6 +128,12 @@ function debut_location_field_default_fields() {
           ),
           'type' => 'addressfield_default',
           'weight' => '1',
+        ),
+        'ical' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
         ),
         'teaser' => array(
           'label' => 'above',
@@ -220,6 +234,12 @@ function debut_location_field_default_fields() {
           ),
           'type' => 'geofield_openlayers',
           'weight' => '2',
+        ),
+        'ical' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
         ),
         'teaser' => array(
           'label' => 'above',
@@ -323,6 +343,12 @@ function debut_location_field_default_fields() {
           'type' => 'taxonomy_term_reference_link',
           'weight' => 4,
         ),
+        'ical' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
         'teaser' => array(
           'label' => 'above',
           'settings' => array(),
@@ -394,6 +420,12 @@ function debut_location_field_default_fields() {
           'settings' => array(),
           'type' => 'taxonomy_term_reference_link',
           'weight' => '3',
+        ),
+        'ical' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
         ),
         'teaser' => array(
           'label' => 'above',
@@ -487,6 +519,12 @@ function debut_location_field_default_fields() {
           'type' => 'geofield_openlayers',
           'weight' => '1',
         ),
+        'ical' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'taxonomy_term',
       'field_name' => 'field_extent',
@@ -576,6 +614,12 @@ function debut_location_field_default_fields() {
           'type' => 'image',
           'weight' => '0',
         ),
+        'ical' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
       ),
       'entity_type' => 'taxonomy_term',
       'field_name' => 'field_location_icon',
@@ -589,7 +633,7 @@ function debut_location_field_default_fields() {
         'max_filesize' => '',
         'max_resolution' => '',
         'min_resolution' => '',
-        'title_field' => 0,
+        'title_field' => 1,
         'user_register_form' => FALSE,
       ),
       'widget' => array(
@@ -613,6 +657,8 @@ function debut_location_field_default_fields() {
   t('Geolocation');
   t('Location icon');
   t('Location type');
+  t('Please enter descriptive information about this location, for example the activities of an organization, the focus of a business or the attributes and features of a natural area in the body field above.
+To make the pop up that will display on the map more meaningful to users, please also use the summary field (select "Edit summary" above.) The summary should contain two to three sentences that best describe this location.');
   t('Region');
   t('Select the region that this location is in.');
 

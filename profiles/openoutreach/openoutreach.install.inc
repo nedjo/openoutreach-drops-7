@@ -62,7 +62,7 @@ function openoutreach_form_install_configure_form_alter(&$form, &$form_state) {
   );
 
   // Set some reasonable defaults for site configuration form.
-  $form['site_information']['site_name']['#default_value'] = 'Open Outreach';
+  $form['site_information']['site_name']['#default_value'] = openoutreach_get_distribution_name();
   $form['admin_account']['account']['name']['#default_value'] = 'admin';
   // Don't set the email address to "admin@localhost" as that will fail D7's
   // email address validation.
@@ -84,8 +84,18 @@ function openoutreach_install_configure_form_submit($form, &$form_state) {
     module_enable(array('openoutreach_migrate'));
   }
   if (!empty($form_state['values']['contact'])) {
-    module_enable(array('contact'));
+    // We don't want contact without captcha.
+    module_enable(array('contact', 'captcha'));
   }
+}
+
+/**
+ * Submit handler for install_configure_form. Conditionally enable sample
+ * content module.
+ */
+function openoutreach_get_distribution_name() {
+  $info = install_profile_info('openoutreach');
+  return $info['distribution_name'];
 }
 
 /**
@@ -173,11 +183,20 @@ function openoutreach_install_permissions() {
   features_include();
   module_load_include('inc', 'features', 'features.export');
   user_permission_features_rebuild('openoutreach_install');
-  
-  // Conditionally create a Contact link in the main menu.
-  // Do so here rather than immediately after enabling the contact module to
-  // ensure the menu item is valid.
-  if (module_exists('contact')) {
+
+  if (module_exists('contact') && module_exists('captcha')) {
+    // Assign permisions to access contact form.
+    foreach (array(DRUPAL_ANONYMOUS_RID, DRUPAL_AUTHENTICATED_RID) as $role_id) {
+      user_role_grant_permissions($role_id, array('access site-wide contact form'));
+    }
+
+    // Set Captcha on the contact form.
+    module_load_include('inc', 'captcha');
+    captcha_set_form_id_setting('contact_site_form', 'default');
+
+    // Conditionally create a Contact link in the main menu.
+    // Do so here rather than immediately after enabling the contact module to
+    // ensure the menu item is valid.
     // Create a Contact link in the main menu.
     $item = array(
       'link_title' => st('Contact'),
@@ -336,7 +355,7 @@ function openoutreach_prepare($form, &$form_state) {
   );
 
   $form['openingtext'] = array(
-    '#markup' => '<h2>' . t('Open Outreach now needs to do a bit more to get everything set up.') . '</h2><p>' . t('This step may take a few minutes.') . '</p>',
+    '#markup' => '<h2>' . t('!distribution_name now needs to do a bit more to get everything set up.', array('!distribution_name' => openoutreach_get_distribution_name())) . '</h2><p>' . t('This step may take a few minutes.') . '</p>',
   );
 
   $form['submit'] = array(
@@ -351,6 +370,11 @@ function openoutreach_prepare($form, &$form_state) {
  * Submit form to prepare site for prime time.
  */
 function openoutreach_prepare_submit($form, &$form_state) {
+  // Set error messages to an appropriate setting for production sites.
+  // Don't do this in Features as sites may wish to turn on error reporting.
+  // Set here as features rebuilding may trigger distracting error messages.
+  variable_set('error_level', 0);
+
   openoutreach_install_permissions();
 
   // Try to allocate enough time to rebuild features.
@@ -392,7 +416,7 @@ function openoutreach_finished($form, &$form_state) {
   );
 
   $form['openingtext'] = array(
-    '#markup' => '<h2>' . t('Congratulations, you just installed Open Outreach!') . '</h2>',
+    '#markup' => '<h2>' . t('Congratulations, you just installed !distribution_name!', array('!distribution_name' => openoutreach_get_distribution_name())) . '</h2>',
   );
 
   $form['openoutreach_logo'] = array(

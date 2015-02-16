@@ -60,6 +60,7 @@ function debut_location_image_default_styles() {
         'weight' => '1',
       ),
     ),
+    'label' => 'Icon small',
   );
 
   return $styles;
