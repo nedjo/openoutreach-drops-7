@@ -20,6 +20,9 @@ function redhen_org_entity_info() {
       'rules controller class' => 'EntityDefaultRulesController',
       'metadata controller class' => 'RedhenOrgMetadataController',
       'entity class' => 'RedhenOrg',
+      'inline entity form' => array(
+        'controller' => 'RedHenOrgInlineEntityFormController',
+      ),
       'base table' => 'redhen_org',
       'revision table' => 'redhen_org_revision',
       'fieldable' => TRUE,
@@ -407,13 +410,16 @@ function redhen_org_save(RedhenOrg $org) {
  * @param string $op
  *   The operation being performed. One of 'view', 'update', 'create' or
  *   'delete'.
- * @param RedhenOrg $org
+ * @param RedhenOrg|string $org
  *   Optionally a org to check access for or for the create operation the
  *   org type. If nothing is given access permissions for all orgs are returned.
- * @param stdClass $account
+ * @param object $account
  *   The user to check for. Leave it to NULL to check for the current user.
  */
 function redhen_org_access($op, $org = NULL, $account = NULL) {
+  // Map 'update' to 'edit' which is used internally below.
+  $op = ($op == 'update') ? 'edit' : $op;
+
   global $user;
   $account = isset($account) ? $account : $user;
 
@@ -430,7 +436,7 @@ function redhen_org_access($op, $org = NULL, $account = NULL) {
     return TRUE;
   }
 
-  if (isset($org) && !$org->isDefaultRevision()) {
+  if (is_object($org) && !$org->isDefaultRevision()) {
     if ($op == 'view' && user_access('access redhen org revisions', $account)) {
       return TRUE;
     }

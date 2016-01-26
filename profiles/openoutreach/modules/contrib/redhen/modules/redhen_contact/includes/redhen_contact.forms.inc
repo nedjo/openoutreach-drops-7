@@ -23,7 +23,7 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
     '#title' => t('First name'),
     '#default_value' => $contact->first_name,
     '#maxlength' => 255,
-    '#required' => TRUE,
+    '#required' => variable_get(REDHEN_CONTACT_REQUIRE_FIRST_NAME, TRUE),
     '#weight' => -6,
   );
   $form['name']['middle_name'] = array(
@@ -45,6 +45,11 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
   // Add the field related form elements.
   $form_state['redhen_contact'] = $contact;
   field_attach_form('redhen_contact', $contact, $form, $form_state);
+
+  // Display asterisk if the field is required.
+  if (isset($form['redhen_contact_email'])) {
+    $form['redhen_contact_email'][$form['redhen_contact_email']['#language']]['#required'] = redhen_contact_email_required();
+  }
 
   $form['actions'] = array(
     '#type' => 'container',
@@ -71,6 +76,14 @@ function redhen_contact_contact_form($form, &$form_state, $contact) {
   $form['#validate'][] = 'redhen_contact_contact_form_validate';
 
   return $form;
+}
+
+/**
+ * A version of the RedHen Contact form displayed as a tab on Users.
+ */
+function redhen_contact_user_contact_form($form, &$form_state, $user) {
+  $contact = redhen_contact_load_by_user($user);
+  return redhen_contact_contact_form($form, $form_state, $contact);
 }
 
 /**
@@ -125,8 +138,18 @@ function redhen_contact_contact_form_submit($form, &$form_state) {
 
   $wrapper = entity_metadata_wrapper('redhen_contact', $contact);
 
-  drupal_set_message(t('Contact %name saved.', array('%name' => $wrapper->full_name->value())));
-  $form_state['redirect'] = 'redhen/contact/' . $contact->contact_id;
+  if ($form_state['build_info']['form_id'] == 'redhen_contact_user_contact_form') {
+    drupal_set_message(t('Contact information saved.'));
+    $form_state['redirect'] = $wrapper->user->url->value();
+  }
+  else {
+    // Only show a message if creating a contact using RedHen's forms.
+    $menu_item = menu_get_item();
+    if (strpos($menu_item['path'], 'redhen/contact') === 0) {
+      drupal_set_message(t('Contact %name saved.', array('%name' => $wrapper->full_name->value())));
+    }
+    $form_state['redirect'] = $wrapper->url->value();
+  }
 }
 
 /**

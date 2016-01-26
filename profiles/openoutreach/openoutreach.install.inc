@@ -15,6 +15,12 @@ function openoutreach_install_tasks($install_state) {
   require_once(drupal_get_path('module', 'subprofiles') . '/subprofiles.install.inc');
   $tasks = $tasks + _subprofiles_install_tasks($install_state);
 
+  // Set up the site registration task.
+  $tasks['openoutreach_register_form'] = array(
+    'display_name' => st('Register your site'),
+    'type' => 'form',
+  );
+
   // Set up the theme selection task.
   $tasks['openoutreach_theme_form'] = array(
     'display_name' => st('Choose a theme'),
@@ -203,6 +209,146 @@ function openoutreach_install_permissions() {
 }
 
 /**
+ * Form to register the site.
+ */
+function openoutreach_register_form($form, &$form_state) {
+  drupal_set_title(t('Subscribe to an updates newsletter and register your site'));
+
+  $form['message'] = array(
+    '#markup' => t('Use this form to subscribe to updates on Open Outreach news and to join the community of Open Outreach users. If you choose not to subscribe now, you can return later and do so on openoutreach.org, where you will also find detailed user documentation.'),
+  );
+
+  $form ['newsletter'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Updates'),
+    '#collapsible' => FALSE,
+  );
+  $form['newsletter']['newsletter'] = array(
+    '#title' => t('Subscribe to updates on Open Outreach'),
+    '#description' => t('Select this option to receive occasional updates about Open Outreach. You can unsubscribe at any time.'),
+    '#type' => 'checkbox',
+    '#default_value' => 0,
+  );
+  $form ['newsletter']['newsletter_mail'] = array(
+    '#type' => 'textfield',
+    '#title' => t('E-mail address'),
+    '#default_value' => variable_get('site_mail'),
+    '#description' => t("E-mail address to send newsletters to."),
+    '#states' => array(
+      'visible' => array(
+         'input[name="newsletter"]' => array('checked' => TRUE),
+      ),
+      'required' => array(
+         'input[name="newsletter"]' => array('checked' => TRUE),
+      )
+    ),
+  );
+
+  $form ['register'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Register'),
+    '#collapsible' => FALSE,
+  );
+  $form['register']['register'] = array(
+    '#title' => t('Register your site'),
+    '#description' => t('Select this option to register your Open Outreach site. If you select this option, you will have a member account created for you on openoutreach.org and will be able to participate in support forums as well as have the option to add your site to the sites showcase and the global map of Open Outreach sites.'),
+    '#type' => 'checkbox',
+    '#default_value' => 0,
+  );
+  $form['register']['register_mail'] = array(
+    '#type' => 'textfield',
+    '#title' => t('E-mail address'),
+    '#default_value' => variable_get('site_mail'),
+    '#description' => t("Email address to use for an account on openoutreach.org."),
+    '#states' => array(
+      'visible' => array(
+        'input[name="register"]' => array('checked' => TRUE),
+      ),
+      'required' => array(
+        'input[name="register"]' => array('checked' => TRUE),
+      )
+    ),
+  );
+  $form['register']['register_site_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Organization/site name'),
+    '#default_value' => variable_get('site_name'),
+    '#description' => t('Name of the organization or site.'),
+    '#states' => array(
+      'visible' => array(
+        'input[name="register"]' => array('checked' => TRUE),
+      ),
+      'required' => array(
+        'input[name="register"]' => array('checked' => TRUE),
+      )
+    ),
+  );
+
+  $form['register']['register_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL'),
+    '#default_value' => $GLOBALS['base_url'],
+    '#description' => t('URL of the site, such as http://example.com.'),
+    '#states' => array(
+      'visible' => array(
+         'input[name="register"]' => array('checked' => TRUE),
+      ),
+      'required' => array(
+         'input[name="register"]' => array('checked' => TRUE),
+      )
+    ),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save and continue'),
+  );
+
+  return $form;
+}
+
+/**
+ * Form validation handler to register the site.
+ */
+function openoutreach_register_form_validate($form, &$form_state) {
+  if (!empty($form_state['values']['newsletter'])) {
+    if ($error = user_validate_mail($form_state['values']['newsletter_mail'])) {
+      form_error($form['newsletter']['newsletter_mail'], $error);
+    }
+  }
+  if (!empty($form_state['values']['register'])) {
+    if ($error = user_validate_mail($form_state['values']['register_mail'])) {
+      form_error($form['register']['register_mail'], $error);
+    }
+    if (empty($form_state['values']['register_site_name'])) {
+      form_error($form['register']['register_site_name'], t('Please enter a name for your organization or site.'));
+    }
+    if (empty($form_state['values']['register_url']) || !valid_url($form_state['values']['register_url'], TRUE)) {
+      form_error($form['register']['register_url'], t('Please enter a valid URL for the site.'));
+    }
+  }
+}
+
+/**
+ * Form submit handler to register the site.
+ */
+function openoutreach_register_form_submit($form, &$form_state) {
+  $send_mail = FALSE;
+  if (!empty($form_state['values']['newsletter']) || !empty($form_state['values']['register'])) {
+    drupal_mail('openoutreach', 'register', 'info@openoutreach.org', language_default(), $form_state['values']);
+    if (empty($form_state['values']['newsletter'])) {
+      drupal_set_message(t('An email has been sent registering your site.'));
+    }
+    elseif (empty($form_state['values']['register'])) {
+      drupal_set_message(t('An email has been sent to subscribe you to Open Outreach updates.'));
+    }
+    else {
+      drupal_set_message(t('An email has been sent to subscribe you to Open Outreach updates and register your site.'));
+    }
+  }
+}
+
+/**
  * Form to choose the starting theme from list of available options.
  */
 function openoutreach_theme_form($form, &$form_state) {
@@ -350,4 +496,26 @@ function openoutreach_wrapup(&$install_state) {
 
   openoutreach_install_permissions();
 
+}
+
+/**
+ * Implements hook_mail().
+ */
+function openoutreach_mail($key, &$message, $params) {
+  switch($key) {
+    case 'register':
+      $variables = array();
+      // We do not sanitize the token replacement, since the output of this
+      // replacement is intended for an e-mail message, not a web browser.
+      $message['subject'] = 'Open Outreach registration from ' . variable_get('site_name');
+      $body = '';
+      if (!empty($params['newsletter'])) {
+        $body .= "Newsletter signup: yes\n\nEmail: {$params['newsletter_mail']}\n\n";
+      }
+      if (!empty($params['newsletter'])) {
+        $body .= "Register signup: yes\n\nEmail: {$params['register_mail']}\n\nURL: {$params['register_url']}\n\nOrganization/site name: {$params['register_site_name']}\n\n";
+      }
+      $message['body'][] = $body;
+      break;
+  }
 }

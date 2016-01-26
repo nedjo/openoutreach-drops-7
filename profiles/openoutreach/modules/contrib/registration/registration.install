@@ -605,3 +605,10 @@ function registration_update_7106(&$sandbox) {
     );
   }
 }
+
+/**
+ * Rebuild class registry for RegistrationTypeController.
+ */
+function registration_update_7107() {
+  registry_rebuild();
+}
