@@ -10,9 +10,9 @@ files[] = includes/redhen.forms.inc
 
 configure = admin/config/redhen
 
-; Information added by Drupal.org packaging script on 2015-01-26
-version = "7.x-1.9"
+; Information added by Drupal.org packaging script on 2016-01-13
+version = "7.x-1.11"
 core = "7.x"
 project = "redhen"
-datestamp = "1422301982"
+datestamp = "1452713365"
 

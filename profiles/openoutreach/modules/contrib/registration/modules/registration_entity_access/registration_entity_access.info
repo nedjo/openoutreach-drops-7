@@ -5,9 +5,9 @@ core = 7.x
 
 dependencies[] = registration
 
-; Information added by Drupal.org packaging script on 2015-08-04
-version = "7.x-1.5"
+; Information added by Drupal.org packaging script on 2015-10-07
+version = "7.x-1.6"
 core = "7.x"
 project = "registration"
-datestamp = "1438648142"
+datestamp = "1444240141"
 
