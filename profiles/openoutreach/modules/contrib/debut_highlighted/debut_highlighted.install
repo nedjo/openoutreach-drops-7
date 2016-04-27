@@ -14,3 +14,31 @@ function debut_highlighted_update_7000() {
   }
 }
 
+/**
+ * Add titles to untitled links.
+ */
+function debut_highlighted_update_7001() {
+  // Update the field instance.
+  $instance_info = field_info_instance('node', 'field_link', 'highlighted');
+  $instance_info['settings']['title'] = 'required';
+  $instance_info['settings']['title_maxlength'] = 35;
+  field_update_instance($instance_info);
+
+  // Find any highlighted nodes that have link fields lacking a title.
+  $query = db_select('node', 'n');
+  $query->fields('n', array('nid'))
+    ->condition('n.type', 'highlighted', '=')
+    ->addJoin('LEFT', 'field_data_field_link', 'l', 'l.entity_id = n.nid');
+  $query->isNull('l.field_link_title');
+
+  // Set and save a default link title of 'Read more'.
+  if ($nids = $query->execute()->fetchAllKeyed(0,0)) {
+    foreach ($nids as $nid) {
+      $node = node_load($nid);
+      $wrapper = entity_metadata_wrapper('node', $node);
+      $wrapper->field_link->set(array('title' => t('Read more')));
+      $wrapper->save();
+    }
+  }
+
+}

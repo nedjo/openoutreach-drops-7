@@ -10,7 +10,7 @@
 function debut_highlighted_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-highlighted-field_content_image'
+  // Exported field_instance: 'node-highlighted-field_content_image'.
   $field_instances['node-highlighted-field_content_image'] = array(
     'bundle' => 'highlighted',
     'deleted' => 0,
@@ -82,7 +82,7 @@ function debut_highlighted_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-highlighted-field_kicker'
+  // Exported field_instance: 'node-highlighted-field_kicker'.
   $field_instances['node-highlighted-field_kicker'] = array(
     'bundle' => 'highlighted',
     'default_value' => NULL,
@@ -128,7 +128,7 @@ function debut_highlighted_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-highlighted-field_link'
+  // Exported field_instance: 'node-highlighted-field_link'.
   $field_instances['node-highlighted-field_link'] = array(
     'bundle' => 'highlighted',
     'default_value' => NULL,
@@ -163,6 +163,7 @@ function debut_highlighted_field_default_field_instances() {
       'absolute_url' => 1,
       'attributes' => array(
         'class' => '',
+        'configurable_class' => 0,
         'configurable_title' => 0,
         'rel' => '',
         'target' => 'default',
@@ -172,9 +173,10 @@ function debut_highlighted_field_default_field_instances() {
         'url_cutoff' => 80,
       ),
       'enable_tokens' => 1,
-      'title' => 'none',
-      'title_label_use_field_label' => FALSE,
-      'title_maxlength' => 128,
+      'rel_remove' => 'default',
+      'title' => 'required',
+      'title_label_use_field_label' => 0,
+      'title_maxlength' => 35,
       'title_value' => '',
       'url' => 0,
       'user_register_form' => FALSE,

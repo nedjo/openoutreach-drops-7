@@ -175,6 +175,15 @@ function debut_highlighted_views_default_views() {
   $handler->display->display_options['fields']['field_link']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_link']['click_sort_column'] = 'url';
   $handler->display->display_options['fields']['field_link']['type'] = 'link_plain';
+  /* Field: Content: Link */
+  $handler->display->display_options['fields']['field_link_1']['id'] = 'field_link_1';
+  $handler->display->display_options['fields']['field_link_1']['table'] = 'field_data_field_link';
+  $handler->display->display_options['fields']['field_link_1']['field'] = 'field_link';
+  $handler->display->display_options['fields']['field_link_1']['label'] = '';
+  $handler->display->display_options['fields']['field_link_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_link_1']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_link_1']['click_sort_column'] = 'url';
+  $handler->display->display_options['fields']['field_link_1']['type'] = 'link_title_plain';
   /* Field: Content: Image */
   $handler->display->display_options['fields']['field_content_image']['id'] = 'field_content_image';
   $handler->display->display_options['fields']['field_content_image']['table'] = 'field_data_field_content_image';
@@ -211,7 +220,7 @@ function debut_highlighted_views_default_views() {
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = '';
   $handler->display->display_options['fields']['nothing']['alter']['text'] = '<div class="views-slideshow-overlay">
-<a href="[field_link]" class="views-slideshow-button">Read more</a>
+<a href="[field_link]" class="views-slideshow-button">[field_link_1]</a>
 <h2><a href="[field_link]">[title]</a></h2>
 <h4>[field_kicker]</h4>
 </div>';

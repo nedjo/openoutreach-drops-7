@@ -66,7 +66,7 @@ function geocoder_services_access($handler, $data, $output) {
 function geocoder_services_geocode($handler, $data, $format = 'default') {
   geophp_load();
   geocoder_service_check_request($handler, $format);
-  
+
   $geom = geocoder($handler, $data);
   if (!$format || $format == 'default') {
     $result = $geom->out('json');
@@ -79,12 +79,12 @@ function geocoder_services_geocode($handler, $data, $format = 'default') {
 
 function geocoder_services_capabilities() {
   geophp_load();
-  
+
   $handlers = array();
   foreach (geocoder_handler_info() as $hid => $handler) {
     $handlers[$hid] = $handler['title'] . ' - ' . $handler['description'];
   }
-  
+
   $object = new stdClass();
   $object->handlers = $handlers;
   $object->output = geoPHP::getAdapterMap();
