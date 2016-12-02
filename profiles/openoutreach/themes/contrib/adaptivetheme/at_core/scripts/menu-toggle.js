@@ -40,21 +40,12 @@
       // Callback
       function cb(data){
       	// Toggle menus open or closed
-      	$(".at-menu-toggle-button-link", context).click(function() {
-          $(this).parent().siblings('.menu-toggle').slideToggle(100, 'swing').toggleClass('menu-toggle-open');
-          return false;
+      	$(".at-menu-toggle-button-link", context).unbind("click").click(function(e) {
+          $(this).parent().parent().find('.menu-toggle').slideToggle(100, 'swing').toggleClass('menu-toggle-open');
+          e.preventDefault();
+          e.stopPropagation();
         });
-
-        /*
-        // Close if clicked outside (inc another toggle menu)
-        $(".at-menu-toggle-button-link", context).bind('clickoutside', function(event) {
-          $(this).parent().siblings('.menu-toggle').slideUp(100, 'swing').removeClass('menu-toggle-open');
-          //return false;
-        });
-        */
       }
-
-      //console.log(themeSettings);
     }
   };
 })(jQuery);

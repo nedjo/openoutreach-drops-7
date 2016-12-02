@@ -224,6 +224,12 @@ class ParserVcalendar {
       unset($vcalendar_component->propix[$property_key]);
     }
 
+    if (is_array($text) && isset($vcalendar_component->xprop[$property_key])) {
+      # This is an X-PROPERTY, which iCalcreator returns as an array like array('X-PROP-NAME', value).
+      # We only care about the value, though.
+      $text = $text[1];
+    }
+
     if ($text === FALSE) {
       if ($property_key != 'SUMMARY') {
         return NULL;
@@ -472,7 +478,7 @@ class ParserVcalendar {
         $msg = "The event with UID %uid has an indefinitely repeating RRULE, which the Date Repeat module doesn't support.
           As a workaround, Date iCal set the repeat count to @count. This value can be customized in the iCal parser settings.";
         watchdog('date_ical', $msg, array('%uid' => $uid, '@count' => $count), WATCHDOG_WARNING);
-        if ($this->config['indefinite_message_display']) {
+        if (!empty($this->config['indefinite_message_display'])) {
           drupal_set_message(
             t("At least one of the events in this iCal feed has an indefinitely repeating RRULE, which the Date Repeat module doesn't support.<br>
               As a workaround, Date iCal set the repeat count to @count. This value can be customized in the iCal parser settings.",
@@ -481,14 +487,25 @@ class ParserVcalendar {
             FALSE
           );
         }
-        $rrule_data['value']['COUNT'] = $this->config['indefinite_count'];
+        if (isset($this->config['indefinite_count'])) {
+          $rrule_data['value']['COUNT'] = $this->config['indefinite_count'];
+        }
+        else {
+          // Somehow, it's possible for the config values to have no setting, even though we've given them a default.
+          // So make really sure we set the COUNT to *something*.
+          $rrule_data['value']['COUNT'] = 52;
+        }
       }
     }
 
-    $rrule = trim($vcalendar_component->createRrule());
-    $rdate = trim($vcalendar_component->createRdate());
-    $exrule = trim($vcalendar_component->createExrule());
-    $exdate = trim($vcalendar_component->createExdate());
+    # Due to a bug in iCalcreator 2.20.2, any repeat property that's too long to fit on one line will be returned
+    # verbatim, including the endline and the single-space indentation that starts the second line. Thus, we need to
+    # remove those things ourselves.
+    $rrule = trim(preg_replace('/\s/', '', $vcalendar_component->createRrule()));
+    $rdate = trim(preg_replace('/\s/', '', $vcalendar_component->createRdate()));
+    $exrule = trim(preg_replace('/\s/', '', $vcalendar_component->createExrule()));
+    $exdate = trim(preg_replace('/\s/', '', $vcalendar_component->createExdate()));
+
     return "$rrule|$rdate|$exrule|$exdate";
   }
 

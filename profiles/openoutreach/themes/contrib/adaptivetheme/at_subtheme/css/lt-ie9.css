@@ -5,6 +5,9 @@
  * Assuming a mobile first approach with respond.js OFF, we must reset the font
  * size for lt IE9
  */
+/* line 13, ../sass/lt-ie9.scss */
 html {
   font-size: 81.3%;
 }
+
+/*# sourceMappingURL=lt-ie9.css.map */

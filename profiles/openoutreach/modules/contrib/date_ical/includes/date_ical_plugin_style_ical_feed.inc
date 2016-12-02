@@ -157,7 +157,7 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
     }
     else {
       // Create a vcalendar object using the iCalcreator library.
-      $config = array('unique_id' => 'Date iCal v' . DATE_ICAL_VERSION);
+      $config = array('unique_id' => 'Date iCal');
       $vcalendar = new vcalendar($config);
       $vcalendar->setMethod('PUBLISH');
 

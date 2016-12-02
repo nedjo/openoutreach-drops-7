@@ -30,7 +30,7 @@
   <?php print $polyfills; ?>
 </head>
 <body class="<?php print $classes; ?>" <?php print $attributes;?>>
-  <?php print $page_top; ?>
+  <?php isset($page_top) ? print $page_top : '';  ?>
   <div id="page" class="container">
     <header id="header" class="clearfix" role="banner">
       <div id="branding" class="branding-elements clearfix">
@@ -56,6 +56,6 @@
       </div>
     </section>
   </div>
-  <?php print $page_bottom ?>
+  <?php isset($page_bottom) ? print $page_bottom : ''; ?>
 </body>
 </html>

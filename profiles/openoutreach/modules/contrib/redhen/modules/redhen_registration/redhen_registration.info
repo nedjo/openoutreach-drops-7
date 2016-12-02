@@ -6,9 +6,9 @@ core = 7.x
 dependencies[] = redhen_contact
 dependencies[] = registration
 
-; Information added by Drupal.org packaging script on 2016-01-13
-version = "7.x-1.11"
+; Information added by Drupal.org packaging script on 2016-07-15
+version = "7.x-1.12"
 core = "7.x"
 project = "redhen"
-datestamp = "1452713365"
+datestamp = "1468619344"
 

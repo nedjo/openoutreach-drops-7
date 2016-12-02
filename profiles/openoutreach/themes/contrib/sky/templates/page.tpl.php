@@ -38,7 +38,7 @@
 
   </header>
 
-  <div id="columns"<?php print $page['menu_bar'] ? 'class="no-menu-bar"' : '' ;?>>
+  <div id="columns"<?php print $page['menu_bar'] ? ' class="no-menu-bar"' : '' ;?>>
     <div class="columns-inner clearfix">
 
       <?php print $messages; ?>
@@ -131,7 +131,8 @@
     $page['four_first'] ||
     $page['four_second'] ||
     $page['four_third'] ||
-    $page['four_fourth']
+    $page['four_fourth'] ||
+    $attribution
     ): ?>
     <footer role="contentinfo">
       <?php if (
@@ -153,6 +154,7 @@
         </div>
       <?php endif; ?>
       <?php if ($page['footer']): print render($page['footer']); endif; ?>
+      <p class="attribute-creator"><?php print $attribution; ?></p>
     </footer>
   <?php endif; ?>
 

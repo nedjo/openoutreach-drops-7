@@ -9,7 +9,7 @@ function sky_preprocess_html(&$vars) {
   $theme_name = $theme_key;
 
   // Add a class for the active color scheme
-  if (module_exists('color')) {
+  if (module_exists('color') && function_exists('get_color_scheme_name')) {
     $class = check_plain(get_color_scheme_name($theme_name));
     $vars['classes_array'][] = 'color-scheme-' . drupal_html_class($class);
   }

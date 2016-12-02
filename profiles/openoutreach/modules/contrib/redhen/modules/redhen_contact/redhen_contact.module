@@ -13,6 +13,8 @@ define('REDHEN_CONTACT_ALTER_COMMENT_AUTHOR', 'redhen_contact_alter_comments');
 define('REDHEN_CONTACT_CONNECT_USERS', 'redhen_contact_connect_users');
 define('REDHEN_CONTACT_MIRROR_EMAIL', 'redhen_contact_mirror_email');
 define('REDHEN_CONTACT_REQUIRE_EMAIL', 'redhen_contact_require_email');
+define('REDHEN_CONTACT_EMBED_ON_USER_FORM', 'redhen_contact_embed_on_user_form');
+define('REDHEN_CONTACT_USER_EMAIL_TYPE', 'redhen_contact_user_email_type');
 define('REDHEN_CONTACT_REQUIRE_FIRST_NAME', 'redhen_contact_require_first_name');
 define('REDHEN_CONTACT_REG', 'redhen_contact_reg');
 define('REDHEN_CONTACT_REG_TYPE', 'redhen_contact_reg_type');
@@ -191,6 +193,11 @@ function redhen_contact_menu() {
     'weight' => -10,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
+  $items['redhen/contact/%redhen_contact/view/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
   $items['redhen/contact/%redhen_contact/view/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
@@ -286,16 +293,18 @@ function redhen_contact_menu() {
     'file' => 'includes/redhen_contact.forms.inc',
     'weight' => 4,
   );
-  $items['user/%user/redhen_contact'] = array(
-    'title' => 'RedHen Contact',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('redhen_contact_user_contact_form', 1),
-    'access callback' => 'redhen_contact_user_contact_access',
-    'access arguments' => array(1),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'includes/redhen_contact.forms.inc',
-    'weight' => 5,
-  );
+  if (!variable_get(REDHEN_CONTACT_EMBED_ON_USER_FORM, FALSE)) {
+    $items['user/%user/redhen_contact'] = array(
+      'title' => 'RedHen Contact',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('redhen_contact_user_contact_form', 1),
+      'access callback' => 'redhen_contact_user_contact_access',
+      'access arguments' => array(1),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'includes/redhen_contact.forms.inc',
+      'weight' => 5,
+    );
+  }
   if (module_exists('devel')) {
     $items['redhen/contact/%redhen_contact/devel'] = array(
       'title' => 'Devel',
@@ -447,7 +456,12 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
   $op = ($op == 'update') ? 'edit' : $op;
 
   global $user;
+  $redhen_relation_role_permissions = module_exists('redhen_relation') ?
+    redhen_relation_role_get_permissions($user) : array();
   $account = isset($account) ? $account : $user;
+  $related_orgs = $contact && module_exists('redhen_relation') ?
+    redhen_relation_relations($contact, REDHEN_RELATION_AFFILIATION, TRUE) :
+    array();
 
   if ($op == 'archive' && $contact->redhen_state == REDHEN_STATE_ARCHIVED) {
     return FALSE;
@@ -461,45 +475,99 @@ function redhen_contact_access($op, $contact = NULL, $account = NULL) {
     return TRUE;
   }
 
-  // Handle revisions.
-  if (is_object($contact) && !$contact->isDefaultRevision()) {
-    if ($op == 'view' && user_access('view redhen contact revisions', $account)) {
-      return TRUE;
-    }
-
-    if ($op == 'edit' && user_access('edit redhen contact revisions', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
-      return TRUE;
-    }
-
-    if ($op == 'delete' && user_access('delete redhen contact revisions', $account)) {
-      return TRUE;
-    }
-    return FALSE;
+  // Set $default_revision as a shortcut variable to check, because relation
+  // role permissions do not currently support revisions.
+  if (is_object($contact) && $contact->isDefaultRevision()) {
+    $default_revision = TRUE;
+  }
+  else {
+    $default_revision = FALSE;
   }
 
-  if ($op == 'view') {
-    if (user_access('access redhen contacts', $account)) {
-      return TRUE;
-    }
-    // Check whether user can view own contact.
-    if (user_access('view own redhen contact', $account) && $contact->uid == $user->uid) {
-      return TRUE;
-    }
-  }
+  switch($op) {
+    case 'view':
+      if ($default_revision) {
+        // Regular and relation role checks.
+        if (user_access('access redhen contacts', $account)) {
+          return TRUE;
+        }
+        // Check whether user can view own contact.
+        if (user_access('view own redhen contact', $account) && $contact->uid == $user->uid) {
+          return TRUE;
+    	}
+        foreach($related_orgs as $org) {
+          if (isset($redhen_relation_role_permissions[$org[0]->org_id])) {
+            return TRUE;
+          }
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions do not support revisions.
+        if (user_access('view redhen contact revisions', $account)) {
+          return TRUE;
+        }
+      }
+      break;
 
-  if ($op == 'unarchive' && user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ACTIVE)) {
-    return TRUE;
-  }
-  if (($op == 'edit' || $op == 'archive') && user_access('manage redhen contacts', $account) && ($contact->redhen_state != REDHEN_STATE_ARCHIVED)) {
-    return TRUE;
-  }
+    case 'archive':
+    case 'unarchive':
+      // We have already checked the op against the current state. Just check
+      // the permissions.
+      if (user_access('manage redhen contacts', $account)) {
+        return TRUE;
+      }
+      break;
 
-  if (($op == 'create' || $op == 'delete') && user_access('manage redhen contacts', $account)) {
-    return TRUE;
-  }
+    case 'edit':
+      if ($default_revision) {
+        // Regular and relations role checks.
+        if (user_access('manage redhen contacts', $account)) {
+          return TRUE;
+        }
+        foreach($related_orgs as $org) {
+          if (isset($redhen_relation_role_permissions[$org[0]->org_id]['edit_contact']) && $redhen_relation_role_permissions[$org[0]->org_id]['edit_contact'] !== 0) {
+            return TRUE;
+          }
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions do not support revisions.
+        if (user_access('edit redhen contact revisions', $account)) {
+          return TRUE;
+        }
+      }
+      break;
 
-  if (isset($contact) && is_string($contact) && $op == 'create' && user_access('create ' . $contact . ' contacts', $account)) {
-    return TRUE;
+    case 'delete';
+      if ($default_revision) {
+        // Regular and relations role checks.
+        if (user_access('manage redhen contacts', $account)) {
+          return TRUE;
+        }
+        foreach($related_orgs as $org) {
+          if (isset($redhen_relation_role_permissions[$org[0]->org_id]['delete_contact']) && $redhen_relation_role_permissions[$org[0]->org_id]['delete_contact'] !== 0) {
+            return TRUE;
+          }
+        }
+      }
+      else {
+        // Revision checks. Relation role permissions do not support revisions.
+        if (user_access('manage redhen contacts', $account)) {
+          return TRUE;
+        }
+      }
+      break;
+
+    case 'create';
+      if (user_access('manage redhen contacts', $account)) {
+        return TRUE;
+      }
+      if (isset($contact) && is_string($contact)) {
+        if (user_access('create ' . $contact . ' contacts', $account)) {
+          return TRUE;
+        }
+      }
+      break;
   }
 
   return FALSE;
@@ -754,6 +822,7 @@ function theme_redhen_contact_list($variables) {
  * Implements hook_redhen_settings().
  */
 function redhen_contact_redhen_settings() {
+  $contact_type_options = redhen_contact_type_options_list();
   return array(
     'redhen_contact_email' => array(
       '#type' => 'fieldset',
@@ -764,7 +833,7 @@ function redhen_contact_redhen_settings() {
           '#type' => 'checkbox',
           '#title' => t('Require contacts to have a valid email address'),
           '#description' => t('Controls the contact form validation. Must be true to enable Drupal user connections keyed on email and contact email mirroring.'),
-          '#default_value' => redhen_contact_email_required(),
+          '#default_value' => variable_get(REDHEN_CONTACT_REQUIRE_EMAIL, TRUE),
         ),
         REDHEN_CONTACT_CONNECT_USERS => array(
           '#type' => 'checkbox',
@@ -787,6 +856,31 @@ function redhen_contact_redhen_settings() {
               ':input[name="' . REDHEN_CONTACT_CONNECT_USERS . '"]' => array('checked' => TRUE),
             ),
           ),
+        ),
+        REDHEN_CONTACT_EMBED_ON_USER_FORM => array(
+          '#type' => 'checkbox',
+          '#title' => t('Embed Redhen Contact Fields on the User edit form'),
+          '#description' => t('If checked, the RedHen Contact tab on users will be removed, and the Contact edit fields will instead be attached to the bottom of the User Edit form.'),
+          '#default_value' => variable_get(REDHEN_CONTACT_EMBED_ON_USER_FORM, FALSE),
+          '#states' => array(
+            'enabled' => array(
+              ':input[name="' . REDHEN_CONTACT_CONNECT_USERS . '"]' => array('checked' => TRUE),
+            ),
+          ),
+        ),
+        REDHEN_CONTACT_USER_EMAIL_TYPE => array(
+          '#type' => 'checkboxes',
+          '#multiple' => TRUE,
+          '#options' => $contact_type_options,
+          '#title' => t('User email contact types'),
+          '#description' => t('Restrict which contact types will connect to Drupal user accounts by email address. Leave blank to allow ANY contact type (default).'),
+          '#default_value' => variable_get(REDHEN_CONTACT_USER_EMAIL_TYPE, array()),
+          '#states' => array(
+            'enabled' => array(
+              ':input[name="' . REDHEN_CONTACT_CONNECT_USERS . '"]' => array('checked' => TRUE),
+            ),
+          ),
+          '#access' => (count($contact_type_options) > 1),
         ),
       ),
     ),
@@ -814,7 +908,7 @@ function redhen_contact_redhen_settings() {
         ),
         REDHEN_CONTACT_REG_TYPE => array(
           '#type' => 'select',
-          '#options' => redhen_contact_type_options_list(),
+          '#options' => $contact_type_options,
           '#title' => t('Default contact type'),
           '#description' => t('Select the default contact type to create during registration. This can be overriden by appending the contact type machine name in the registration url.'),
           '#default_value' => variable_get(REDHEN_CONTACT_REG_TYPE, FALSE),
@@ -856,13 +950,28 @@ function redhen_contact_redhen_settings() {
 }
 
 /**
- * Setting which determines if contact are required to have an email address.
+ * Utility function for checking settings related to contact->user connections.
+ *
+ * @param string $setting
+ *   Setting string - should be a REDHEN_CONTACT_* setting constant.
+ * @param object $contact
+ *   Contact object.
  *
  * @return bool
- *   True if required, else false.
+ *   True if setting is enabled for connecting the contact to user, else false.
  */
-function redhen_contact_email_required() {
-  return variable_get(REDHEN_CONTACT_REQUIRE_EMAIL, TRUE);
+function redhen_contact_user_email_setting($setting, $contact) {
+  $user_email_type = variable_get(REDHEN_CONTACT_USER_EMAIL_TYPE, array());
+  if ($user_email_type && isset($contact->type) && !in_array($contact->type, $user_email_type)) {
+    return FALSE;
+  }
+
+  switch ($setting) {
+    case REDHEN_CONTACT_REQUIRE_EMAIL:
+      return variable_get($setting, TRUE);
+  }
+
+  return variable_get($setting, FALSE);
 }
 
 /**
@@ -1001,9 +1110,12 @@ function redhen_contact_create(array $values = array()) {
 /**
  * Access callback for redhen_contact_user_categories().
  */
-function redhen_contact_user_contact_access($account) {
-  $contact = redhen_contact_load_by_user($account);
+function redhen_contact_user_contact_access($account = NULL) {
   global $user;
+  if (!$account) {
+    $account = $user;
+  }
+  $contact = redhen_contact_load_by_user($account);
 
   // There is no contact linked to this user account.
   if (!$contact) {
@@ -1028,12 +1140,22 @@ function redhen_contact_user_contact_access($account) {
  */
 function redhen_contact_form_user_profile_form_alter(&$form, &$form_state) {
   // If we're mirroring the contact's email address - disable the field.
-  if ($form['#user_category'] == 'account' && variable_get('redhen_contact_mirror_email', FALSE)) {
-    $contact = redhen_contact_load_by_user($form['#user']);
-    if ($contact) {
+  $contact = redhen_contact_load_by_user($form['#user']);
+  if ($contact) {
+    if ($form['#user_category'] == 'account' && redhen_contact_user_email_setting(REDHEN_CONTACT_MIRROR_EMAIL, $contact)) {
       $form['account']['mail']['#disabled'] = TRUE;
       $form['account']['mail']['#description'] .= ' ' . t('The email address for this account is managed by RedHen.');
     }
+    if ($form['#user_category'] == 'account' && redhen_contact_user_email_setting(REDHEN_CONTACT_EMBED_ON_USER_FORM, $contact) && redhen_contact_user_contact_access()) {
+      if ($form['account']['mail']['#disabled']) {
+        // Just hide the email field since it will display on the contact form:
+        $form['account']['mail']['#access'] = FALSE;
+      }
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact);
+      // Add a submit handler for handling the contact form data.
+      $form['#submit'][] = 'redhen_contact_user_update_submit';
+    }
+
   }
 }
 
@@ -1057,27 +1179,44 @@ function redhen_contact_form_user_register_form_alter(&$form, &$form_state) {
     // If a valid contact type was found.
     if (array_key_exists($contact_type, redhen_contact_get_types())) {
       $contact_object = redhen_contact_create(array('type' => $contact_type));
-      module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
-
-      // Get contact type form.
-      $form['redhen_contact'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('%type Contact information', array('%type' => ucfirst($contact_type))),
-        'form' => redhen_contact_contact_form(array(), $form_state, $contact_object),
-      );
-
-      // Unset the contact forms action, we will use the registration form.
-      unset($form['redhen_contact']['form']['actions']);
+      _redhen_contact_user_embed_contact_form($form, $form_state, $contact_object);
+      // Add a submit handler for handling the contact form data.
+      $form['#submit'][] = 'redhen_contact_user_registration_submit';
       // Hide the Contact email field, we will use the user mail field.
       $form['redhen_contact']['form']['redhen_contact_email']['#access'] = FALSE;
-      // Add a submit handler for creating the contact.
-      $form['#submit'][] = 'redhen_contact_user_registration_submit';
       $form['#validate'][] = 'redhen_contact_user_registration_validate';
     }
     else {
       drupal_set_message(t('Invalid RedHen contact type parameter.'));
     }
   }
+}
+
+/**
+ * Helper function to embed a contact form on a user form.
+ *
+ * Usage note: make sure to add a submit handler, otherwise this form data will
+ * just be ignored.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ * @param RedhenContact $contact
+ *   The contact to build the form on.
+ */
+function _redhen_contact_user_embed_contact_form(&$form, &$form_state, RedhenContact $contact) {
+  module_load_include('inc', 'redhen_contact', 'includes/redhen_contact.forms');
+
+  // Get contact type form.
+  $form['redhen_contact'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('%type Contact information', array('%type' => ucfirst($contact->bundle()))),
+    'form' => redhen_contact_contact_form(array(), $form_state, $contact),
+  );
+
+  // Unset the contact forms action, we will use the parent form's actions.
+  unset($form['redhen_contact']['form']['actions']);
 }
 
 /**
@@ -1111,6 +1250,27 @@ function redhen_contact_user_registration_validate($form, &$form_state) {
 }
 
 /**
+ * Update form RedHen contact submit handler.
+ *
+ * Updates a related Contact on user update.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ */
+function redhen_contact_user_update_submit($form, &$form_state) {
+  $contact = $form_state['redhen_contact'];
+  $message = _redhen_contact_user_submission_apply($form, $form_state, $contact);
+  redhen_contact_save($contact);
+
+  // Only display this message to CRM users to avoid confusion.
+  if (user_access('access redhen contacts')) {
+    drupal_set_message($message);
+  }
+}
+
+/**
  * Registration form RedHen contact submit handler.
  *
  * Creates a Contact on user registration.
@@ -1131,23 +1291,10 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   $contact->uid = $uid;
   // If set to update fields, do so.
   if (variable_get(REDHEN_CONTACT_REG_UPDATE_FIELDS, FALSE) == TRUE || !empty($contact->is_new)) {
-    // Save default parameters back into the $contact object.
-    $contact->first_name = $form_state['values']['first_name'];
-    $contact->middle_name = $form_state['values']['middle_name'];
-    $contact->last_name = $form_state['values']['last_name'];
     $contact->author_uid = $uid;
-
-    // If a contact already exists, we only want to update fields that have
-    // values from the registration form. This avoids overwriting Contact
-    // field values that are not exposed on the registration form.
-    $limited_state = redhen_contact_user_registration_form_state($form['redhen_contact']['form'], $form_state);
-
-    // Notify field widgets using the limited state variable.
-    field_attach_submit('redhen_contact', $contact, $form['redhen_contact']['form'], $limited_state);
-
+    $message_update = _redhen_contact_user_submission_apply($form, $form_state, $contact, TRUE);
     // Set email address.
     redhen_contact_property_email_set($contact, NULL, $form_state['values']['mail']);
-    $message_update = t('The contact was updated with the information provided.');
   }
 
   redhen_contact_save($contact);
@@ -1166,6 +1313,44 @@ function redhen_contact_user_registration_submit($form, &$form_state) {
   if (user_access('access redhen contacts')) {
     drupal_set_message($message);
   }
+}
+
+/**
+ * Helper function for handling Contact Form values submitted via User forms.
+ *
+ * This happens when a RedHen Contact form is embedded in a User form via a form
+ * alter hook, then the from is submitted. Note that this function updates the
+ * $contact, but does not save the changes.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ * @param RedhenContact $contact
+ *   RedhenContact to update.
+ * @param bool $limit_values
+ *   Whether to limit updated values to non-null fields.
+ *
+ * @return string
+ *   Status message.
+ */
+function _redhen_contact_user_submission_apply($form, $form_state, RedhenContact $contact, $limit_values = FALSE) {
+  if ($limit_values) {
+    $value_state = redhen_contact_user_registration_form_state($form['redhen_contact']['form'], $form_state);
+  }
+  else {
+    $value_state = $form_state;
+  }
+
+  // Save default parameters back into the $contact object.
+  $contact->first_name = $form_state['values']['first_name'];
+  $contact->middle_name = $form_state['values']['middle_name'];
+  $contact->last_name = $form_state['values']['last_name'];
+
+  // Notify field widgets using the limited state variable.
+  field_attach_submit('redhen_contact', $contact, $form['redhen_contact']['form'], $value_state);
+
+  return t('The contact was updated with the information provided.');
 }
 
 /**
@@ -1332,4 +1517,19 @@ function redhen_contact_query_redhen_contact_generic_selection_alter(QueryAltera
     ->condition("$table.first_name", "%$search_string%", 'LIKE')
     ->condition("$table.last_name", "%$search_string%", 'LIKE');
   $query->condition($or);
+}
+
+/**
+ * Implements hook_redhen_relation_role_permissions().
+ */
+function redhen_contact_redhen_relation_role_permissions() {
+  $roles = array(
+    'edit_contact' => array(
+      'label' => 'Edit Contact',
+    ),
+    'delete_contact' => array(
+      'label' => 'Delete Contact',
+    ),
+  );
+  return $roles;
 }

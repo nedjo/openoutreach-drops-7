@@ -10,7 +10,7 @@
 function debut_redhen_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'redhen_contact-general-field_additional_info'
+  // Exported field_instance: 'redhen_contact-general-field_additional_info'.
   $field_instances['redhen_contact-general-field_additional_info'] = array(
     'bundle' => 'general',
     'default_value' => NULL,
@@ -56,7 +56,7 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'redhen_contact-general-field_address'
+  // Exported field_instance: 'redhen_contact-general-field_address'.
   $field_instances['redhen_contact-general-field_address'] = array(
     'bundle' => 'general',
     'default_value' => NULL,
@@ -113,7 +113,7 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'redhen_contact-general-field_contact_type'
+  // Exported field_instance: 'redhen_contact-general-field_contact_type'.
   $field_instances['redhen_contact-general-field_contact_type'] = array(
     'bundle' => 'general',
     'default_value' => NULL,
@@ -156,7 +156,7 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'redhen_contact-general-redhen_contact_email'
+  // Exported field_instance: 'redhen_contact-general-redhen_contact_email'.
   $field_instances['redhen_contact-general-redhen_contact_email'] = array(
     'bundle' => 'general',
     'deleted' => 0,
@@ -197,7 +197,7 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'redhen_org-general-field_additional_info'
+  // Exported field_instance: 'redhen_org-general-field_additional_info'.
   $field_instances['redhen_org-general-field_additional_info'] = array(
     'bundle' => 'general',
     'default_value' => NULL,
@@ -243,7 +243,7 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'redhen_org-general-field_address'
+  // Exported field_instance: 'redhen_org-general-field_address'.
   $field_instances['redhen_org-general-field_address'] = array(
     'bundle' => 'general',
     'default_value' => NULL,
@@ -300,7 +300,7 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'redhen_org-general-field_org_type'
+  // Exported field_instance: 'redhen_org-general-field_org_type'.
   $field_instances['redhen_org-general-field_org_type'] = array(
     'bundle' => 'general',
     'default_value' => NULL,
@@ -343,7 +343,7 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'redhen_org-general-field_website'
+  // Exported field_instance: 'redhen_org-general-field_website'.
   $field_instances['redhen_org-general-field_website'] = array(
     'bundle' => 'general',
     'default_value' => NULL,
@@ -404,7 +404,7 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'relation-redhen_affiliation-endpoints'
+  // Exported field_instance: 'relation-redhen_affiliation-endpoints'.
   $field_instances['relation-redhen_affiliation-endpoints'] = array(
     'bundle' => 'redhen_affiliation',
     'default_value' => NULL,
@@ -471,14 +471,11 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'relation-redhen_affiliation-redhen_relation_roles'
+  // Exported field_instance:
+  // 'relation-redhen_affiliation-redhen_relation_roles'.
   $field_instances['relation-redhen_affiliation-redhen_relation_roles'] = array(
     'bundle' => 'redhen_affiliation',
-    'default_value' => array(
-      0 => array(
-        'value' => 0,
-      ),
-    ),
+    'default_value' => array(),
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -517,7 +514,8 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'relation-redhen_affiliation-redhen_relation_status'
+  // Exported field_instance:
+  // 'relation-redhen_affiliation-redhen_relation_status'.
   $field_instances['relation-redhen_affiliation-redhen_relation_status'] = array(
     'bundle' => 'redhen_affiliation',
     'default_value' => array(
@@ -565,7 +563,7 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'relation-redhen_connection-endpoints'
+  // Exported field_instance: 'relation-redhen_connection-endpoints'.
   $field_instances['relation-redhen_connection-endpoints'] = array(
     'bundle' => 'redhen_connection',
     'default_value' => NULL,
@@ -632,7 +630,8 @@ function debut_redhen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'relation-redhen_connection-redhen_relation_status'
+  // Exported field_instance:
+  // 'relation-redhen_connection-redhen_relation_status'.
   $field_instances['relation-redhen_connection-redhen_relation_status'] = array(
     'bundle' => 'redhen_connection',
     'default_value' => array(

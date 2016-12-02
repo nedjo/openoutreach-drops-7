@@ -18,9 +18,9 @@ features[panels_mini][] = front_page_upper_section
 features[variable][] = site_frontpage
 features[views_view][] = front_page_top_stories
 
-; Information added by Drupal.org packaging script on 2016-04-21
-version = "7.x-1.28"
+; Information added by Drupal.org packaging script on 2016-11-16
+version = "7.x-1.35"
 core = "7.x"
 project = "openoutreach"
-datestamp = "1461258914"
+datestamp = "1479338960"
 

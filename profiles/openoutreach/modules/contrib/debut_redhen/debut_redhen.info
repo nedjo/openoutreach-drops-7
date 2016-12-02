@@ -6,6 +6,7 @@ dependencies[] = addressfield
 dependencies[] = apps_compatible
 dependencies[] = ctools
 dependencies[] = entity
+dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = link
 dependencies[] = list
@@ -87,9 +88,9 @@ features[variable][] = redhen_contact_connect_users
 features_exclude[field_base][field_address] = field_address
 recommends[] = debut_event
 
-; Information added by Drupal.org packaging script on 2015-04-23
-version = "7.x-1.1"
+; Information added by Drupal.org packaging script on 2016-10-12
+version = "7.x-1.2"
 core = "7.x"
 project = "debut_redhen"
-datestamp = "1429812786"
+datestamp = "1476293159"
 

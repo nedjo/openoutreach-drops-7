@@ -37,7 +37,7 @@
 
 
 /* AT Panels */
-.one-column .region,
+.one-column > .region,
 div.at-panel .region-conditional-stack {
   float: none;
   display: block;

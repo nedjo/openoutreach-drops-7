@@ -284,6 +284,24 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
           }
           $location = implode(', ', $location_data);
         }
+        elseif ($location_info['type'] == 'node_reference') {
+        // Make sure this Node Reference actually references a node.
+          if ($location_field['nid']) {
+            $node = node_load($location_field['nid']);
+            $location = $node->title;
+          }
+        }
+        elseif ($location_info['type'] == 'taxonomy_term_reference') {
+          $terms = taxonomy_term_load_multiple(array_column($items,'tid'));
+          // Make sure that there are terms that were loaded.
+          if ($terms) {
+            $term_names = array();
+            foreach ($terms as $term) {
+              $term_names[] = $term->name;
+            }
+            $location = implode(', ', $term_names);
+          }
+        }
         else {
           $location = $location_field['value'];
         }
@@ -314,7 +332,7 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
           }
         }
         elseif ($summary_info['type'] == 'taxonomy_term_reference') {
-          $terms = taxonomy_term_load_multiple($items);
+          $terms = taxonomy_term_load_multiple(array_column($items,'tid'));
           // Make sure that there are terms that were loaded.
           if ($terms) {
             $term_names = array();

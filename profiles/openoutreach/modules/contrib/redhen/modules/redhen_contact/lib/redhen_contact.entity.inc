@@ -212,29 +212,31 @@ class RedhenContact extends Entity {
   public function save() {
     $wrapper = entity_metadata_wrapper('redhen_contact', $this);
     $user = $wrapper->user->value();
+    $emails = $this->allEmail();
 
-    if (variable_get('redhen_contact_connect_users', FALSE) && !$user) {
-      $emails = $this->allEmail();
+    if (redhen_contact_user_email_setting(REDHEN_CONTACT_CONNECT_USERS, $this) && !$user) {
       foreach ($emails as $email) {
         // Ensure email value is not set to empty string because that matches
         // Drupal's anonymous user (uid=0). This can happen when creating a
         // contact programmatically where the email field is not guaranteed to
         // be populated.
-        if (!empty($email['value']) && $user = user_load_by_mail($email['value'])) {
-          $wrapper->user->set($user);
+        $user_by_mail = empty($email['value']) ? NULL : user_load_by_mail($email['value']);
+        if ($user_by_mail) {
+          $user = $user_by_mail;
+          $wrapper->user->set($user_by_mail);
           break;
         }
       }
     }
 
     // When there is only one email set, make sure it's marked 'default'.
-    if (count($this->allEmail()) === 1) {
+    if (count($emails) === 1) {
       $this->{REDHEN_CONTACT_EMAIL_FIELD}[LANGUAGE_NONE][0]['default'] = 1;
     }
 
     $ret = parent::save();
 
-    if ($ret && variable_get('redhen_contact_mirror_email', FALSE)) {
+    if ($ret && redhen_contact_user_email_setting(REDHEN_CONTACT_MIRROR_EMAIL, $this)) {
       $email = $wrapper->email->value();
 
       // If we have a linked user and primary email, but they don't match, set
@@ -265,9 +267,9 @@ class RedhenContact extends Entity {
         ->fieldCondition('redhen_contact_email', 'value', $contact_wrapper->email->value(), '=');
       $result = $query->execute();
 
-      if (!empty($result) && (count($result) === 1)) {
-        $existing_contact = redhen_contact_load(key($result['redhen_contact'][0]));
-        $existing_wrapper = entity_metadata_wrapper('redhen_contact', $existing_contact);
+      if (isset($result['redhen_contact']) && (count($result['redhen_contact']) === 1)) {
+        list($contact_id) = array_keys($result['redhen_contact']);
+        $existing_wrapper = entity_metadata_wrapper('redhen_contact', $contact_id);
         foreach ($existing_wrapper->getPropertyInfo() as $property => $info) {
           if (isset($info['setter callback']) && ($existing_wrapper->{$property}->value() !== NULL) && $contact_wrapper->{$property}->value() === NULL) {
             // @todo consider a flag to avoid overriding with new values.
@@ -275,7 +277,7 @@ class RedhenContact extends Entity {
           }
         }
         // We aren't creating a new contact, we are updating an old one, so:
-        $this->contact_id = $existing_contact->contact_id;
+        $this->contact_id = $existing_wrapper->getIdentifier();
         unset($this->is_new);
         $this->is_new_revision = TRUE;
         $this->default_revision = TRUE;

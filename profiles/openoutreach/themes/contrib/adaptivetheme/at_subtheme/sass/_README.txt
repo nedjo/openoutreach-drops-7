@@ -61,6 +61,9 @@ to delete all the generated CSS files.
     #environment = :production
 - Regenerate all the CSS files by running: compass compile
 
+Switching to production mode will prevent maps being regenerated and remove
+all line comments.
+
 And don't forget to turn on Drupal's CSS aggregation. :-)
 
 

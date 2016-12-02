@@ -265,7 +265,7 @@ function adaptivetheme_css_alter(&$css) {
     $weight = 0;
     foreach ($css as $name => $style) {
       // Leave  the conditional stylesheets untouched
-      if ($css[$name]['browsers']['!IE']) {
+      if (isset($css[$name]['browsers']['!IE'])) {
         $css[$name]['group'] = 0;
         $css[$name]['weight'] = $weight++;
         $css[$name]['every_page'] = TRUE;

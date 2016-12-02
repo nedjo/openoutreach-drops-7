@@ -607,8 +607,7 @@ function at_load_google_fonts($theme_name) {
     }
     if (!empty($used_fonts)) {
       $used_fonts = array_unique($used_fonts);
-      $google_fonts = implode('|', $used_fonts);
-
+      $google_fonts = implode('%7C', $used_fonts);
       foreach ($used_settings as $used_setting) {
         // Styles
         if (at_get_setting($used_setting . '_add_styles', $theme_name) === 1) {
