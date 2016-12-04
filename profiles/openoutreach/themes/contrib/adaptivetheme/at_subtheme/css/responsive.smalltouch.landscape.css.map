@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": ";;;;;;;;;;;AAeA,IAAK;EACH,SAAS,EAAE,IAAI;;;;;;;;;;AASjB,sBAAuB;;;;;AAErB,yBAAG;EACD,aAAa,EAAE,GAAG;;;AAElB,2BAAE;EACA,UAAU,EAAE,IAAI;EAChB,MAAM,EAAE,cAAc;EACtB,OAAO,EAAE,QAAQ;;;AAKrB,mCAAa;EACX,UAAU,EAAE,IAAI;EAChB,aAAa,EAAE,cAAc",
+"sources": ["../sass/responsive.smalltouch.landscape.scss"],
+"names": [],
+"file": "responsive.smalltouch.landscape.css"
+}

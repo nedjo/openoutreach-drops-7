@@ -42,7 +42,7 @@ function at_core_filemanagement_form(&$form, $theme_name) {
     ),
   );
   $form['at-settings']['file-management']['files-path']['public_files_path']['message'] = array(
-    '#markup' => t('<div class="description">Files will be saved to: <code>@public_files</code></div>', array('@public_files' => $public_files)),
+    '#markup' => '<div class="description">' . t('Files will be saved to: <code>@public_files</code>', array('@public_files' => $public_files)) . '</div>',
   );
   // message for theme dir
   $form['at-settings']['file-management']['files-path']['theme_directory_files_path'] = array(
@@ -52,7 +52,7 @@ function at_core_filemanagement_form(&$form, $theme_name) {
     ),
   );
   $form['at-settings']['file-management']['files-path']['theme_directory_files_path']['message'] = array(
-    '#markup' => t('<div class="description">Files will be saved to: <code>@theme_directory</code></div>', array('@theme_directory' => $theme_directory)),
+    '#markup' => '<div class="description">' . t('Files will be saved to: <code>@theme_directory</code>', array('@theme_directory' => $theme_directory)) . '</div>',
   );
   // Text field for custom path
   $form['at-settings']['file-management']['files-path']['custom_files_path'] = array(

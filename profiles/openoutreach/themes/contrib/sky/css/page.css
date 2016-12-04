@@ -240,3 +240,9 @@ div.messages {
 .popout { background-position: 0 -264px; }
 .search { background-position: 0 -330px; }
 .x { background-position: 0 -396px;}
+
+/* Attribution */
+.attribute-creator {
+  text-align: center;
+  opacity: 0.5;
+}

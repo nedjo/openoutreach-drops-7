@@ -1005,6 +1005,13 @@ input.teaser-button {
   background-size: 100% 200%;
   border-radius: 4px;
 }
+a.button:link,
+a.button:visited,
+a.button:hover,
+a.button:active {
+  color: #fff;
+  text-decoration: none;
+}
 .ajax-new-content input.form-submit,
 .ajax-new-content input.teaser-button {
   margin: 3px 10px 3px 0;

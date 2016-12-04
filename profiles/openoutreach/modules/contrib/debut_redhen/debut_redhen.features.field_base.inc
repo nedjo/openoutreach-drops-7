@@ -10,7 +10,7 @@
 function debut_redhen_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'endpoints'
+  // Exported field_base: 'endpoints'.
   $field_bases['endpoints'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -40,7 +40,7 @@ function debut_redhen_field_default_field_bases() {
     'type' => 'relation_endpoint',
   );
 
-  // Exported field_base: 'field_additional_info'
+  // Exported field_base: 'field_additional_info'.
   $field_bases['field_additional_info'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -61,7 +61,7 @@ function debut_redhen_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_contact_type'
+  // Exported field_base: 'field_contact_type'.
   $field_bases['field_contact_type'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -88,7 +88,7 @@ function debut_redhen_field_default_field_bases() {
     'type' => 'taxonomy_term_reference',
   );
 
-  // Exported field_base: 'field_org_type'
+  // Exported field_base: 'field_org_type'.
   $field_bases['field_org_type'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -115,7 +115,7 @@ function debut_redhen_field_default_field_bases() {
     'type' => 'taxonomy_term_reference',
   );
 
-  // Exported field_base: 'field_website'
+  // Exported field_base: 'field_website'.
   $field_bases['field_website'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -145,7 +145,7 @@ function debut_redhen_field_default_field_bases() {
     'type' => 'link_field',
   );
 
-  // Exported field_base: 'redhen_contact_email'
+  // Exported field_base: 'redhen_contact_email'.
   $field_bases['redhen_contact_email'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -169,32 +169,33 @@ function debut_redhen_field_default_field_bases() {
     'type' => 'redhen_email',
   );
 
-  // Exported field_base: 'redhen_relation_roles'
+  // Exported field_base: 'redhen_relation_roles'.
   $field_bases['redhen_relation_roles'] = array(
     'active' => 1,
-    'cardinality' => 1,
+    'cardinality' => -1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'redhen_relation_roles',
     'indexes' => array(
-      'value' => array(
-        0 => 'value',
+      'target_id' => array(
+        0 => 'target_id',
       ),
     ),
-    'locked' => 1,
-    'module' => 'list',
+    'locked' => 0,
+    'module' => 'entityreference',
     'settings' => array(
-      'allowed_values' => array(
-        0 => 'Admin',
-        1 => 'Member',
+      'handler' => 'base',
+      'handler_settings' => array(),
+      'target_bundles' => array(
+        0 => 'redhen_relation_role',
       ),
-      'allowed_values_function' => '',
+      'target_type' => 'redhen_relation_role',
     ),
     'translatable' => 0,
-    'type' => 'list_text',
+    'type' => 'entityreference',
   );
 
-  // Exported field_base: 'redhen_relation_status'
+  // Exported field_base: 'redhen_relation_status'.
   $field_bases['redhen_relation_status'] = array(
     'active' => 1,
     'cardinality' => 1,

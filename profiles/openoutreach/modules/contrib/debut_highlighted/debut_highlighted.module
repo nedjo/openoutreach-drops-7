@@ -13,3 +13,13 @@ function debut_highlighted_init() {
   drupal_add_css(drupal_get_path('module', 'debut_highlighted') . '/debut_highlighted.css');
 }
 
+/**
+ * Implements hook_form_FORM_ID_alter() for highlighted_node_form.
+ */
+function debut_highlighted_form_highlighted_node_form_alter(&$form, &$form_state, $form_id) {
+  foreach (element_children($form['field_link'][$form['field_link']['#language']]) as $delta) {
+    if (empty($form['field_link'][$form['field_link']['#language']][$delta]['#default_value']['title'])) {
+      $form['field_link'][$form['field_link']['#language']][$delta]['#default_value']['title'] = t('Read more');
+    }
+  }
+}

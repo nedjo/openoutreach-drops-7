@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file
@@ -23,9 +22,9 @@ $plugin = array(
  */
 function geocoder_latlon($latlon_string, $options = array()) {
   geophp_load();
-  
+
   $delims = array("," , "/" , " " , "\t");
-  
+
   foreach ($delims as $delim) {
     $parts = explode($delim, $latlon_string);
     if (count($parts) == 2) {
@@ -34,9 +33,9 @@ function geocoder_latlon($latlon_string, $options = array()) {
       return new Point($lon, $lat);
     }
   }
-  
+
   // Failed to parse
-  return FALSE;  
+  return FALSE;
 }
 
 function geocoder_latlon_DMStoDEC($dms) {

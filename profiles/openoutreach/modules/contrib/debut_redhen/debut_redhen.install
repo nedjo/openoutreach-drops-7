@@ -25,7 +25,17 @@ function debut_redhen_install() {
       $role->name = $name;
       user_role_save($role);
     }
-    user_role_grant_permissions($role->rid, array('access administration menu'));
+    if (module_exists('admin_menu')) {
+      user_role_grant_permissions($role->rid, array('access administration menu'));
+    }
   }
 }
 
+/**
+ * Enable the Entity Reference module.
+ */
+function debut_redhen_update_7000() {
+  if (!module_exists('entityreference') && !module_enable(array('entityreference'))) {
+    throw new Exception('This version of Debut RedHen requires the Entity Reference module but it could not be enabled.');
+  }
+}

@@ -62,7 +62,7 @@ function debut_redhen_default_redhen_membership_type() {
   $items['standard'] = entity_import('redhen_membership_type', '{
     "name" : "standard",
     "label" : "Standard",
-    "role_id" : NULL,
+    "role_id" : "0",
     "locked" : "0",
     "weight" : "0",
     "data" : null,

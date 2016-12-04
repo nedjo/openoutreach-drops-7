@@ -1,11 +1,11 @@
-                        (             
- (  (    (               )\ )  (  (    
- )\))(  ))\ (    (  (   (()/( ))\ )(   
-((_))\ /((_))\   )\ )\   ((_))((_|()\  
- (()(_|_)) ((_) ((_|(_)  _| (_))  ((_) 
-/ _` |/ -_) _ \/ _/ _ \/ _` / -_)| '_| 
-\__, |\___\___/\__\___/\__,_\___||_|   
-|___/                                  
+                        (
+ (  (    (               )\ )  (  (
+ )\))(  ))\ (    (  (   (()/( ))\ )(
+((_))\ /((_))\   )\ )\   ((_))((_|()\
+ (()(_|_)) ((_) ((_|(_)  _| (_))  ((_)
+/ _` |/ -_) _ \/ _/ _ \/ _` / -_)| '_|
+\__, |\___\___/\__\___/\__,_\___||_|
+|___/
 
 CONTENTS OF THIS FILE
 ---------------------
@@ -20,7 +20,7 @@ ABOUT GEOCODER
 
 Geocoder is a Drupal 7 module that will extract geographical data (geocode) from just about anything you throw at it such as addresses, GPX files, Geotags from EXIF data in photos, and KML files.
 
-A convenient way to allow users to enter an address and have it automatically geocoded is to use it in combination with the Addressfield (http://drupal.org/project/addressfield) and Geofield (http://drupal.org/project/geofield) modules. 
+A convenient way to allow users to enter an address and have it automatically geocoded is to use it in combination with the Addressfield (http://drupal.org/project/addressfield) and Geofield (http://drupal.org/project/geofield) modules.
 
 Geocoder uses the external geocoding services from Google, Yahoo and Yandex.
 

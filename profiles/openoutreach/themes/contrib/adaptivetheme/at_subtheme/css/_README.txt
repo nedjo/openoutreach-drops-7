@@ -61,7 +61,7 @@ There are two main global stylesheets:
 
   - global.base.css
   - global.styles.css
-  
+
 global.base.css - this holds a few imoportant declarations that should probably
 not be removed, however you can modify them, such as gutter width and flexibile
 image/media styles.
@@ -209,6 +209,16 @@ These are the classes you can use:
 Use these if you only have a small number of overrides and do not want to load
 a dedicated conditional stylesheet.
 
+
+
+MAPS - what are all these strage files with .map extensions?
+-----------------------------------------------------------_
+
+In the CSS directory you will find files with the extension .map. These files
+are used by modern browsers such as Chrome, Safari and Firefox when developing
+using SASS. If you are not usings SASS you can safely ignore or delete these
+files. They are easy to regenerate if you change your mind later (in fact they
+will generate by default if you run compass watch).
 
 
 

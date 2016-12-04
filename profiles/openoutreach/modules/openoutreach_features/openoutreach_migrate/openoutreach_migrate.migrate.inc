@@ -248,12 +248,15 @@ class OpenOutreachMigrationNodeHighlighted extends OpenOutreachMigrationNode {
     $this->description = t('Import highlighted content.');
     $this->addFieldMapping('field_kicker', 'kicker');
     $this->addFieldMapping('field_link', 'link');
+    $this->addFieldMapping('field_link:title', 'link_title')
+      ->defaultValue(t('Read more'));
   }
 
   function csvcolumns() {
     $columns = parent::csvcolumns();
     $columns[] = array('kicker', 'Kicker');
     $columns[] = array('link', 'Link');
+    $columns[] = array('link_title', 'Link title');
     return $columns;
   }
 

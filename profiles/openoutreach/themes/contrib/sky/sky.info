@@ -79,7 +79,7 @@
   ; Hidden regions (required by Drupal core)
   regions[page_top]          = Page top
   regions[page_bottom]       = Page bottom
-  
+
 
 
 ;----------// Gpanel Regions
@@ -433,6 +433,10 @@
   settings[custom_css] = ''
 
 
+  ; Attribution
+  settings[attribution_toggle] = 1
+
+
   ; Sky Custom
   settings[content_corner_radius] = 'rc-6'
   settings[tabs_corner_radius]    = 'rct-6'
@@ -441,9 +445,9 @@
   settings[menu_bullets]          = 'mb-dd'
   settings[menu_bar_position]     = 'mbp-l'
 
-; Information added by Drupal.org packaging script on 2014-03-23
-version = "7.x-3.0"
+; Information added by Drupal.org packaging script on 2016-07-11
+version = "7.x-3.1"
 core = "7.x"
 project = "sky"
-datestamp = "1395577162"
+datestamp = "1468238340"
 

@@ -127,9 +127,10 @@ function at_get_css_files($theme_name) {
     else {
 
       // Contrib module
-      $module_data = system_rebuild_module_data();
+      $module_data = _system_rebuild_module_data();
       foreach ($module_data as $module => $data) {
-        if ($data->status && !empty($data->info['stylesheets'])) {
+        //if ($data->status && !empty($data->info['stylesheets'])) {
+        if (module_exists($module) && !empty($data->info['stylesheets'])) {
           foreach ($data->info['stylesheets'] as $media => $content) {
             foreach ($content as $file) {
               $styles[$file] = array(
@@ -224,7 +225,7 @@ function at_get_browser() {
     }
     else if (function_exists('browscap_get_browser')) {
       $browscap = browscap_get_browser();
-      if ($browscap) {
+      if (isset($browscap['ismobiledevice'])) {
         if (filter_var($browscap['ismobiledevice'], FILTER_VALIDATE_BOOLEAN) == TRUE) {
           $browser['is_mobile'] = TRUE;
         }

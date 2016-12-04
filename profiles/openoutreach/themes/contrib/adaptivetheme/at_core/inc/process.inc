@@ -28,6 +28,7 @@ function adaptivetheme_process_html(&$vars) {
 /**
  * Process variables for the html tag
  */
+/* Deprecate due to: https://www.drupal.org/node/2312157, I don't think we really need to do this for html5.
 function adaptivetheme_process_html_tag(&$vars) {
   $tag = &$vars['element'];
   if ($tag['#tag'] === 'style' || $tag['#tag'] === 'script') {
@@ -39,6 +40,7 @@ function adaptivetheme_process_html_tag(&$vars) {
     }
   }
 }
+*/
 
 /**
  * Process variables for page.tpl.php
@@ -86,6 +88,10 @@ function adaptivetheme_process_page(&$vars) {
       // Remove the frontpage title if set in theme settings
       if (at_get_setting('frontpage_remove_title') === 1 && $vars['is_front'] === TRUE) {
         $vars['title'] = '';
+        drupal_set_title('');
+        if (isset($vars['node'])) {
+          $vars['node']->title = '';
+        }
       }
     }
   }

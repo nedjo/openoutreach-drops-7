@@ -320,7 +320,7 @@ function at_core_page_layout_form(&$form, $theme_name) {
     ),
   );
   $form['at-settings']['tablet']['landscape']['tablet-landscape-sidebar-width-wrapper']['tablet-landscape-sidebar-message-wrapper']['message'] = array(
-    '#markup' => t('<div class="description">In this layout <em>Second sidebar</em> wraps below.</div>'),
+    '#markup' => '<div class="description">' . t('In this layout <em>Second sidebar</em> wraps below.') . '</div>',
   );
 
   // Page width
@@ -465,7 +465,7 @@ function at_core_page_layout_form(&$form, $theme_name) {
     ),
   );
   $form['at-settings']['tablet']['portrait']['tablet-portrait-sidebar-width-wrapper']['tablet-portrait-sidebar-message-wrapper']['message'] = array(
-    '#markup' => t('<div class="description">In this layout <em>Second sidebar</em> wraps below.</div>'),
+    '#markup' => '<div class="description">' . t('In this layout <em>Second sidebar</em> wraps below.') . '</div>',
   );
 
   // Tablet portrait Page width

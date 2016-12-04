@@ -216,7 +216,7 @@ function adaptivetheme_item_list($vars) {
 
   // If a class exists use it on the wrapper, for Drupal core this mainly applies
   // to the pager, so you get the wrapper class .item-list-pager
-  if (isset($attributes['class'])) {
+  if (isset($attributes['class'][0])) {
     $output = '<div class="item-list item-list-' . $attributes['class'][0] . '">';
   }
   else {
@@ -591,8 +591,8 @@ function adaptivetheme_field__image($vars) {
 
   // Check if captions are enabled for full and/or teaser view modes
   if ($image_settings_enabled == TRUE) {
-    $caption_full = at_get_setting('image_caption_full', $theme_name) === 1 ? TRUE : FALSE;
-    $caption_teaser = at_get_setting('image_caption_teaser', $theme_name) === 1 ? TRUE : FALSE;
+    $caption_full = at_get_setting('image_caption_full', $theme_name) == 1 ? TRUE : FALSE; // some users report the return value being a string: https://www.drupal.org/node/2331883
+    $caption_teaser = at_get_setting('image_caption_teaser', $theme_name) == 1 ? TRUE : FALSE;
   }
 
   $output = '';
@@ -625,12 +625,12 @@ function adaptivetheme_field__image($vars) {
 
       if ($vars['field_view_mode'] == 'full') {
         if ($caption_full == TRUE) {
-          $output .= '<figcaption class="caption full-caption"' . $styles .'>' . $item['#item']['title'] . '</figcaption>';
+          $output .= '<figcaption class="caption full-caption" ' . $styles .'>' . $item['#item']['title'] . '</figcaption>';
         }
       }
       if ($vars['field_view_mode'] == 'teaser') {
         if ($caption_teaser == TRUE) {
-          $output .= '<figcaption class="caption teaser-caption"' . $styles .'>' . $item['#item']['title'] . '</figcaption>';
+          $output .= '<figcaption class="caption teaser-caption" ' . $styles .'>' . $item['#item']['title'] . '</figcaption>';
         }
       }
     }

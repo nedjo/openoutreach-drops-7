@@ -1,5 +1,5 @@
 name = Debut Highlighted
-description = Highlighed content type and views slideshow display.
+description = Highlighted content type and views slideshow display.
 core = 7.x
 package = Debut
 dependencies[] = apps_compatible
@@ -39,9 +39,9 @@ features_exclude[dependencies][views] = views
 features_exclude[field_base][field_content_image] = field_content_image
 features_exclude[field_base][field_link] = field_link
 
-; Information added by Drupal.org packaging script on 2015-04-23
-version = "7.x-1.3"
+; Information added by Drupal.org packaging script on 2016-06-03
+version = "7.x-1.5"
 core = "7.x"
 project = "debut_highlighted"
-datestamp = "1429812256"
+datestamp = "1464974969"
 

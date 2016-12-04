@@ -10,7 +10,7 @@
 function debut_location_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_extent'
+  // Exported field_base: 'field_extent'.
   $field_bases['field_extent'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -61,7 +61,7 @@ function debut_location_field_default_field_bases() {
     'type' => 'geofield',
   );
 
-  // Exported field_base: 'field_geolocation'
+  // Exported field_base: 'field_geolocation'.
   $field_bases['field_geolocation'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -112,7 +112,7 @@ function debut_location_field_default_field_bases() {
     'type' => 'geofield',
   );
 
-  // Exported field_base: 'field_location_icon'
+  // Exported field_base: 'field_location_icon'.
   $field_bases['field_location_icon'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -135,7 +135,7 @@ function debut_location_field_default_field_bases() {
     'type' => 'image',
   );
 
-  // Exported field_base: 'field_location_region'
+  // Exported field_base: 'field_location_region'.
   $field_bases['field_location_region'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -162,7 +162,7 @@ function debut_location_field_default_field_bases() {
     'type' => 'taxonomy_term_reference',
   );
 
-  // Exported field_base: 'field_location_type'
+  // Exported field_base: 'field_location_type'.
   $field_bases['field_location_type'] = array(
     'active' => 1,
     'cardinality' => -1,

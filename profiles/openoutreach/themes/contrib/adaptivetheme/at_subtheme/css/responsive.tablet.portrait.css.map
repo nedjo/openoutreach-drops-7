@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": ";;;;;;;;;;;AAeA,IAAK;EACH,SAAS,EAAE,KAAK",
+"sources": ["../sass/responsive.tablet.portrait.scss"],
+"names": [],
+"file": "responsive.tablet.portrait.css"
+}

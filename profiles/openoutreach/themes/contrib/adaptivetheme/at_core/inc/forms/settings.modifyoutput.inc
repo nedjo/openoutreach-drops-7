@@ -191,6 +191,13 @@ function at_core_modify_output_form(&$form) {
     '#default_value' => at_get_setting('unset_menu_titles'),
     '#description' => t('Checking this setting will remove all menu link titles (tool tips). This only works for menu blocks.'),
   );
+  // Remove local tasks
+  $form['at']['modify-output']['hide-remove']['unset_local_tasks'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Remove primary and secondary local tasks'),
+    '#default_value' => at_get_setting('unset_local_tasks'),
+    '#description' => t('Checking this setting will globally remove all local task tabs. You will need to rely on contextual links or an adminstration type menu that can render local tasks, such as Admin menu.'),
+  );
 
   // Accessibility
   $form['at']['modify-output']['a11y'] = array(

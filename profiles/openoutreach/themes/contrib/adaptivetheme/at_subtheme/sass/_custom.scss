@@ -183,9 +183,7 @@ $gutter-width: 10px;
   text-transform: uppercase;
   word-wrap: break-word;
 
-  @if $legacy-support-for-ie6 or $legacy-support-for-ie7 {
-    .ie6-7 &>* {
-      position: relative; // Otherwise these elements will appear below the "Unpublished" text.
-    }
+  .ie6-7 &>* {
+    position: relative; // Otherwise these elements will appear below the "Unpublished" text.
   }
 }

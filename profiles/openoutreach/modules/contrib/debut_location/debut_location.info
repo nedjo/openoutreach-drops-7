@@ -41,6 +41,8 @@ features[field_instance][] = taxonomy_term-location_region-field_extent
 features[field_instance][] = taxonomy_term-location_type-field_location_icon
 features[image][] = icon_small
 features[node][] = location
+features[openlayers_maps][] = location_geofield_formatter_map
+features[openlayers_maps][] = location_geofield_widget_map
 features[openlayers_maps][] = location_map
 features[openlayers_styles][] = location_type
 features[taxonomy][] = location_region
@@ -82,9 +84,9 @@ features_exclude[field_base][body] = body
 features_exclude[field_base][field_address] = field_address
 features_exclude[dependencies][options] = options
 
-; Information added by Drupal.org packaging script on 2015-04-23
-version = "7.x-1.3"
+; Information added by Drupal.org packaging script on 2016-07-20
+version = "7.x-1.4"
 core = "7.x"
 project = "debut_location"
-datestamp = "1429812489"
+datestamp = "1469038446"
 

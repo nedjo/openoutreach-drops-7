@@ -10,7 +10,7 @@
 function debut_location_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-location-body'
+  // Exported field_instance: 'node-location-body'.
   $field_instances['node-location-body'] = array(
     'bundle' => 'location',
     'default_value' => NULL,
@@ -62,7 +62,7 @@ To make the pop up that will display on the map more meaningful to users, please
     ),
   );
 
-  // Exported field_instance: 'node-location-field_address'
+  // Exported field_instance: 'node-location-field_address'.
   $field_instances['node-location-field_address'] = array(
     'bundle' => 'location',
     'default_value' => NULL,
@@ -119,7 +119,7 @@ To make the pop up that will display on the map more meaningful to users, please
     ),
   );
 
-  // Exported field_instance: 'node-location-field_geolocation'
+  // Exported field_instance: 'node-location-field_geolocation'.
   $field_instances['node-location-field_geolocation'] = array(
     'bundle' => 'location',
     'default_value' => NULL,
@@ -131,7 +131,7 @@ To make the pop up that will display on the map more meaningful to users, please
         'module' => 'geofield',
         'settings' => array(
           'data' => 'full',
-          'map_preset' => 'geofield_formatter_map',
+          'map_preset' => 'location_geofield_formatter_map',
         ),
         'type' => 'geofield_openlayers',
         'weight' => 2,
@@ -178,6 +178,11 @@ To make the pop up that will display on the map more meaningful to users, please
         'handler_settings' => array(
           'google' => array(
             'all_results' => 0,
+            'biasing' => array(
+              'bounds' => '',
+              'components' => '',
+              'region' => '',
+            ),
             'geometry_type' => 'point',
             'reject_results' => array(
               'APPROXIMATE' => 0,
@@ -187,7 +192,7 @@ To make the pop up that will display on the map more meaningful to users, please
             ),
           ),
         ),
-        'openlayers_map' => 'geofield_widget_map',
+        'openlayers_map' => 'location_geofield_widget_map',
         'use_geocoder' => 1,
       ),
       'type' => 'geofield_openlayers',
@@ -195,7 +200,7 @@ To make the pop up that will display on the map more meaningful to users, please
     ),
   );
 
-  // Exported field_instance: 'node-location-field_location_region'
+  // Exported field_instance: 'node-location-field_location_region'.
   $field_instances['node-location-field_location_region'] = array(
     'bundle' => 'location',
     'default_value' => NULL,
@@ -238,7 +243,7 @@ To make the pop up that will display on the map more meaningful to users, please
     ),
   );
 
-  // Exported field_instance: 'node-location-field_location_type'
+  // Exported field_instance: 'node-location-field_location_type'.
   $field_instances['node-location-field_location_type'] = array(
     'bundle' => 'location',
     'default_value' => NULL,
@@ -281,7 +286,7 @@ To make the pop up that will display on the map more meaningful to users, please
     ),
   );
 
-  // Exported field_instance: 'taxonomy_term-location_region-field_extent'
+  // Exported field_instance: 'taxonomy_term-location_region-field_extent'.
   $field_instances['taxonomy_term-location_region-field_extent'] = array(
     'bundle' => 'location_region',
     'default_value' => NULL,
@@ -346,7 +351,7 @@ To make the pop up that will display on the map more meaningful to users, please
     ),
   );
 
-  // Exported field_instance: 'taxonomy_term-location_type-field_location_icon'
+  // Exported field_instance: 'taxonomy_term-location_type-field_location_icon'.
   $field_instances['taxonomy_term-location_type-field_location_icon'] = array(
     'bundle' => 'location_type',
     'deleted' => 0,

@@ -15,21 +15,21 @@ function font_elements() {
         'type' => 'default',
         'subtype' => 'global',
         'element' => 'bf',
-        'selector' => 'body,.ui-widget', // add the jQuery UI widget selector
+        'selector' => 'body',
         'setting' => 'base_font',
       ),
       'site_name' => array(
         'type' => 'title',
         'subtype' => 'branding',
         'element' => 'sn',
-        'selector' => '#site-name',
+        'selector' => 'h1#site-name',
         'setting' => 'site_name_font',
       ),
       'site_slogan' => array(
         'type' => 'title',
         'subtype' => 'branding',
         'element' => 'ss',
-        'selector' => '#site-slogan',
+        'selector' => 'h2#site-slogan',
         'setting' => 'site_slogan_font',
       ),
       'page_title' => array(

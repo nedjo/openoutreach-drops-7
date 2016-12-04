@@ -10,7 +10,7 @@
 function debut_highlighted_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_kicker'
+  // Exported field_base: 'field_kicker'.
   $field_bases['field_kicker'] = array(
     'active' => 1,
     'cardinality' => 1,
